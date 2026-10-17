@@ -2,6 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -21,15 +22,47 @@ export const S = { models: [], styles: [], looks: [] };
 
 const fetchBlob = async path => { const r = await fetch(path); if (!r.ok) throw new Error('asset ' + path); return r.blob(); };
 
+/** Fetch a starter's four images. fresh=true adds ?v=<assetRev>, which misses every cache (an older service worker's
+ *  cache-first image cache and the HTTP cache), so a just-deployed starters.js never pairs with stale images. */
+async function fetchStarterImages(s, fresh = false) {
+  const blobs = await Promise.all(IMAGE_KEYS.map(k => fetchBlob(`assets/models/${s.file}-${k}.webp${fresh ? `?v=${s.assetRev}` : ''}`)));
+  return Object.fromEntries(IMAGE_KEYS.map((k, i) => [k, blobs[i]]));
+}
+/** assetRev to record for fetched images: the starter's rev if the bytes verifiably match it (or can't be checked). */
+async function verifiedRev(s, blobs) { const h = await contentRev(blobs).catch(() => null); return h === null || h === s.assetRev ? s.assetRev : undefined; }
+
 export async function seedStarters(force = false) {
   if ((await db.get('kv', 'seeded')) && !force) return;
   for (const s of STARTERS) {
     if (!force && await db.get('models', s.id)) continue;
-    const [sheet, front, back, thumb] = await Promise.all(['sheet', 'front', 'back', 'thumb'].map(k => fetchBlob(`assets/models/${s.file}-${k}.webp`)));
-    const { file, ...rest } = s;
-    await db.put('models', { ...rest, sheet, front, back, thumb, starter: true, createdAt: Date.now() - (s.id.endsWith('1') ? 2 : 1) });
+    const blobs = await fetchStarterImages(s, force);
+    const { file, assetRev, ...rest } = s;
+    const rev = await verifiedRev(s, blobs); // unverified (stale cache) → no rev → syncStarters retries next launch
+    await db.put('models', { ...rest, ...blobs, ...(rev ? { assetRev: rev } : {}), starter: true, createdAt: Date.now() - (s.id.endsWith('1') ? 2 : 1) });
   }
   await db.put('kv', true, 'seeded');
+}
+
+/** Re-sync installed starters with the shipped assets. Replaces ONLY image fields of a starter model whose assetRev
+ *  differs (name/notes/measurements kept), plus the image of the app-seeded sample looks for it. Never creates
+ *  starters the user deleted, never touches user models or user/generated looks. Idempotent; failures are retried
+ *  on the next launch because assetRev is only written after verified images are stored. */
+export async function syncStarters() {
+  if (!(await db.get('kv', 'seeded'))) return;
+  for (const s of STARTERS) {
+    try {
+      const m = await db.get('models', s.id);
+      const samples = SAMPLE_LOOKS.filter(l => l.modelId === s.id);
+      const stale = [];
+      for (const l of samples) { const cur = await db.get('looks', l.id); if (lookNeedsRefresh(cur, l, s)) stale.push(l); }
+      if (!modelNeedsRefresh(m, s) && !stale.length) continue;
+      const blobs = await fetchStarterImages(s, true);
+      if (await verifiedRev(s, blobs) !== s.assetRev) { console.warn('Avata: starter assets for', s.id, 'did not match', s.assetRev, '— will retry'); continue; }
+      const m2 = await db.get('models', s.id); // re-read right before writing
+      if (modelNeedsRefresh(m2, s)) await db.put('models', refreshedModel(m2, s, blobs));
+      for (const l of stale) { const cur = await db.get('looks', l.id); if (lookNeedsRefresh(cur, l, s)) await db.put('looks', refreshedLook(cur, s, blobs[lookImageKey(l)])); }
+    } catch (e) { console.warn('Avata: starter sync skipped for', s.id, e); }
+  }
 }
 
 export async function seedSamples(force = false) {
@@ -41,10 +74,13 @@ export async function seedSamples(force = false) {
     await db.put('styles', { ...rest, photos, sample: true, createdAt: now - 1000 * (10 - i), updatedAt: now - 1000 * (10 - i) });
   }
   for (const [i, l] of SAMPLE_LOOKS.entries()) {
-    const image = await fetchBlob(l.file);
-    const thumb = await fetchBlob(l.thumbFile || l.file);
+    // reuse the starter's stored images when they are the current revision (no second download, tagged as current)
+    const st = STARTERS.find(s => s.id === l.modelId), m = st && await db.get('models', l.modelId);
+    const cur = st && m?.starter && m.assetRev === st.assetRev && !l.thumbFile && m[lookImageKey(l)];
+    const image = cur || await fetchBlob(l.file);
+    const thumb = cur || await fetchBlob(l.thumbFile || l.file);
     const { file, thumbFile, ...rest } = l;
-    await db.put('looks', { ...rest, image, thumb, sample: true, favorite: false, createdAt: now - 500 * (20 - i) });
+    await db.put('looks', { ...rest, image, thumb, ...(cur ? { assetRev: st.assetRev } : {}), sample: true, favorite: false, createdAt: now - 500 * (20 - i) });
   }
   await db.put('kv', true, 'seededV2');
 }
@@ -64,6 +100,7 @@ export async function initData() {
   await seedStarters();
   await migrateGens();
   await seedSamples();
+  await syncStarters(); // refresh starters whose shipped images changed since they were stored
   await reload();
 }
 export async function reload() {

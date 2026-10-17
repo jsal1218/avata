@@ -61,3 +61,6 @@ cache-first; cross-origin requests are never touched. A new worker takes over im
 file picker, open sheet, unsaved edit, typing) it shows "Updated, tap to reload" and reloads the next time the app comes
 back from the background. Long tasks register with `holdWork()` from `js/ui.js`.
 Update e2e: `python3 tools/e2e_update.py` (serves a temp copy, deploys new versions, checks reload / toast / no loops).
+Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous release, adds user edits, deploys this tree, checks starter images refresh while user data is untouched).
+
+**Changing a starter's images:** replace `assets/models/<file>-*.webp`, then set that starter's `assetRev` in `js/starters.js` (`npm test` prints the expected hash). Installed copies refresh only that starter's images on next launch; renames, notes, measurements, user models and looks are kept.
