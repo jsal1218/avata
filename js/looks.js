@@ -1,5 +1,5 @@
 // Lookbook: grid, filters, bulk import, look viewer/editor, buyer showcase.
-import { $, $$, esc, icon, urlFor, chip, toast, openSheet, closeSheet, setTop, shareOrDownload, slug, fmtDay, debounce } from './ui.js';
+import { holdWork, $, $$, esc, icon, urlFor, chip, toast, openSheet, closeSheet, setTop, shareOrDownload, slug, fmtDay, debounce } from './ui.js';
 import { S, settings, CATEGORIES, STATUSES, VIEW_LABEL, modelById, styleById, lookById, collections, allTags, lookCollections, filterLooks, saveLook, deleteLook, uid } from './store.js';
 import { resizeBlob, makeThumb } from './imaging.js';
 import { formatHeight } from './prompt.js';
@@ -113,11 +113,11 @@ export function renderImportLooks(v, params) {
     drawSel();
   };
   $('#lsave').onclick = async () => {
-    if (st.busy) return; st.busy = true; $('#lsave').disabled = true;
+    if (st.busy) return; st.busy = true; $('#lsave').disabled = true; const done = holdWork('import-save');
     const tags = $('#lt').value.split(',').map(t => t.trim()).filter(Boolean);
     const base = Date.now();
     for (const [i, it] of st.items.entries()) await saveLook({ id: uid(), image: it.image, thumb: it.thumb, modelId: $('#lm').value || null, styleIds: [...st.styleIds], colorway: $('#lc').value.trim(), view: it.view, title: '', notes: '', tags, favorite: false, source: 'import', fileName: it.name, createdAt: base - i });
-    toast(`${st.items.length} mockup${st.items.length === 1 ? '' : 's'} imported.`);
+    done(); toast(`${st.items.length} mockup${st.items.length === 1 ? '' : 's'} imported.`);
     location.hash = st.styleIds.length === 1 ? `#/style/${encodeURIComponent(st.styleIds[0])}` : '#/looks';
   };
   void stylesUI;

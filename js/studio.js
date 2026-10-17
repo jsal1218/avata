@@ -1,6 +1,6 @@
 // Studio / Prompt builder. Free by default: builds a ready-to-use prompt + reference files for the assistant.
 // In-app generation only exists when the user turns on Settings → Advanced → Bring your own API key.
-import { $, $$, esc, icon, urlFor, chip, toast, openSheet, closeSheet, setTop, debounce } from './ui.js';
+import { holdWork, $, $$, esc, icon, urlFor, chip, toast, openSheet, closeSheet, setTop, debounce } from './ui.js';
 import { S, settings, getKey, modelById, styleById, saveLook, uid } from './store.js';
 import { db } from './db.js';
 import { buildPrompt, FABRICS, FITS, FOOTWEAR, LIGHTING, CAMERAS, VIEWS, REALISM, formatHeight, measurementsText } from './prompt.js';
@@ -199,6 +199,7 @@ async function generate() {
   if (!garments.length && !draft.outfitText.trim()) return fail(new ProviderError('Add a garment photo or describe the outfit.'));
   const controller = new AbortController();
   job = { running: true, startedAt: Date.now(), controller, label: ai.label, status: { phase: 'preparing' } }; renderJob(); bits();
+  const done = holdWork('generate');
   try {
     const { m, prompt, refs, used } = currentPrompt();
     const images = [];
@@ -217,6 +218,7 @@ async function generate() {
     job = null; renderJob(); bits();
     if (saved.length) { toast(`${saved.length} look${saved.length > 1 ? 's' : ''} saved to the lookbook.`); openLook(saved[0].id); }
   } catch (e) { if (e.name === 'AbortError') { job = null; renderJob(); bits(); toast('Cancelled.'); return; } console.error(e); fail(e); }
+  finally { done(); }
 }
 
 export function openUpscale(l) {
@@ -230,6 +232,7 @@ async function upscale(l, upId) {
   const em0 = getModel(draft.aiModel || settings.model); const provider = u.refine && em0.provider === 'gemini' ? 'gemini' : 'fal';
   const key = getKey(provider); if (!key) { toast(`Add your ${PROVIDERS[provider].label} key in Settings → Advanced.`); return; }
   toast(`${u.label} started…`, { ms: 2500 });
+  const done = holdWork('upscale');
   try {
     const imgUrl = l.remoteUrl && /fal\.media/.test(l.remoteUrl) ? l.remoteUrl : await blobToDataUrl(l.image);
     let outs;
@@ -244,4 +247,5 @@ async function upscale(l, upId) {
     const n = await saveLook({ ...l, id: uid(), image: blob, thumb: await makeThumb(blob, 640), remoteUrl: o.url || null, parentId: l.id, favorite: false, title: `${u.refine ? 'Refined' : 'Upscaled'}`, createdAt: Date.now() });
     toast('New copy saved.', { action: 'View', onAction: () => openLook(n.id) });
   } catch (e) { toast(`${e.message}${e.hint ? ' ' + e.hint : ''}`, { ms: 9000 }); }
+  finally { done(); }
 }

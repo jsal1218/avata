@@ -29,10 +29,17 @@ export function downloadBlob(blob, name) {
 }
 /** Share files via the OS sheet when possible (iOS: Save to Files / AirDrop), else download. */
 export async function shareOrDownload(blob, name, title = 'Avata') {
+  const done = holdWork('share'); try { return await shareOrDownload_(blob, name, title); } finally { done(); }
+}
+async function shareOrDownload_(blob, name, title) {
   const file = new File([blob], name, { type: blob.type || 'application/octet-stream' });
   if (navigator.canShare?.({ files: [file] })) {
     try { await navigator.share({ files: [file], title }); return 'shared'; } catch (e) { if (e.name === 'AbortError') return 'cancelled'; }
   }
   downloadBlob(blob, name); return 'downloaded';
 }
+/** Long-running work the auto-updater must not interrupt (360 builds, generations, saves, share sheets).
+ * Usage: const done = holdWork('spin-build'); try { ... } finally { done(); } */
+export const work = new Map();
+export function holdWork(name) { const k = Symbol(name); work.set(k, name); return () => work.delete(k); }
 export const slug = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item';

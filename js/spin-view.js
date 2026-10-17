@@ -1,6 +1,6 @@
 // 360 tab: model switcher (your spins + gallery models), one-tap "New 360" from photos or a video,
 // the spin viewer, and a small editor (drag to reorder, reverse, rename, delete). All on-device.
-import { $, $$, esc, icon, toast, setTop, openSheet, closeSheet, urlFor } from './ui.js';
+import { holdWork, $, $$, esc, icon, toast, setTop, openSheet, closeSheet, urlFor } from './ui.js';
 import { db, uid } from './db.js';
 import { mountViewer } from './spin-viewer.js';
 import { buildSpin, makeSpinThumb } from './spin-build.js';
@@ -61,6 +61,7 @@ export async function renderSpin(v, id) {
     $('#spEmpty', v).hidden = true; $('#spView', v).hidden = false;
     const label = { video: 'Reading video', detect: 'Finding the model', align: 'Lining up frames' };
     viewer.busy(true, 'Starting…', 0);
+    const done = holdWork('spin-build');
     try {
       const r = await buildSpin(files, p => viewer.busy(true, p.phase === 'done' ? 'Saving…' : `${label[p.phase]} · ${p.done + 1} / ${p.total}`, p.phase === 'video' ? p.done / p.total * 0.3 : p.phase === 'detect' ? 0.3 + p.done / p.total * 0.2 : 0.5 + p.done / p.total * 0.5));
       const spin = { id: uid(), name: defaultName(), createdAt: Date.now(), updatedAt: Date.now(), source: r.kind, frames: r.frames, thumb: r.thumb, bg: r.bg, canvas: r.canvas };
@@ -73,6 +74,7 @@ export async function renderSpin(v, id) {
       toast(`360 saved · ${r.frames.length} ${r.kind === 'video' ? 'video frames' : 'photos'}${r.kind === 'photos' ? ` in ${r.by === 'name' ? 'filename' : 'picked'} order` : ''}${misses ? ` · ${misses} not auto-aligned` : ''}. Drag to spin.`, { ms: 5000 });
       if (r.ignored && r.kind === 'video') toast('Used the video; the other picked files were skipped.');
     } catch (err) { console.error(err); viewer.busy(false); toast(err.message || 'Could not build the 360.'); drawEmpty(); }
+    finally { done(); }
   };
 
   /* ---------- edit: reorder / reverse / rename / delete ---------- */

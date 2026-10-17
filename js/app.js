@@ -7,8 +7,10 @@ import { renderModels, renderModelDetail, renderImportModel } from './models-vie
 import { renderStudio } from './studio.js';
 import { renderSettings, applyTheme } from './settings-view.js';
 import { renderSpin } from './spin-view.js';
+import { initUpdates } from './update.js';
 
-export const VERSION = '2026.10.17-3';
+// VERSION is stamped automatically by the pre-commit hook (.githooks/pre-commit). Do not edit by hand.
+export const VERSION = '2026.10.17-220349-2a031f1';
 
 const TITLES = { looks: 'Lookbook', 'import-looks': 'Import mockups', styles: 'Catalog', style: 'Style', 'style-edit': 'Style', models: 'Model Library', model: 'Model', 'import-model': 'Import model', studio: 'Prompt builder', spin: '360 spin', settings: 'Settings' };
 const TAB_OF = { looks: 'looks', 'import-looks': 'looks', styles: 'styles', style: 'styles', 'style-edit': 'styles', models: 'models', model: 'models', 'import-model': 'models', studio: 'models', spin: 'spin', settings: 'settings' };
@@ -32,6 +34,7 @@ function route() {
 
 async function boot() {
   applyTheme();
+  initUpdates(VERSION); // first, so a broken data load can never block a fix from arriving
   addEventListener('avata-db-blocked', () => toast('Close other open Avata tabs or windows to finish updating.', { ms: 10000 }));
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
   $('#sheet').addEventListener('close', () => { $('#sheet').innerHTML = ''; });
@@ -39,12 +42,6 @@ async function boot() {
   addEventListener('hashchange', route);
   addEventListener('scroll', () => $('#top').classList.toggle('scrolled', scrollY > 4), { passive: true });
   route();
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      reg.addEventListener('updatefound', () => { const nw = reg.installing; nw?.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) toast('A new version of Avata is ready.', { action: 'Reload', onAction: () => location.reload(), ms: 15000 }); }); });
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
-    }).catch(() => {});
-  }
   if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
 }
 boot();

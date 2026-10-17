@@ -1,4 +1,4 @@
-import { $, $$, esc, icon, toast, setTop, openSheet, closeSheet, shareOrDownload } from './ui.js';
+import { holdWork, $, $$, esc, icon, toast, setTop, openSheet, closeSheet, shareOrDownload } from './ui.js';
 import { S, settings, saveSettings, getKey, setKey, reload, seedStarters, seedSamples, removeSamples } from './store.js';
 import { PROVIDERS, UPSCALERS, getModel } from './providers.js';
 import { exportLibrary, parseBackup, applyBackup } from './backup.js';
@@ -55,8 +55,10 @@ export async function renderSettings(v, version) {
   $('#expJson').onclick = () => doExport('json');
   async function doExport(fmt) {
     const b = fmt === 'zip' ? $('#expZip') : $('#expJson'); b.disabled = true; const t = b.innerHTML; b.textContent = 'Packing…';
+    const done = holdWork('export');
     try { const r = await exportLibrary(fmt, version); const how = await shareOrDownload(r.blob, r.name, 'Avata backup'); if (how !== 'cancelled') toast(`Backup ready (${r.counts}, ${(r.blob.size / 1048576).toFixed(1)} MB).`); }
     catch (e) { console.error(e); toast('Export failed: ' + e.message); }
+    finally { done(); }
     b.disabled = false; b.innerHTML = t;
   }
   $('#imp').onclick = () => $('#impF').click();
@@ -67,7 +69,7 @@ export async function renderSettings(v, version) {
       <p>${parsed.models.length} models · ${parsed.styles.length} styles · ${parsed.looks.length} looks${parsed.exportedAt ? `<br><span class="small muted">Exported ${new Date(parsed.exportedAt).toLocaleString()}</span>` : ''}</p>
       <div class="stack"><button class="btn btn-solid btn-block" id="mMerge">Merge into this library</button><p class="tiny muted" style="margin:0">Items with the same ID are updated; everything else is kept.</p>
       <button class="btn btn-line btn-block btn-danger" id="mReplace">Replace this library</button><p class="tiny muted" style="margin:0">Deletes current models, styles and looks first.</p></div></div>`, 'half');
-    const go = async mode => { if (mode === 'replace' && !confirm('Replace everything on this device with the backup?')) return; await applyBackup(parsed, mode); await reload(); closeSheet(); toast('Backup imported.'); rerender(); };
+    const go = async mode => { if (mode === 'replace' && !confirm('Replace everything on this device with the backup?')) return; const done = holdWork('restore'); try { await applyBackup(parsed, mode); await reload(); } finally { done(); } closeSheet(); toast('Backup imported.'); rerender(); };
     $('#mMerge').onclick = () => go('merge'); $('#mReplace').onclick = () => go('replace');
   };
   $('#csv').onclick = async () => { const r = await exportCsv(); if (r === 'downloaded') toast('CSV saved.'); };

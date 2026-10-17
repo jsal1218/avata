@@ -42,9 +42,22 @@ Settings → Data.
 showcase), `js/styles-view.js` (catalog), `js/models-view.js`, `js/studio.js` (prompt builder + optional BYOK),
 `js/settings-view.js`, `js/spin-view.js` (360 tab), `js/spin-viewer.js` (viewer), `js/spin-build.js` (ordering, video frames,
 alignment), `js/spin-core.js` (pure maths, unit-tested), `js/backup.js` (zip/json/csv), `js/prompt.js`, `js/providers.js`, `js/imaging.js`, `js/db.js`,
-`js/ui.js`, `js/starters.js`, `sw.js`, `manifest.webmanifest`.
+`js/ui.js`, `js/update.js` (auto-update), `js/starters.js`, `sw.js`, `manifest.webmanifest`.
 Tests: `npm test` (request shapes, zip round-trip, CSV). Smoke test + screenshots: `python3 tools/e2e_v2.py [url]`;
 360 e2e: `python3 tools/e2e_spin.py [url]` (serve the parent folder so `../model-gallery/` resolves).
 
 ## Deploy
-Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` and `js/app.js` for each release.
+Push to `main`; GitHub Pages serves the repo root.
+
+**Versioning is automatic.** A pre-commit hook (`.githooks/pre-commit`) stamps a fresh timestamp version
+(`YYYY.MM.DD-HHMMSS-<sha>`, UTC) into `sw.js`, `js/app.js` and anywhere else the old version string appears, on every
+commit. Enable it once per clone: `git config core.hooksPath .githooks`. Don't edit `VERSION` by hand.
+
+**Updates reach installed copies in seconds** (`js/update.js`, same approach as the Dash hub): the service worker is
+registered with `updateViaCache: 'none'` and checked on load, whenever the app returns to the foreground and every 60 s
+while open. Same-origin HTML/JS/CSS/JSON/manifest are network-first (cache only when offline); large images/fonts are
+cache-first; cross-origin requests are never touched. A new worker takes over immediately (`skipWaiting` +
+`clients.claim`) and the page reloads itself if it's hidden or idle. If you're mid-task (360 build, generation, save,
+file picker, open sheet, unsaved edit, typing) it shows "Updated, tap to reload" and reloads the next time the app comes
+back from the background. Long tasks register with `holdWork()` from `js/ui.js`.
+Update e2e: `python3 tools/e2e_update.py` (serves a temp copy, deploys new versions, checks reload / toast / no loops).
