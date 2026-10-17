@@ -1,5 +1,5 @@
 // Tiny promise wrapper around IndexedDB. Everything stays on this device.
-const DB_NAME = 'avata', VER = 1;
+const DB_NAME = 'avata', VER = 2;
 let dbp;
 function open() {
   return dbp ||= new Promise((res, rej) => {
@@ -9,6 +9,8 @@ function open() {
       if (!db.objectStoreNames.contains('models')) db.createObjectStore('models', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('gens')) { const s = db.createObjectStore('gens', { keyPath: 'id' }); s.createIndex('modelId', 'modelId'); s.createIndex('createdAt', 'createdAt'); }
       if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
+      if (!db.objectStoreNames.contains('styles')) db.createObjectStore('styles', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('looks')) { const s = db.createObjectStore('looks', { keyPath: 'id' }); s.createIndex('modelId', 'modelId'); }
     };
     r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
   });
@@ -28,6 +30,6 @@ export const db = {
   put: (store, v, key) => tx(store, 'readwrite', s => req(key === undefined ? s.put(v) : s.put(v, key))),
   del: (store, id) => tx(store, 'readwrite', s => req(s.delete(id))),
   clear: store => tx(store, 'readwrite', s => req(s.clear())),
-  byModel: modelId => tx('gens', 'readonly', s => req(s.index('modelId').getAll(modelId))),
+  putMany: (store, list) => tx(store, 'readwrite', s => { list.forEach(v => s.put(v)); }),
 };
 export const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));

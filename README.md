@@ -1,36 +1,39 @@
-# Avata — Outfit Studio
+# Avata — Lookbook, Styles & Showcase
 
-Installable mobile web app (PWA) that renders photorealistic outfit mockups on **consistent model references**.
-Static site, no build step, no backend. Live: https://jsal1218.github.io/avata/
+Free, installable mobile web app (PWA) for the back office of a clothing factory: store model references, a styles catalog
+and imported outfit mockups, and show them to buyers in a clean full-screen showcase. Static site, no build step, no
+server, no paid services. Live: https://jsal1218.github.io/avata/
 
-## What it does
-- **Model library** (IndexedDB, on-device): import a square front|back reference sheet; Avata auto-detects the gap between the
-  two figures, crops front and back onto 2:3 portraits (manual split slider, swap, or single-photo mode). Each model stores
-  height (ft/in ⇄ cm), body type, US size and optional bust/waist/hips/inseam (marked *estimated* if you like).
-  Two starter models are bundled (`assets/models/`), both 5′3″ / 160 cm with estimated measurements.
-- **Identity lock**: every render sends the model's front + back crops (or the full sheet for sheet output) plus a prompt
-  that maps each input image, locks face/hair/skin/body, and injects height, body type, size and measurements so hems,
-  inseams, sleeves and fit land realistically on her frame.
-- **Outfit**: garment photos (flat lay, product, hanger) and/or text, fabric presets with physical descriptions, fit,
-  colour, footwear, accessories, keep/remove reference jewellery.
-- **Realism**: Off/Natural/Max for skin texture, fabric physics, anatomy; lighting presets (white seamless, softbox
-  e-commerce, golden hour, editorial, overcast, direct flash); camera/lens presets; views: front, back, 3/4, front+back sheet (1:1).
-- **Providers (bring your own key, called straight from the browser):**
-  - fal.ai queue API — `fal-ai/nano-banana-pro/edit` (default), `fal-ai/nano-banana-2/edit`, `bytedance/seedream/v5/pro/edit`,
-    `fal-ai/bytedance/seedream/v4.5/edit`, `fal-ai/flux-2-pro/edit`, `fal-ai/fashn/tryon/v1.6`.
-  - Google Gemini API (Interactions API) — `gemini-3-pro-image`, `gemini-nano-banana-2.1`.
-  - Upscale/detail (fal): `fal-ai/seedvr/upscale/image`, `fal-ai/topaz/upscale/image`, or a skin-detail refine edit pass.
-- **Gallery**: per-model history, favourites, side-by-side and wipe compare with the reference, download, Web Share,
-  re-run with the exact saved settings and garments, prompt inspector, upscale.
+## Sections
+- **Lookbook** — every imported mockup in a masonry grid; collection cards; search (style, SKU, model, colour, tag);
+  filters (collection, category, status, model, view, tag, favorites, unlinked); sort. Bulk import from Photos/Files,
+  link each batch to a model + styles + colorway + view (auto-guessed: square → sheet, portrait → front). Look viewer
+  with side-by-side / wipe compare against the model reference, edit links, share/save, favorite.
+- **Showcase** — full-screen swipe lookbook per collection, style, model or any filtered set. Shows style name, SKU,
+  colorway, composition, sizes and model height/size. **Never shows status, cost, price, supplier or notes.**
+- **Styles** — SKU/style no., name, collection, season, category, fabric, composition, colorways, sizes (XXS–XXL, US 0–16),
+  factory status (Concept → Sampling → Approved → In production → Shipped / Archived), supplier/line notes, cost, price
+  (margin shown), tags, photos (flat lays, tech sketches). Status bar with counts; detail page shows all mockups grouped
+  by model; quick status change; CSV export.
+- **Models** — front/back reference sheets (auto-split), height (ft/in ⇄ cm), body type, size, measurements.
+  Two starter models bundled (5′3″ / 160 cm, measurements marked estimated).
+- **Prompt builder** (from a style or model) — builds a ready-to-use, identity-locked prompt (height, size, measurements,
+  fabric physics, realism, lighting, camera, view) to copy for the assistant, and shares the numbered reference images.
+  Free; nothing is sent anywhere.
+- **Settings → Data** — export the whole library as one `.zip` (library.json + images) or one `.json`, import (merge or
+  replace) on another device, export styles CSV, remove/add sample data. Backups never include keys or settings.
+- **Settings → Advanced (collapsed, off by default)** — *Bring your own API key (billed by provider)*: optional in-app
+  generation via fal.ai / Google Gemini. While off, the app makes no requests to any third-party service.
 
-Keys live in `localStorage` on the device and are sent only to the chosen provider.
+Sample styles (`SAMPLE-001…003`) and sample looks are clearly labelled and reuse the reference sheets; remove them in
+Settings → Data.
 
 ## Files
-`index.html`, `styles.css`, `js/app.js` (UI), `js/prompt.js` (prompt engine), `js/providers.js` (model registry, request
-builders, fal queue + Gemini runners), `js/imaging.js` (sheet split/crop), `js/db.js`, `js/starters.js`, `sw.js`,
-`manifest.webmanifest`, `tools/build_assets.py` (starter assets + icons), `tools/e2e.py` (headless smoke test + screenshots,
-provider calls mocked), `tests/` (`npm test` → request-shape tests).
+`js/app.js` (boot/router), `js/store.js` (IndexedDB data layer, filters), `js/looks.js` (lookbook, import, viewer,
+showcase), `js/styles-view.js` (catalog), `js/models-view.js`, `js/studio.js` (prompt builder + optional BYOK),
+`js/settings-view.js`, `js/backup.js` (zip/json/csv), `js/prompt.js`, `js/providers.js`, `js/imaging.js`, `js/db.js`,
+`js/ui.js`, `js/starters.js`, `sw.js`, `manifest.webmanifest`.
+Tests: `npm test` (request shapes, zip round-trip, CSV). Smoke test + screenshots: `python3 tools/e2e_v2.py [url]`.
 
 ## Deploy
-Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` and `js/app.js` when shipping so installed
-apps pick up the update (they show a "Reload" toast).
+Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` and `js/app.js` for each release.

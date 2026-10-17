@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800"><rect width="600" height="800" fill="#fbfaf7"/>
+<g fill="#d9d9d9" stroke="#222" stroke-width="3" stroke-linejoin="round">
+<path d="M222 150 Q300 196 378 150 L392 160 Q402 250 452 300 L446 470 Q300 492 154 470 L148 300 Q198 250 208 160 Z"/>
+</g>
+<g fill="none" stroke="#222" stroke-width="1.6" stroke-dasharray="6 5"><path d="M226 166 Q300 208 374 166"/><path d="M160 452 Q300 474 440 452"/><path d="M398 176 Q408 252 440 292"/><path d="M202 176 Q192 252 160 292"/></g>
+<g fill="none" stroke="#888" stroke-width="1"><path d="M300 200 V470"/></g>
+<text x="300" y="560" font-family="Helvetica,Arial" font-size="26" text-anchor="middle" fill="#222">SAMPLE · RIB CROP TANK</text>
+<text x="300" y="596" font-family="Helvetica,Arial" font-size="18" text-anchor="middle" fill="#777">Tech sketch (illustrative sample) — front</text></svg>

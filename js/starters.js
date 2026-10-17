@@ -11,3 +11,18 @@ export const STARTERS = [
     note: 'Long dark curls, tan skin',
   },
 ];
+
+// Clearly-labelled SAMPLE catalog so the app isn't empty. Not real factory data —
+// delete any time in Settings → Data → Remove sample data.
+const SAMPLE_NOTE = 'SAMPLE entry — illustrative only, not real factory data. Edit or delete.';
+export const SAMPLE_STYLES = [
+  { id: 'sample-style-1', sku: 'SAMPLE-001', name: 'Sample · Rib Crop Tank', collection: 'Sample Collection', season: 'Sample', category: 'Tops', fabric: 'Rib knit (sample)', composition: '95% cotton / 5% elastane (sample)', colorways: ['Heather grey'], sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Approved', supplier: '', notes: SAMPLE_NOTE, cost: null, price: null, tags: ['sample', 'basics'], photoFiles: ['assets/samples/sketch-tank.svg'] },
+  { id: 'sample-style-2', sku: 'SAMPLE-002', name: 'Sample · Fitted Short', collection: 'Sample Collection', season: 'Sample', category: 'Bottoms', fabric: 'Jersey (sample)', composition: '92% cotton / 8% elastane (sample)', colorways: ['Heather grey'], sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Sampling', supplier: '', notes: SAMPLE_NOTE, cost: null, price: null, tags: ['sample', 'basics'], photoFiles: ['assets/samples/sketch-short.svg'] },
+  { id: 'sample-style-3', sku: 'SAMPLE-003', name: 'Sample · Tank + Short Set', collection: 'Sample Collection', season: 'Sample', category: 'Sets', fabric: 'Rib knit + jersey (sample)', composition: 'See components (sample)', colorways: ['Heather grey'], sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Concept', supplier: '', notes: SAMPLE_NOTE, cost: null, price: null, tags: ['sample', 'sets'], photoFiles: ['assets/samples/sketch-set.svg'] },
+];
+const SET = ['sample-style-3', 'sample-style-1', 'sample-style-2'];
+export const SAMPLE_LOOKS = ['model-1', 'model-2'].flatMap((m, mi) => [
+  { id: `sample-look-${m}-front`, file: `assets/models/${m}-front.webp`, view: 'front' },
+  { id: `sample-look-${m}-back`, file: `assets/models/${m}-back.webp`, view: 'back' },
+  { id: `sample-look-${m}-sheet`, file: `assets/models/${m}-sheet.webp`, view: 'sheet' },
+].map(l => ({ ...l, modelId: `starter-model-${mi + 1}`, styleIds: SET, colorway: 'Heather grey', title: 'Sample look (reference sheet)', notes: 'Sample mockup reusing the model reference image.', tags: ['sample'], source: 'sample' })));

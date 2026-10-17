@@ -1,9 +1,9 @@
 {
-  "name": "Avata — Outfit Studio",
+  "name": "Avata — Lookbook & Styles",
   "short_name": "Avata",
-  "description": "Photorealistic outfit mockups on consistent model references.",
+  "description": "Free on-device lookbook, styles catalog and buyer showcase.",
   "id": "./",
-  "start_url": "./#/studio",
+  "start_url": "./#/looks",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
