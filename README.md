@@ -17,6 +17,15 @@ server, no paid services. Live: https://jsal1218.github.io/avata/
   by model; quick status change; CSV export.
 - **Models** — front/back reference sheets (auto-split), height (ft/in ⇄ cm), body type, size, measurements.
   Two starter models bundled (5′3″ / 160 cm, measurements marked estimated).
+- **360** — make a spin of a model from your own photos: tap **New 360**, pick several photos from different angles
+  (multi-select from Photos) or one short turnaround video, done. Everything runs on the phone with the exact pixels — no AI,
+  no uploads, nothing generated. Photos are auto-ordered (filename order when names are numbered, else picked order; drag to
+  reorder, or Reverse), auto-aligned (subject found against the corner-sampled background colour, edge fallback; every frame
+  scaled to the same subject height and feet line, centred on one uniform canvas), and sparse sets (e.g. front/side/back)
+  crossfade between neighbouring real frames while spinning. Video: evenly spaced frames (12–36) are pulled in the browser.
+  Viewer (ported from the Atelier 360 gallery): drag/swipe with inertia, auto-rotate, angle dial, pinch/wheel/double-tap zoom
+  to 5× using the full-resolution aligned frames. Spins are saved in IndexedDB, appear in the model switcher next to the
+  gallery models (read from `../model-gallery/` when available), and can be renamed or deleted. Not included in backups yet.
 - **Prompt builder** (from a style or model) — builds a ready-to-use, identity-locked prompt (height, size, measurements,
   fabric physics, realism, lighting, camera, view) to copy for the assistant, and shares the numbered reference images.
   Free; nothing is sent anywhere.
@@ -31,9 +40,11 @@ Settings → Data.
 ## Files
 `js/app.js` (boot/router), `js/store.js` (IndexedDB data layer, filters), `js/looks.js` (lookbook, import, viewer,
 showcase), `js/styles-view.js` (catalog), `js/models-view.js`, `js/studio.js` (prompt builder + optional BYOK),
-`js/settings-view.js`, `js/backup.js` (zip/json/csv), `js/prompt.js`, `js/providers.js`, `js/imaging.js`, `js/db.js`,
+`js/settings-view.js`, `js/spin-view.js` (360 tab), `js/spin-viewer.js` (viewer), `js/spin-build.js` (ordering, video frames,
+alignment), `js/spin-core.js` (pure maths, unit-tested), `js/backup.js` (zip/json/csv), `js/prompt.js`, `js/providers.js`, `js/imaging.js`, `js/db.js`,
 `js/ui.js`, `js/starters.js`, `sw.js`, `manifest.webmanifest`.
-Tests: `npm test` (request shapes, zip round-trip, CSV). Smoke test + screenshots: `python3 tools/e2e_v2.py [url]`.
+Tests: `npm test` (request shapes, zip round-trip, CSV). Smoke test + screenshots: `python3 tools/e2e_v2.py [url]`;
+360 e2e: `python3 tools/e2e_spin.py [url]` (serve the parent folder so `../model-gallery/` resolves).
 
 ## Deploy
 Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` and `js/app.js` for each release.

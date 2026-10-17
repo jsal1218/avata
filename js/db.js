@@ -1,5 +1,5 @@
 // Tiny promise wrapper around IndexedDB. Everything stays on this device.
-const DB_NAME = 'avata', VER = 2;
+const DB_NAME = 'avata', VER = 3;
 let dbp;
 function open() {
   return dbp ||= new Promise((res, rej) => {
@@ -10,9 +10,11 @@ function open() {
       if (!db.objectStoreNames.contains('gens')) { const s = db.createObjectStore('gens', { keyPath: 'id' }); s.createIndex('modelId', 'modelId'); s.createIndex('createdAt', 'createdAt'); }
       if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
       if (!db.objectStoreNames.contains('styles')) db.createObjectStore('styles', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('spins')) db.createObjectStore('spins', { keyPath: 'id' }); // v3: 360 spins
       if (!db.objectStoreNames.contains('looks')) { const s = db.createObjectStore('looks', { keyPath: 'id' }); s.createIndex('modelId', 'modelId'); }
     };
-    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    r.onsuccess = () => { r.result.onversionchange = () => { r.result.close(); dbp = null; }; res(r.result); }; r.onerror = () => rej(r.error);
+    r.onblocked = () => dispatchEvent(new Event('avata-db-blocked')); // an older Avata tab still holds the DB open
   });
 }
 async function tx(store, mode, fn) {
