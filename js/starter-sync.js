@@ -82,3 +82,16 @@ export const renumberedLook = look => {
   if (DELETED_STARTER_IDS.includes(look.modelId)) return look.sample === true && look.source === 'sample' ? null : { ...look, modelId: null };
   return look;
 };
+
+/* ---------- list order ----------
+ * The Models tab lists models in S.models order. Starters added to an existing install later (addNewStarters) get a
+ * newer createdAt, so sorting by createdAt alone would show e.g. Model 1-5, Photoreal 1, <user models>, Model 6-10.
+ * orderedModels() shows bundled starters first in their canonical STARTERS order (Model 1..N, then Photoreal N) and then
+ * every other model (user-created) in createdAt order, exactly like a fresh install. Pure: no record is changed, so user
+ * models keep their relative order and nothing is migrated. Starter = starter === true with a shipped STARTERS id. */
+export const orderedModels = (models, starters) => {
+  const rank = new Map(starters.map((s, i) => [s.id, i]));
+  const isStarter = m => m && m.starter === true && rank.has(m.id);
+  const byTime = (a, b) => (a.createdAt || 0) - (b.createdAt || 0);
+  return [...models.filter(isStarter).sort((a, b) => rank.get(a.id) - rank.get(b.id)), ...models.filter(m => !isStarter(m)).sort(byTime)];
+};

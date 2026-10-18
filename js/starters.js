@@ -2,7 +2,7 @@
 // assetRev = first 12 hex of SHA-256 over <file>-{sheet,front,back,thumb}.webp concatenated (see js/starter-sync.js).
 // When you replace a starter's images, update its assetRev (npm test fails until it matches); installed copies then
 // refresh that starter's images on next launch, keeping the user's edits.
-// Exact-reference models are Model 1-4 (ids starter-exact-N); AI-generated photoreal models are listed separately
+// Exact-reference models are Model 1-14 (ids starter-exact-N; 6-14 added 2026-10-18); AI-generated photoreal models are listed separately
 // (starter-photoreal-N). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
@@ -32,6 +32,52 @@ export const STARTERS = [
     id: 'starter-exact-5', name: 'Model 5', file: 'exact-5', assetRev: 'eab8d1ff6b34', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy black hair, deep tan skin',
+  },
+  {
+    // Models 6-14 added 2026-10-18 from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
+    id: 'starter-exact-6', name: 'Model 6', file: 'exact-6', assetRev: '16bc8fba9dc6', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight pink hair, fair skin',
+  },
+  {
+    id: 'starter-exact-7', name: 'Model 7', file: 'exact-7', assetRev: '5f4ee9be18ea', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long wavy auburn hair, fair skin',
+  },
+  {
+    id: 'starter-exact-8', name: 'Model 8', file: 'exact-8', assetRev: '77370ad42faa', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    measurements: { bust: 33, waist: 24, hips: 35, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight dark-brown hair, light tan skin',
+  },
+  {
+    id: 'starter-exact-9', name: 'Model 9', file: 'exact-9', assetRev: 'd740b1e55ed7', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    measurements: { bust: 33, waist: 24, hips: 35, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight silver-platinum hair, fair skin',
+  },
+  {
+    id: 'starter-exact-10', name: 'Model 10', file: 'exact-10', assetRev: '276c5999ba5e', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
+    measurements: { bust: 34, waist: 25, hips: 36, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long curly black hair, tan skin',
+  },
+  {
+    id: 'starter-exact-11', name: 'Model 11', file: 'exact-11', assetRev: '22480ff383ce', heightCm: 160, bodyType: 'athletic', size: '4–6 / S',
+    measurements: { bust: 35, waist: 26, hips: 37, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Dark auburn hair in a low messy bun, tan skin',
+  },
+  {
+    id: 'starter-exact-12', name: 'Model 12', file: 'exact-12', assetRev: '559ec56e6687', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Black hair in a high bun, tan skin',
+  },
+  {
+    id: 'starter-exact-13', name: 'Model 13', file: 'exact-13', assetRev: '101376e95972', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
+    measurements: { bust: 44, waist: 37, hips: 48, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long wavy black hair with braids, tan skin',
+  },
+  {
+    id: 'starter-exact-14', name: 'Model 14', file: 'exact-14', assetRev: '4f3301b5435a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Natural curly hair in a high puff, deep brown skin',
   },
   {
     id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',

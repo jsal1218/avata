@@ -2,7 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
-import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook } from './starter-sync.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook, orderedModels } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -28,6 +28,21 @@ async function fetchStarterImages(s, fresh = false) {
   const blobs = await Promise.all(IMAGE_KEYS.map(k => fetchBlob(`assets/models/${s.file}-${k}.webp${fresh ? `?v=${s.assetRev}` : ''}`)));
   return Object.fromEntries(IMAGE_KEYS.map((k, i) => [k, blobs[i]]));
 }
+/** Before downloading starter images on an existing install: let a just-deployed service worker take over first.
+ *  Right after a deploy the page still runs under the previous worker while the new one installs; a burst of image
+ *  fetches through the old worker at that moment can leave Chrome unable to activate the new one (the next navigation
+ *  then hangs). So: check for an update now (cheap: one sw.js request), and while a worker is installing/waiting wait
+ *  for it to take control (max ~10 s, then carry on regardless). No-op without a controlling worker (fresh install). */
+async function swSettled(ms = 10000) {
+  const sw = navigator.serviceWorker; if (!sw?.controller) return;
+  const sleep = t => new Promise(r => setTimeout(r, t));
+  try {
+    const reg = await sw.getRegistration(); if (!reg) return;
+    await Promise.race([reg.update().catch(() => {}), sleep(3000)]);
+    const t0 = Date.now();
+    while ((reg.installing || reg.waiting) && Date.now() - t0 < ms) await sleep(100);
+  } catch {}
+}
 /** assetRev to record for fetched images: the starter's rev if the bytes verifiably match it (or can't be checked). */
 async function verifiedRev(s, blobs) { const h = await contentRev(blobs).catch(() => null); return h === null || h === s.assetRev ? s.assetRev : undefined; }
 
@@ -51,8 +66,9 @@ export async function addNewStarters() {
   if (!(await db.get('kv', 'seeded'))) return;
   let known = await db.get('kv', 'knownStarters');
   if (!Array.isArray(known)) { known = initialKnownStarters(await db.all('models')); await db.put('kv', known, 'knownStarters'); }
+  const todo = startersToAdd(STARTERS, known); if (todo.length) await swSettled();
   const t0 = Date.now();
-  for (const [i, s] of startersToAdd(STARTERS, known).entries()) {
+  for (const [i, s] of todo.entries()) {
     try {
       if (!(await db.get('models', s.id))) {
         const blobs = await fetchStarterImages(s, true);
@@ -69,6 +85,7 @@ export async function addNewStarters() {
  *  on the next launch because assetRev is only written after verified images are stored. */
 export async function syncStarters() {
   if (!(await db.get('kv', 'seeded'))) return;
+  let settled = false;
   for (const s of STARTERS) {
     try {
       const m = await db.get('models', s.id);
@@ -76,6 +93,7 @@ export async function syncStarters() {
       const stale = [];
       for (const l of samples) { const cur = await db.get('looks', l.id); if (lookNeedsRefresh(cur, l, s)) stale.push(l); }
       if (!modelNeedsRefresh(m, s) && !stale.length) continue;
+      if (!settled) { settled = true; await swSettled(); }
       const blobs = await fetchStarterImages(s, true);
       if (await verifiedRev(s, blobs) !== s.assetRev) { console.warn('Avata: starter assets for', s.id, 'did not match', s.assetRev, '— will retry'); continue; }
       const m2 = await db.get('models', s.id); // re-read right before writing
@@ -151,7 +169,7 @@ export async function initData() {
   await reload();
 }
 export async function reload() {
-  S.models = (await db.all('models')).sort((a, b) => a.createdAt - b.createdAt);
+  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..14, Photoreal 1), then user models by createdAt
   S.styles = await db.all('styles');
   S.looks = (await db.all('looks')).sort((a, b) => b.createdAt - a.createdAt);
 }
