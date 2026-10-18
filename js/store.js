@@ -2,7 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
-import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook, orderedModels, starterOutfits } from './starter-sync.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook, orderedModels, starterOutfits, REMOVED_STARTER_IDS, removedLook, removedKnown, RELABEL, relabeledStarter } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -131,6 +131,33 @@ export async function renumberStarters(force = false) {
   await db.put('kv', true, 'renumbered-2026-10');
 }
 
+/** One-time (per install) removal of the starters Jordan removed on 2026-10-18 (Models 1-4, 8, 11, 15, 16). Deletes only
+ *  their starter records (starter === true); user-created models are never touched. Their app-seeded sample looks are
+ *  removed, the user's own looks of them are kept and detached. Their ids are recorded in knownStarters (never re-added).
+ *  Idempotent; the done-flag is set last. force=true re-runs it (after importing an older backup). */
+export async function removeStarters(force = false) {
+  if (!force && await db.get('kv', 'removed-starters-2026-10-18')) return;
+  // an older install without a known list yet: record it now (from the records it holds), so the removed ids are recorded too
+  if ((await db.get('kv', 'seeded')) && !Array.isArray(await db.get('kv', 'knownStarters'))) await db.put('kv', initialKnownStarters(await db.all('models')), 'knownStarters');
+  for (const id of REMOVED_STARTER_IDS) { const m = await db.get('models', id); if (m && m.starter === true) await db.del('models', id); }
+  for (const l of await db.all('looks')) {
+    const r = removedLook(l);
+    if (r === null) await db.del('looks', l.id); else if (r !== l) await db.put('looks', r);
+  }
+  const known = await db.get('kv', 'knownStarters');
+  if (Array.isArray(known)) await db.put('kv', removedKnown(known), 'knownStarters');
+  await db.put('kv', true, 'removed-starters-2026-10-18');
+}
+
+/** One-time (per install) relabel of the remaining exact starters to Model 1-8 (old Model 5, 6, 7, 9, 10, 12, 13, 14; ids
+ *  unchanged). Only a starter record still carrying its old default name is renamed; user names, user models and every
+ *  other field are kept. Idempotent; force=true re-runs it (after importing an older backup). */
+export async function relabelStarters(force = false) {
+  if (!force && await db.get('kv', 'relabel-2026-10-18')) return;
+  for (const id of Object.keys(RELABEL)) { const m = await db.get('models', id); const r = relabeledStarter(m); if (r && r !== m) await db.put('models', r); }
+  await db.put('kv', true, 'relabel-2026-10-18');
+}
+
 export async function seedSamples(force = false) {
   if ((await db.get('kv', 'seededV2')) && !force) return;
   const now = Date.now();
@@ -166,13 +193,15 @@ export async function initData() {
   await seedStarters();
   await migrateGens();
   await renumberStarters(); // old starter-model-N ids → exact-N / photoreal-N; old Model 5 deleted (before anything adds starters)
+  await removeStarters(); // Models 1-4, 8, 11, 15, 16 removed (2026-10-18): their starter records go once, never re-added
+  await relabelStarters(); // then the remaining exact models are renamed Model 1-8 once (ids unchanged; user names kept)
   await seedSamples();
   await addNewStarters(); // starters shipped after this install was seeded (never re-adds deleted ones)
   await syncStarters(); // refresh starters whose shipped images changed since they were stored
   await reload();
 }
 export async function reload() {
-  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..16, Photoreal 1, Generated 1), then user models by createdAt
+  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1-9, Photoreal 1, Generated 1), then user models by createdAt
   S.styles = await db.all('styles');
   S.looks = (await db.all('looks')).sort((a, b) => b.createdAt - a.createdAt);
 }

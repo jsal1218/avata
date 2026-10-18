@@ -44,7 +44,7 @@ export const lookImageKey = sample => IMAGE_KEYS.includes(sample.view) ? sample.
  * A starter shipped later (not in the list) is added once on the next launch and then recorded, so deleting it later
  * sticks. Installs from before this list existed were seeded with exactly LEGACY_STARTER_IDS, so those count as known
  * (a legacy starter the user deleted is never re-added). User models, looks and edits are never read or changed. */
-export const LEGACY_STARTER_IDS = ['starter-exact-1', 'starter-photoreal-1']; // the original Model 1 + Model 2 (renumbered ids)
+export const LEGACY_STARTER_IDS = ['starter-exact-1', 'starter-photoreal-1']; // the original Model 1 + Model 2 (renumbered ids; Model 1 itself was removed 2026-10-18, its id stays known)
 
 /** Known-starter list for an install that has none yet: the legacy seed set plus any starter records it still holds. */
 export const initialKnownStarters = (storedModels = []) =>
@@ -91,6 +91,46 @@ export const renumberedLook = look => {
   if (RENUMBER[look.modelId]) return { ...look, modelId: RENUMBER[look.modelId].id };
   if (DELETED_STARTER_IDS.includes(look.modelId)) return look.sample === true && look.source === 'sample' ? null : { ...look, modelId: null };
   return look;
+};
+
+/* ---------- 2026-10-18 removal of Models 1-4, 8, 11, 15, 16 (Jordan's request) ----------
+ * These starters are no longer shipped. On existing installs removeStarters() (store.js) deletes each of their starter
+ * records (starter === true only, whatever the user renamed it to) once; user-created models are never touched.
+ * App-seeded sample looks of a removed starter (Model 1's) are removed; the user's own / generated looks of a removed
+ * starter are kept and detached (modelId null), like the old Model 5. The ids stay in knownStarters, and they are not in
+ * STARTERS, so seedStarters / addNewStarters / syncStarters can never bring them back. The remaining models keep
+ * their labels (Model 5, 6, 7, 9, 10, 12, 13, 14); nothing is renumbered. */
+export const REMOVED_STARTER_IDS = [1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`);
+
+/** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
+export const removedLook = look => {
+  if (!look || !REMOVED_STARTER_IDS.includes(look.modelId)) return look;
+  return look.sample === true && look.source === 'sample' ? null : { ...look, modelId: null };
+};
+
+/** knownStarters after the removal: the removed ids are recorded as known (so nothing re-adds them); non-arrays pass through. */
+export const removedKnown = known => Array.isArray(known) ? withKnown(known, REMOVED_STARTER_IDS) : known;
+
+/* ---------- 2026-10-18 renumbering, round 2 (after the removal) ----------
+ * Jordan asked for continuous numbers again: the remaining exact models (old Model 5, 6, 7, 9, 10, 12, 13, 14) are now
+ * Model 1-8, in the same order. Ids stay the same (stable ids: only display names change, so no record is re-keyed and
+ * nothing can be duplicated or re-added). relabelStarters() (store.js) renames each starter record once, only if it still
+ * has the old default name; a name the user chose is kept. User-created models (starter !== true) are never touched. */
+export const RELABEL = {
+  'starter-exact-5': { oldName: 'Model 5', name: 'Model 1' },
+  'starter-exact-6': { oldName: 'Model 6', name: 'Model 2' },
+  'starter-exact-7': { oldName: 'Model 7', name: 'Model 3' },
+  'starter-exact-9': { oldName: 'Model 9', name: 'Model 4' },
+  'starter-exact-10': { oldName: 'Model 10', name: 'Model 5' },
+  'starter-exact-12': { oldName: 'Model 12', name: 'Model 6' },
+  'starter-exact-13': { oldName: 'Model 13', name: 'Model 7' },
+  'starter-exact-14': { oldName: 'Model 14', name: 'Model 8' },
+};
+
+/** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */
+export const relabeledStarter = stored => {
+  const to = stored && stored.starter === true && RELABEL[stored.id];
+  return to && stored.name === to.oldName ? { ...stored, name: to.name } : stored;
 };
 
 /* ---------- list order ----------
