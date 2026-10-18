@@ -14,8 +14,10 @@ async function galleryModels() {
     const url = new URL(GALLERY, location.href), base = new URL('../', url); const r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) throw 0; const m = await r.json();
     galleryAliases = Object.fromEntries(Object.entries(m.aliases || {}).filter(([k]) => !k.startsWith('_')).map(([k, x]) => [`gallery:${k}`, `gallery:${x}`])); // retired #model-N ids
-    galleryCache = m.models.map(md => { const o = md.outfits[0]; return { id: `gallery:${md.id}`, gallery: true, photoreal: md.group === 'photoreal', name: md.name, sub: md.descriptor || '', thumbUrl: new URL(md.thumb, base).href,
-      frames: [...o.frames].sort((a, b) => a.angle - b.angle).map(f => ({ angle: f.angle, lo: new URL(f.lo, base).href, hi: new URL(f.hi, base).href })) }; });
+    const frames = o => [...o.frames].sort((a, b) => a.angle - b.angle).map(f => ({ angle: f.angle, lo: new URL(f.lo, base).href, hi: new URL(f.hi, base).href }));
+    // every outfit is kept (Generated 1 has four); frames = the first (base) outfit's frames
+    galleryCache = m.models.map(md => { const outfits = md.outfits.map(o => { const fr = frames(o); return { id: o.id, name: o.name, title: `${o.name} · ${o.subtitle || ''}`, swatch: (fr.find(f => f.angle === 0) || fr[0]).lo, frames: fr }; });
+      return { id: `gallery:${md.id}`, gallery: true, group: md.group || 'exact', photoreal: md.group === 'photoreal', generated: md.group === 'generated', name: md.name, sub: md.descriptor || '', thumbUrl: new URL(md.thumb, base).href, outfits, frames: outfits[0].frames }; });
   } catch { galleryCache = []; }
   return galleryCache;
 }
@@ -26,7 +28,8 @@ export async function renderSpin(v, id) {
   setTop('360 spin');
   v.classList.add('spin-page');
   v.innerHTML = `<div class="sp-switch" id="spSwitch" role="tablist" aria-label="360 models"></div>
-    <div class="sp-photo" id="spPhoto" hidden><span class="sp-photo-h">Photorealistic</span><div class="sp-switch" id="spPhotoRow" role="tablist" aria-label="Photorealistic models"></div></div>
+    <div class="sp-extra"><div class="sp-photo" id="spPhoto" hidden><span class="sp-photo-h">Photorealistic</span><div class="sp-switch" id="spPhotoRow" role="tablist" aria-label="Photorealistic models"></div></div>
+    <div class="sp-photo" id="spGen" hidden><span class="sp-photo-h">Generated</span><div class="sp-switch" id="spGenRow" role="tablist" aria-label="Generated models"></div></div></div>
     <div id="spView"></div>
     <div id="spEmpty" hidden></div>
     <details class="section sp-edit" id="spEdit" hidden><summary><span class="eyebrow" style="margin:0" id="spEditT">Edit</span></summary><div id="spEditBody"></div></details>
@@ -35,12 +38,13 @@ export async function renderSpin(v, id) {
   const viewer = mountViewer($('#spView', v));
   const items = () => [...st.spins.map(s => ({ ...s, thumbUrl: urlFor(s.thumb) })), ...st.gallery];
 
-  // main row: New 360, your spins, the exact-reference gallery models; photoreal gallery models get their own small row below
+  // main row: New 360, your spins, the exact-reference gallery models; photoreal and generated gallery models get their own small rows below
   function drawSwitch() {
     const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(`${m.name} · ${m.sub || 'Gallery'}`)}"` : ''}><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b><small>${m.gallery ? esc(m.sub.split(' · ')[0] || 'Gallery') : `${m.frames.length} photos`}</small></button>`;
-    const all = items(), photo = all.filter(m => m.photoreal);
-    $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` + all.filter(m => !m.photoreal).map(chip).join('');
+    const all = items(), photo = all.filter(m => m.photoreal), gen = all.filter(m => m.generated);
+    $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` + all.filter(m => !m.photoreal && !m.generated).map(chip).join('');
     $('#spPhotoRow', v).innerHTML = photo.map(chip).join(''); $('#spPhoto', v).hidden = !photo.length;
+    $('#spGenRow', v).innerHTML = gen.map(chip).join(''); $('#spGen', v).hidden = !gen.length;
     $('#spNew', v).onclick = () => $('#spFile', v).click();
     $$('.sp-item', v).forEach(b => b.onclick = () => select(b.dataset.id));
     edgeFade();
@@ -66,6 +70,9 @@ export async function renderSpin(v, id) {
     history.replaceState(null, '', `#/spin/${encodeURIComponent(m.id)}`);
     const chip = $$('.sp-item', v).find(b => b.dataset.id === m.id), sw = chip?.parentElement || $('#spSwitch', v);
     if (chip && (chip.offsetLeft < sw.scrollLeft || chip.offsetLeft + chip.offsetWidth > sw.scrollLeft + sw.clientWidth)) sw.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
+    // outfit chips on the viewer (only for a model with more than one outfit); switching keeps the angle and the spin
+    const outfits = m.outfits || []; st.outfit = outfits[0]?.id || null;
+    viewer.setOutfits(outfits, st.outfit, async oid => { const o = outfits.find(x => x.id === oid); if (!o || st.cur !== m) return; st.outfit = oid; await viewer.swap(o.frames); });
     await viewer.load(m.frames, { name: m.name, bg: m.bg || '#fff', auto });
   }
 

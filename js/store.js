@@ -2,7 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
-import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook, orderedModels } from './starter-sync.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook, orderedModels, starterOutfits } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -25,8 +25,11 @@ const fetchBlob = async path => { const r = await fetch(path); if (!r.ok) throw 
 /** Fetch a starter's four images. fresh=true adds ?v=<assetRev>, which misses every cache (an older service worker's
  *  cache-first image cache and the HTTP cache), so a just-deployed starters.js never pairs with stale images. */
 async function fetchStarterImages(s, fresh = false) {
-  const blobs = await Promise.all(IMAGE_KEYS.map(k => fetchBlob(`assets/models/${s.file}-${k}.webp${fresh ? `?v=${s.assetRev}` : ''}`)));
-  return Object.fromEntries(IMAGE_KEYS.map((k, i) => [k, blobs[i]]));
+  const one = async file => { const b = await Promise.all(IMAGE_KEYS.map(k => fetchBlob(`assets/models/${file}-${k}.webp${fresh ? `?v=${s.assetRev}` : ''}`))); return Object.fromEntries(IMAGE_KEYS.map((k, i) => [k, b[i]])); };
+  if (!s.outfits?.length) return one(s.file);
+  // a model with outfits: every outfit's images (the first outfit is the model's own images); see starterOutfits()
+  const sets = await Promise.all(starterOutfits(s).map(async o => ({ id: o.id, name: o.name, ...(o.subtitle ? { subtitle: o.subtitle } : {}), ...(await one(o.file)) })));
+  return { ...Object.fromEntries(IMAGE_KEYS.map(k => [k, sets[0][k]])), outfits: sets };
 }
 /** Before downloading starter images on an existing install: let a just-deployed service worker take over first.
  *  Right after a deploy the page still runs under the previous worker while the new one installs; a burst of image
@@ -169,7 +172,7 @@ export async function initData() {
   await reload();
 }
 export async function reload() {
-  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..15, Photoreal 1), then user models by createdAt
+  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..15, Photoreal 1, Generated 1), then user models by createdAt
   S.styles = await db.all('styles');
   S.looks = (await db.all('looks')).sort((a, b) => b.createdAt - a.createdAt);
 }

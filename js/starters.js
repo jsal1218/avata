@@ -1,9 +1,10 @@
 // Bundled starter models (assets in /assets/models). Measurements are estimates, editable in the app.
-// assetRev = first 12 hex of SHA-256 over <file>-{sheet,front,back,thumb}.webp concatenated (see js/starter-sync.js).
+// assetRev = first 12 hex of SHA-256 over <file>-{sheet,front,back,thumb}.webp concatenated (see js/starter-sync.js);
+// for a starter with outfits, over every outfit's four files in outfit order.
 // When you replace a starter's images, update its assetRev (npm test fails until it matches); installed copies then
 // refresh that starter's images on next launch, keeping the user's edits.
 // Exact-reference models are Model 1-15 (ids starter-exact-N; 6-15 added 2026-10-18); AI-generated photoreal models are listed separately
-// (starter-photoreal-N). Ids are stable, so renumbering display names never needs another migration. The old
+// (starter-photoreal-N), then generated models (starter-generated-N, with built-in outfits). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
   {
@@ -88,6 +89,19 @@ export const STARTERS = [
     id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
     measurements: { bust: 34, waist: 25, hips: 38, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long dark curls, tan skin',
+  },
+  {
+    // Generated 1 (added 2026-10-18): a generated fictional model with four built-in outfits (her own Generated section).
+    // The first outfit is her base images (file); assetRev covers all four outfits' images in this order.
+    id: 'starter-generated-1', name: 'Generated 1', file: 'generated-1', assetRev: '77df5d3b06b8', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
+    measurements: { bust: 34, waist: 26, hips: 36, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Shoulder-length wavy chestnut hair, olive skin (generated model)', source: 'generated',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-1' },
+      { id: 'summer-denim', name: 'Summer denim', subtitle: 'White tied shirt · denim shorts', file: 'generated-1-summer-denim' },
+      { id: 'sundress', name: 'Sundress', subtitle: 'Yellow floral sundress', file: 'generated-1-sundress' },
+      { id: 'linen-set', name: 'Linen set', subtitle: 'Sage tank · linen pants', file: 'generated-1-linen-set' },
+    ],
   },
 ];
 

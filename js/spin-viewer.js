@@ -13,6 +13,7 @@ export function mountViewer(root, { onAngle } = {}) {
     <div class="sv-hint">Drag to spin · pinch or double‑tap to zoom</div>
     <div class="sv-zoom" hidden><span>1.0×</span><button type="button">Reset</button></div>
     <div class="sv-hd" hidden>HD</div>
+    <div class="sv-outfits" role="radiogroup" aria-label="Outfits" hidden></div>
     <div class="sv-busy" hidden><div><span class="sv-busy-t">Building…</span><div class="sv-bar"><i></i></div></div></div>
   </div>
   <div class="sv-controls">
@@ -39,6 +40,27 @@ export function mountViewer(root, { onAngle } = {}) {
     const pre = Promise.all(S.frames.map(f => new Promise(r => { const i = new Image(); i.onload = i.onerror = () => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()).then(r); i.src = f.lo; })));
     render(true); toggleAuto(auto);
     return pre;
+  }
+
+  /** Same model, another outfit: swap the frames in place, keeping the angle, auto-rotate and spin (outfit frames share
+   *  the base outfit's angles and framing, so nothing jumps). */
+  function swap(frames) {
+    const f2 = frames.map(f => ({ lo: f.lo, hi: f.hi || f.lo }));
+    const pre = Promise.all(f2.map(f => new Promise(r => { const i = new Image(); i.onload = i.onerror = () => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()).then(r); i.src = f.lo; })));
+    return pre.then(() => {
+      S.frames = f2; S.angles = frames.every(f => typeof f.angle === 'number') ? frames.map(f => f.angle) : evenAngles(frames.length);
+      S.hiLoaded = new Set(); if (S.zoom > 1) resetZoom(true); lastKey = ''; buildDial(); render(true);
+    });
+  }
+  /** Small outfit chips on the viewer; only shown when the model has more than one outfit. */
+  function setOutfits(list = [], cur = null, onPick = null) {
+    const box = q('.sv-outfits'); box.hidden = list.length < 2; box.innerHTML = '';
+    if (list.length < 2) return;
+    box.innerHTML = list.map(o => `<button type="button" class="sv-oc" role="radio" data-id="${o.id}" aria-checked="${o.id === cur}" title="${o.title || o.name}"><i style="background-image:url('${o.swatch}')"></i><span>${o.name}</span></button>`).join('');
+    box.querySelectorAll('.sv-oc').forEach(b => b.onclick = e => {
+      e.stopPropagation(); if (b.getAttribute('aria-checked') === 'true') return;
+      box.querySelectorAll('.sv-oc').forEach(x => x.setAttribute('aria-checked', x === b)); onPick?.(b.dataset.id);
+    });
   }
 
   /* ---------- rendering ---------- */
@@ -200,5 +222,5 @@ export function mountViewer(root, { onAngle } = {}) {
     q('.sv-busy').hidden = !on; if (!on) return;
     q('.sv-busy-t').textContent = text; q('.sv-bar i').style.width = Math.round(frac * 100) + '%';
   }
-  return { S, load, busy, destroy, toggleAuto, resetZoom, zoomAt, get angle() { return S.angle; } };
+  return { S, load, swap, setOutfits, busy, destroy, toggleAuto, resetZoom, zoomAt, get angle() { return S.angle; } };
 }

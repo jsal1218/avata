@@ -3,7 +3,7 @@
 // offline fallback) so a new deploy is never served stale; big images/fonts are cache-first. Cross-origin requests
 // (only the optional BYOK APIs) are never touched. skipWaiting + clients.claim, so a new version takes over at once;
 // js/update.js then reloads the page when it's safe.
-const VERSION = '2026.10.18-083130-cffa952';
+const VERSION = '2026.10.18-091548-7781450';
 const CACHE = `avata-${VERSION}`;
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
@@ -13,7 +13,7 @@ const SHELL = [
   'assets/samples/sketch-tank.svg', 'assets/samples/sketch-short.svg', 'assets/samples/sketch-set.svg',
   'assets/fonts/bodoni-moda.woff2', 'assets/fonts/bodoni-moda-italic.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-64.png',
-  ...[...Array.from({ length: 15 }, (_, i) => `exact-${i + 1}`), 'photoreal-1'].flatMap(m => ['sheet', 'front', 'back', 'thumb'].map(k => `assets/models/${m}-${k}.webp`)),
+  ...[...Array.from({ length: 15 }, (_, i) => `exact-${i + 1}`), 'photoreal-1', 'generated-1', 'generated-1-summer-denim', 'generated-1-sundress', 'generated-1-linen-set'].flatMap(m => ['sheet', 'front', 'back', 'thumb'].map(k => `assets/models/${m}-${k}.webp`)),
 ];
 // cache:'reload' bypasses the HTTP cache (GitHub Pages sends max-age=600) so a new version never precaches old files
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); });

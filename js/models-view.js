@@ -22,7 +22,7 @@ function specPills(m) {
 export function renderModels(v) {
   setTop('Model Library', `<a class="btn btn-solid" href="#/import-model" style="min-height:38px">${icon('plus', 'sm')} Import</a>`);
   v.innerHTML = `<h1 class="display fade-in">Your <em>models</em></h1><p class="lede">Reference sheets live only on this device. Front and back references, height and measurements — used to link mockups and to build prompts for your assistant.</p>
-  ${S.models.length ? `<div class="lib">${S.models.map(m => `<a class="lib-card fade-in" href="#/model/${encodeURIComponent(m.id)}"><div class="ph"><img src="${urlFor(m.front)}" alt="${esc(m.name)} front" loading="lazy">${m.back ? `<img src="${urlFor(m.back)}" alt="${esc(m.name)} back" loading="lazy">` : ''}</div><div class="meta"><div class="nm">${esc(m.name)}</div>${specPills(m)}<div class="tiny muted" style="margin-top:6px">${looksForModel(m.id).length} looks${m.measurements && measurementsText(m.measurements, m.measureUnit) ? ` · measurements${m.measurementsEstimated ? ' (est.)' : ''}` : ''}</div></div></a>`).join('')}</div>`
+  ${S.models.length ? `<div class="lib">${S.models.map(m => `<a class="lib-card fade-in" href="#/model/${encodeURIComponent(m.id)}"><div class="ph"><img src="${urlFor(m.front)}" alt="${esc(m.name)} front" loading="lazy">${m.back ? `<img src="${urlFor(m.back)}" alt="${esc(m.name)} back" loading="lazy">` : ''}</div><div class="meta"><div class="nm">${esc(m.name)}</div>${specPills(m)}<div class="tiny muted" style="margin-top:6px">${m.outfits?.length > 1 ? `${m.outfits.length} outfits · ` : ''}${looksForModel(m.id).length} looks${m.measurements && measurementsText(m.measurements, m.measureUnit) ? ` · measurements${m.measurementsEstimated ? ' (est.)' : ''}` : ''}</div></div></a>`).join('')}</div>`
     : `<div class="empty"><div class="art">${icon('models')}</div><p class="display">No models yet</p><p>Import a front + back reference sheet to start.</p><a class="btn btn-solid" href="#/import-model">${icon('plus', 'sm')} Import sheet</a></div>`}
   <div class="note" style="margin-top:16px">${icon('image', 'sm')}<span><b>Sheet format:</b> one square image on white, the same model twice — front on the left, back on the right — full body head to toe, neutral pose, plain grey crop tank and fitted shorts, barefoot.</span></div>`;
 }
@@ -71,8 +71,10 @@ export function renderModelDetail(id) {
   if (!m) { v.innerHTML = `<div class="empty"><p class="display">Model not found</p><a class="btn" href="#/models">Back to models</a></div>`; return; }
   setTop('Model', `<a class="btn btn-ghost" href="#/models" style="min-height:38px">${icon('back', 'sm')} Models</a>`);
   const n = looksForModel(m.id);
+  const outfits = m.outfits?.length > 1 ? m.outfits : null; // built-in outfits of this model (e.g. Generated 1): small chips swap the references shown
   v.innerHTML = `<h1 class="display fade-in">${esc(m.name)}</h1>${specPills(m)}
-  <div class="hero-pair" style="margin-top:14px"><figure><img src="${urlFor(m.front)}" alt="Front reference"><figcaption>Front</figcaption></figure>${m.back ? `<figure><img src="${urlFor(m.back)}" alt="Back reference"><figcaption>Back</figcaption></figure>` : '<figure style="display:grid;place-items:center;color:#888">No back view</figure>'}</div>
+  ${outfits ? `<div class="oc-row" id="mOutfits" role="radiogroup" aria-label="Outfits">${outfits.map((o, i) => `<button type="button" class="oc" role="radio" data-i="${i}" aria-checked="${i === 0}" title="${esc(o.subtitle || o.name)}"><i style="background-image:url('${urlFor(o.front)}')"></i><span>${esc(o.name)}</span></button>`).join('')}</div>` : ''}
+  <div class="hero-pair" style="margin-top:14px"><figure><img id="mFront" src="${urlFor(m.front)}" alt="Front reference"><figcaption>Front</figcaption></figure>${m.back ? `<figure><img id="mBack" src="${urlFor(m.back)}" alt="Back reference"><figcaption>Back</figcaption></figure>` : '<figure style="display:grid;place-items:center;color:#888">No back view</figure>'}</div>
   <div class="actions-grid" style="margin:14px 0"><button class="btn btn-solid" id="showM" ${n.length ? '' : 'disabled'}>${icon('play', 'sm')} Showcase</button><a class="btn btn-line" href="#/import-looks?model=${encodeURIComponent(m.id)}">${icon('plus', 'sm')} Add mockups</a><button class="btn btn-line" id="useM">${icon('copy', 'sm')} Build prompt</button><button class="btn btn-line" id="shareRefs">${icon('share', 'sm')} Share refs</button></div>
   <section class="section"><p class="eyebrow">Profile</p>
     <label class="field"><span>Name</span><input type="text" id="mName" value="${esc(m.name)}"></label>
@@ -81,9 +83,14 @@ export function renderModelDetail(id) {
     ${m.note ? `<p class="small muted" style="margin:10px 0 0">${esc(m.note)}</p>` : ''}
     <button class="btn btn-solid btn-block" id="saveM" style="margin-top:14px">${icon('check', 'sm')} Save profile</button>
   </section>
-  ${m.sheet ? `<details class="section"><summary><p class="eyebrow" style="margin:0">Original reference sheet</p></summary><img src="${urlFor(m.sheet)}" alt="Reference sheet" style="border-radius:14px;background:#fff"></details>` : ''}
+  ${m.sheet ? `<details class="section"><summary><p class="eyebrow" style="margin:0">Original reference sheet</p></summary><img id="mSheet" src="${urlFor(m.sheet)}" alt="Reference sheet" style="border-radius:14px;background:#fff"></details>` : ''}
   ${n.length ? `<p class="eyebrow" style="margin-top:20px">Mockups · ${n.length}</p><div class="masonry" id="mGens">${n.map(lookCard).join('')}</div>` : ''}
   <button class="btn btn-line btn-danger btn-block" id="delM" style="margin-top:18px">${icon('trash', 'sm')} Delete model</button>`;
+  if (outfits) $('#mOutfits').onclick = e => {
+    const b = e.target.closest('.oc'); if (!b) return; const o = outfits[+b.dataset.i];
+    $$('#mOutfits .oc').forEach(x => x.setAttribute('aria-checked', x === b));
+    $('#mFront').src = urlFor(o.front); if ($('#mBack')) $('#mBack').src = urlFor(o.back); if ($('#mSheet')) $('#mSheet').src = urlFor(o.sheet);
+  };
   let height = m.heightCm;
   bindHeight(v, cm => { height = cm; });
   bindMeasureUnit(v);

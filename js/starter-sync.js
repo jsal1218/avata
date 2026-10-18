@@ -5,10 +5,20 @@
 // else the user may have edited are kept. User-created models and user/generated looks are never touched.
 export const IMAGE_KEYS = ['sheet', 'front', 'back', 'thumb'];
 
-/** Short SHA-256 over the images in IMAGE_KEYS order. null when crypto.subtle is unavailable (non-secure context). */
+/* ---------- outfits ----------
+ * A starter may ship several outfits of the same model (e.g. Generated 1: Base, Summer denim, Sundress, Linen set):
+ *   outfits: [{ id: 'base', name: 'Base', file: 'generated-1' }, { id: 'sundress', name: 'Sundress', subtitle, file: 'generated-1-sundress' }, ...]
+ * The first outfit is the model's own images (file === starter.file), so every existing screen keeps using m.front /
+ * m.back / m.sheet / m.thumb. The stored record gets outfits: [{ id, name, subtitle, sheet, front, back, thumb }] (Blobs),
+ * all outfits included, and assetRev covers every outfit's images (base first), so changing any outfit refreshes it. */
+export const starterOutfits = s => s.outfits?.length ? s.outfits : [{ id: 'base', name: 'Base', file: s.file }];
+
+/** Short SHA-256 over the images in IMAGE_KEYS order (for a model with outfits: every outfit's images, in outfit order,
+ *  i.e. pass blobs with blobs.outfits). null when crypto.subtle is unavailable (non-secure context). */
 export async function contentRev(blobs) {
   const subtle = globalThis.crypto?.subtle; if (!subtle) return null;
-  const parts = await Promise.all(IMAGE_KEYS.map(k => blobs[k].arrayBuffer()));
+  const sets = blobs.outfits?.length ? blobs.outfits : [blobs];
+  const parts = await Promise.all(sets.flatMap(b => IMAGE_KEYS.map(k => b[k].arrayBuffer())));
   const all = new Uint8Array(parts.reduce((n, p) => n + p.byteLength, 0)); let o = 0;
   for (const p of parts) { all.set(new Uint8Array(p), o); o += p.byteLength; }
   return [...new Uint8Array(await subtle.digest('SHA-256', all))].slice(0, 6).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -21,7 +31,7 @@ export const modelNeedsRefresh = (stored, starter) => !!stored && stored.starter
 export const lookNeedsRefresh = (stored, sample, starter) => !!stored && stored.id === sample.id && stored.sample === true && stored.source === 'sample' && stored.modelId === starter.id && stored.assetRev !== starter.assetRev;
 
 /** New model record: every existing field kept, only the image fields + assetRev replaced. */
-export const refreshedModel = (stored, starter, blobs) => ({ ...stored, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), assetRev: starter.assetRev });
+export const refreshedModel = (stored, starter, blobs) => ({ ...stored, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), ...(blobs.outfits ? { outfits: blobs.outfits } : {}), assetRev: starter.assetRev });
 
 /** New sample-look record: title, tags, favourite, links etc. kept; only image/thumb + assetRev replaced. */
 export const refreshedLook = (stored, starter, blob) => ({ ...stored, image: blob, thumb: blob, assetRev: starter.assetRev });
@@ -48,8 +58,8 @@ export const withKnown = (known, ids) => [...new Set([...(known || []), ...ids])
 
 /** Model record for a newly added starter (same shape seedStarters writes). rev = verified assetRev or undefined. */
 export const newStarterRecord = (starter, blobs, rev, createdAt) => {
-  const { file, assetRev, ...rest } = starter;
-  return { ...rest, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), ...(rev ? { assetRev: rev } : {}), starter: true, createdAt };
+  const { file, assetRev, outfits, ...rest } = starter;
+  return { ...rest, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), ...(blobs.outfits ? { outfits: blobs.outfits } : {}), ...(rev ? { assetRev: rev } : {}), starter: true, createdAt };
 };
 
 /* ---------- 2026-10 renumbering ----------
