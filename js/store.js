@@ -2,7 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
-import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord } from './starter-sync.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord, RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -85,6 +85,31 @@ export async function syncStarters() {
   }
 }
 
+/** One-time (per install) move from the old starter-model-N ids to the stable exact-N / photoreal-N ids, deleting the
+ *  old Model 5 starter only. Never touches user-created models (starter !== true). Crash-safe and idempotent: the new
+ *  record is written before the old one is removed, an existing new record is never overwritten, and the done-flag is
+ *  only set at the end. force=true re-runs it (used after importing an older backup). */
+export async function renumberStarters(force = false) {
+  if (!force && await db.get('kv', 'renumbered-2026-10')) return;
+  for (const [old, to] of Object.entries(RENUMBER)) {
+    const m = await db.get('models', old);
+    if (!m || m.starter !== true) continue;
+    if (!(await db.get('models', to.id))) await db.put('models', renumberedStarter(m, to));
+    await db.del('models', old);
+  }
+  for (const id of DELETED_STARTER_IDS) { const m = await db.get('models', id); if (m && m.starter === true) await db.del('models', id); }
+  // list order matches a fresh install: Model 1-4, then Photoreal 1 (it was 2nd; only its createdAt sort key moves)
+  const pr = await db.get('models', 'starter-photoreal-1'), ex = (await Promise.all(['starter-exact-1', 'starter-exact-2', 'starter-exact-3', 'starter-exact-4'].map(id => db.get('models', id)))).filter(m => m?.starter === true);
+  if (pr?.starter === true && ex.length && pr.createdAt < Math.max(...ex.map(m => m.createdAt))) await db.put('models', { ...pr, createdAt: Math.max(...ex.map(m => m.createdAt)) + 1 });
+  for (const l of await db.all('looks')) {
+    const r = renumberedLook(l);
+    if (r === null) await db.del('looks', l.id); else if (r !== l) await db.put('looks', r);
+  }
+  const known = await db.get('kv', 'knownStarters');
+  if (Array.isArray(known)) await db.put('kv', renumberedKnown(known), 'knownStarters');
+  await db.put('kv', true, 'renumbered-2026-10');
+}
+
 export async function seedSamples(force = false) {
   if ((await db.get('kv', 'seededV2')) && !force) return;
   const now = Date.now();
@@ -119,6 +144,7 @@ async function migrateGens() {
 export async function initData() {
   await seedStarters();
   await migrateGens();
+  await renumberStarters(); // old starter-model-N ids → exact-N / photoreal-N; old Model 5 deleted (before anything adds starters)
   await seedSamples();
   await addNewStarters(); // starters shipped after this install was seeded (never re-adds deleted ones)
   await syncStarters(); // refresh starters whose shipped images changed since they were stored

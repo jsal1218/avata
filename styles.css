@@ -342,6 +342,10 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 .sp-switch b{font-size:11.5px;line-height:1.2;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .sp-switch small{font-size:9.5px;color:var(--muted);letter-spacing:.02em;line-height:1.15;max-width:68px;text-align:center;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
 .sp-switch [aria-selected=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+/* separate Photorealistic group (AI-generated photoreal gallery models) under the main row, same chips */
+.sp-photo{margin:-2px 0 10px}
+.sp-photo-h{display:block;margin:0 0 4px 2px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sp-photo .sp-switch{margin:0 -16px}
 .sv{position:relative;width:100%;height:min(calc(100dvh - 300px - var(--safe-t) - var(--safe-b)),150vw);min-height:340px;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab;outline:none}
 .sv:focus-visible{box-shadow:0 0 0 2px var(--acc)}.sv.ptr:focus-visible{box-shadow:var(--shadow)}
 .sv.dragging{cursor:grabbing}.sv.zoomed{cursor:move}

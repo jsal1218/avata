@@ -1,5 +1,5 @@
 import { holdWork, $, $$, esc, icon, toast, setTop, openSheet, closeSheet, shareOrDownload } from './ui.js';
-import { S, settings, saveSettings, getKey, setKey, reload, seedStarters, seedSamples, removeSamples } from './store.js';
+import { S, settings, saveSettings, getKey, setKey, reload, seedStarters, seedSamples, removeSamples, renumberStarters } from './store.js';
 import { PROVIDERS, UPSCALERS, getModel } from './providers.js';
 import { exportLibrary, parseBackup, applyBackup } from './backup.js';
 import { exportCsv } from './styles-view.js';
@@ -69,7 +69,7 @@ export async function renderSettings(v, version) {
       <p>${parsed.models.length} models · ${parsed.styles.length} styles · ${parsed.looks.length} looks${parsed.exportedAt ? `<br><span class="small muted">Exported ${new Date(parsed.exportedAt).toLocaleString()}</span>` : ''}</p>
       <div class="stack"><button class="btn btn-solid btn-block" id="mMerge">Merge into this library</button><p class="tiny muted" style="margin:0">Items with the same ID are updated; everything else is kept.</p>
       <button class="btn btn-line btn-block btn-danger" id="mReplace">Replace this library</button><p class="tiny muted" style="margin:0">Deletes current models, styles and looks first.</p></div></div>`, 'half');
-    const go = async mode => { if (mode === 'replace' && !confirm('Replace everything on this device with the backup?')) return; const done = holdWork('restore'); try { await applyBackup(parsed, mode); await reload(); } finally { done(); } closeSheet(); toast('Backup imported.'); rerender(); };
+    const go = async mode => { if (mode === 'replace' && !confirm('Replace everything on this device with the backup?')) return; const done = holdWork('restore'); try { await applyBackup(parsed, mode); await renumberStarters(true); await reload(); } finally { done(); } closeSheet(); toast('Backup imported.'); rerender(); };
     $('#mMerge').onclick = () => go('merge'); $('#mReplace').onclick = () => go('replace');
   };
   $('#csv').onclick = async () => { const r = await exportCsv(); if (r === 'downloaded') toast('CSV saved.'); };

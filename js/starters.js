@@ -2,36 +2,41 @@
 // assetRev = first 12 hex of SHA-256 over <file>-{sheet,front,back,thumb}.webp concatenated (see js/starter-sync.js).
 // When you replace a starter's images, update its assetRev (npm test fails until it matches); installed copies then
 // refresh that starter's images on next launch, keeping the user's edits.
+// Exact-reference models are Model 1-4 (ids starter-exact-N); AI-generated photoreal models are listed separately
+// (starter-photoreal-N). Ids are stable, so renumbering display names never needs another migration. The old
+// starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
   {
-    id: 'starter-model-1', name: 'Model 1', file: 'model-1', assetRev: '208554b59a1a', heightCm: 160, bodyType: 'curvy hourglass', size: '10–12 / L',
+    id: 'starter-exact-1', name: 'Model 1', file: 'exact-1', assetRev: '208554b59a1a', heightCm: 160, bodyType: 'curvy hourglass', size: '10–12 / L',
     measurements: { bust: 38, waist: 30, hips: 42, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Straight strawberry-blonde hair, fair skin',
   },
   {
-    id: 'starter-model-2', name: 'Model 2', file: 'model-2', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
-    measurements: { bust: 34, waist: 25, hips: 38, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long dark curls, tan skin',
-  },
-  {
-    id: 'starter-model-3', name: 'Model 3', file: 'model-3', assetRev: '5bcd40dcd6fd', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    id: 'starter-exact-2', name: 'Model 2', file: 'exact-2', assetRev: '5bcd40dcd6fd', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
     measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight black hair, fair skin',
   },
   {
-    id: 'starter-model-4', name: 'Model 4', file: 'model-4', assetRev: '510dde6f33e6', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
+    id: 'starter-exact-3', name: 'Model 3', file: 'exact-3', assetRev: '510dde6f33e6', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
     measurements: { bust: 34, waist: 26, hips: 36, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight dark-brown hair, tan skin',
   },
   {
-    id: 'starter-model-5', name: 'Model 5', file: 'model-5', assetRev: '85ca8e62555e', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-4', name: 'Model 4', file: 'exact-4', assetRev: '124ee766ccd1', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
+    measurements: { bust: 44, waist: 38, hips: 48, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight platinum-blonde hair, fair skin',
+  },
+  {
+    // re-added 2026-10-18 from Jordan's corrected 6-view sheet (real back three-quarter view); new id, so existing
+    // installs gain her once via addNewStarters (the deleted old starter-model-5 is never brought back)
+    id: 'starter-exact-5', name: 'Model 5', file: 'exact-5', assetRev: 'eab8d1ff6b34', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy black hair, deep tan skin',
   },
   {
-    id: 'starter-model-6', name: 'Model 6', file: 'model-6', assetRev: '124ee766ccd1', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
-    measurements: { bust: 44, waist: 38, hips: 48, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight platinum-blonde hair, fair skin',
+    id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
+    measurements: { bust: 34, waist: 25, hips: 38, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long dark curls, tan skin',
   },
 ];
 
@@ -44,8 +49,10 @@ export const SAMPLE_STYLES = [
   { id: 'sample-style-3', sku: 'SAMPLE-003', name: 'Sample · Tank + Short Set', collection: 'Sample Collection', season: 'Sample', category: 'Sets', fabric: 'Rib knit + jersey (sample)', composition: 'See components (sample)', colorways: ['Heather grey'], sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Concept', supplier: '', notes: SAMPLE_NOTE, cost: null, price: null, tags: ['sample', 'sets'], photoFiles: ['assets/samples/sketch-set.svg'] },
 ];
 const SET = ['sample-style-3', 'sample-style-1', 'sample-style-2'];
-export const SAMPLE_LOOKS = ['model-1', 'model-2'].flatMap((m, mi) => [
-  { id: `sample-look-${m}-front`, file: `assets/models/${m}-front.webp`, view: 'front' },
-  { id: `sample-look-${m}-back`, file: `assets/models/${m}-back.webp`, view: 'back' },
-  { id: `sample-look-${m}-sheet`, file: `assets/models/${m}-sheet.webp`, view: 'sheet' },
-].map(l => ({ ...l, modelId: `starter-model-${mi + 1}`, styleIds: SET, colorway: 'Heather grey', title: 'Sample look (reference sheet)', notes: 'Sample mockup reusing the model reference image.', tags: ['sample'], source: 'sample' })));
+// Look ids keep their original 'model-1'/'model-2' names (stable ids, already stored on installs); the looks follow
+// their models: Model 1 → starter-exact-1, old Model 2 → starter-photoreal-1.
+export const SAMPLE_LOOKS = [['model-1', 'exact-1', 'starter-exact-1'], ['model-2', 'photoreal-1', 'starter-photoreal-1']].flatMap(([m, file, modelId]) => [
+  { id: `sample-look-${m}-front`, file: `assets/models/${file}-front.webp`, view: 'front' },
+  { id: `sample-look-${m}-back`, file: `assets/models/${file}-back.webp`, view: 'back' },
+  { id: `sample-look-${m}-sheet`, file: `assets/models/${file}-sheet.webp`, view: 'sheet' },
+].map(l => ({ ...l, modelId, styleIds: SET, colorway: 'Heather grey', title: 'Sample look (reference sheet)', notes: 'Sample mockup reusing the model reference image.', tags: ['sample'], source: 'sample' })));

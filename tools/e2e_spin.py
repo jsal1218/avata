@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:8766/avata/'
 ROOT = pathlib.Path(__file__).resolve().parent.parent; OUT = ROOT / 'screenshots'; OUT.mkdir(exist_ok=True)
-SRC = pathlib.Path('/workspace/shared/model-gallery/assets/model-1/base/hi')
+SRC = pathlib.Path('/workspace/shared/model-gallery/assets/exact-1/base/hi')
 TMP = pathlib.Path(tempfile.mkdtemp(prefix='spin-'))
 random.seed(7)
 ANG = ['000', '045', '090', '135', '180', '225', '270', '315']
@@ -76,7 +76,12 @@ with sync_playwright() as p:
 
   # ---- every gallery model (manifest) is listed, loads its 8 frames and spins on drag; switcher scrolls on a phone ----
   gids = pg.evaluate("[...document.querySelectorAll('.sp-item')].map(b => b.dataset.id).filter(id => id.startsWith('gallery:'))")
-  R['gallery_ids'] = gids; R['gallery_six'] = gids == [f'gallery:model-{n}' for n in range(1, 7)]
+  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in range(1, 6)] + ['gallery:photoreal-1']
+  # main row = Model 1-5 (exact reference), separate Photorealistic row = Photoreal 1 (old Model 2)
+  R['rows'] = pg.evaluate("""[...['#spSwitch', '#spPhotoRow']].map(q => [...document.querySelectorAll(q + ' .sp-item')].filter(b => b.dataset.id.startsWith('gallery:')).map(b => [b.querySelector('b').textContent.trim(), b.querySelector('small').textContent]))""")
+  R['photo_heading'] = pg.evaluate("[document.querySelector('.sp-photo-h')?.textContent, !document.querySelector('#spPhoto').hidden]")
+  R['lineup_ok'] = ([r[0] for r in R['rows'][0]] == [f'Model {n}' for n in range(1, 6)] and [r[1] for r in R['rows'][0]] == ['Strawberry blonde', 'Long black hair', 'Dark-brown hair', 'Platinum blonde', 'Wavy black hair']
+                    and R['rows'][1] == [['Photoreal 1', 'Dark curls']] and R['photo_heading'] == ['Photorealistic', True])
   spun, bad = {}, []
   for gid in gids:
     pg.click(f'.sp-item[data-id="{gid}"]')
@@ -96,18 +101,26 @@ with sync_playwright() as p:
   R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 6
   R['switcher'] = pg.evaluate("(() => { const x = document.querySelector('#spSwitch'); return { scrolls: x.scrollWidth > x.clientWidth, rows: new Set([...x.children].map(b => Math.round(b.getBoundingClientRect().top))).size, h: Math.round(x.getBoundingClientRect().height), fade: x.className, pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
   R['switcher_ok'] = R['switcher']['scrolls'] and R['switcher']['rows'] == 1 and R['switcher']['pageOverflow'] <= 0
-  # showcase screenshot: Model 5 selected, switcher scrolled to the new models
-  pg.click('.sp-item[data-id="gallery:model-5"]'); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
-  pg.evaluate("document.querySelector('#spSwitch').scrollTo({left: document.querySelector('.sp-item[data-id=\"gallery:model-3\"]').offsetLeft - 16})"); pg.wait_for_timeout(900)
+  # showcase screenshot: Model 5 selected, switcher scrolled to the newer models
+  pg.click('.sp-item[data-id="gallery:exact-5"]'); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
+  pg.evaluate("document.querySelector('#spSwitch').scrollTo({left: document.querySelector('.sp-item[data-id=\"gallery:exact-2\"]').offsetLeft - 16})"); pg.wait_for_timeout(900)
   shot(pg, '00-new-models')
-  pg.click('.sp-item[data-id="gallery:model-1"]'); pg.wait_for_timeout(800); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(400)
+  # old deep links (#/spin/gallery:model-N) map to the renumbered models
+  R['old_links'] = {}
+  for old, want in (('model-6', 'exact-4'), ('model-2', 'photoreal-1'), ('model-3', 'exact-2'), ('model-1', 'exact-1')):
+    pg.goto(BASE + f'#/spin/gallery:{old}'); pg.reload(); pg.wait_for_selector('.sp-item[aria-selected=true]'); pg.wait_for_timeout(1200)
+    got = pg.evaluate("[document.querySelector('.sp-item[aria-selected=true]')?.dataset.id, location.hash, document.querySelector('#spView').__spin?.frames[0]?.lo || '']")
+    R['old_links'][old] = got[0] if got[0] == f'gallery:{want}' and got[1] == f'#/spin/gallery%3A{want}' and f'/{want}/' in got[2] else got
+  R['old_links_ok'] = R['old_links'] == {'model-6': 'gallery:exact-4', 'model-2': 'gallery:photoreal-1', 'model-3': 'gallery:exact-2', 'model-1': 'gallery:exact-1'}
+  auto_off(pg) if st(pg, 'S.auto') else None
+  pg.click('.sp-item[data-id="gallery:exact-1"]'); pg.wait_for_timeout(800); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(400)
 
   # ---- build from 8 photos picked out of order ----
   pg.set_input_files('#spFile', upload); pg.wait_for_timeout(250); shot(pg, '02-building')
   wait_built(pg, 8); pg.wait_for_timeout(600)
   R['user_spins_after_build'] = pg.locator('.sp-item').count() - R['gallery_models']
   R['auto_rotate_after_build'] = st(pg, 'S.auto')
-  ref_urls = [f'../model-gallery/assets/model-1/base/lo/{a}.webp' for a in ANG]
+  ref_urls = [f'../model-gallery/assets/exact-1/base/lo/{a}.webp' for a in ANG]
   R['order_matches_filenames'] = pg.evaluate(SIG_JS, ref_urls)
   al = pg.evaluate(ALIGN_JS)
   R['align'] = {k: [round(min(x[k] for x in al), 3), round(max(x[k] for x in al), 3)] for k in ('height', 'feet', 'cx')}

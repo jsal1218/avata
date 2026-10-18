@@ -34,7 +34,7 @@ export const lookImageKey = sample => IMAGE_KEYS.includes(sample.view) ? sample.
  * A starter shipped later (not in the list) is added once on the next launch and then recorded, so deleting it later
  * sticks. Installs from before this list existed were seeded with exactly LEGACY_STARTER_IDS, so those count as known
  * (a legacy starter the user deleted is never re-added). User models, looks and edits are never read or changed. */
-export const LEGACY_STARTER_IDS = ['starter-model-1', 'starter-model-2'];
+export const LEGACY_STARTER_IDS = ['starter-exact-1', 'starter-photoreal-1']; // the original Model 1 + Model 2 (renumbered ids)
 
 /** Known-starter list for an install that has none yet: the legacy seed set plus any starter records it still holds. */
 export const initialKnownStarters = (storedModels = []) =>
@@ -50,4 +50,35 @@ export const withKnown = (known, ids) => [...new Set([...(known || []), ...ids])
 export const newStarterRecord = (starter, blobs, rev, createdAt) => {
   const { file, assetRev, ...rest } = starter;
   return { ...rest, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), ...(rev ? { assetRev: rev } : {}), starter: true, createdAt };
+};
+
+/* ---------- 2026-10 renumbering ----------
+ * Old ids → new stable ids. The old Model 5 was deleted; Model 2 (AI photoreal frames) became Photoreal 1; the exact-
+ * reference models were renumbered Model 1-4. On existing installs renumberStarters() (store.js) re-keys each old starter
+ * record (starter === true only) keeping every field the user edited; the default name follows the renumbering, a name the
+ * user chose is kept. Looks follow their model; looks of the deleted Model 5 are detached (app-seeded sample looks of
+ * it are removed). knownStarters is mapped too, so deleted starters stay deleted and nothing is added twice. */
+export const RENUMBER = {
+  'starter-model-1': { id: 'starter-exact-1', oldName: 'Model 1', name: 'Model 1' },
+  'starter-model-2': { id: 'starter-photoreal-1', oldName: 'Model 2', name: 'Photoreal 1' },
+  'starter-model-3': { id: 'starter-exact-2', oldName: 'Model 3', name: 'Model 2' },
+  'starter-model-4': { id: 'starter-exact-3', oldName: 'Model 4', name: 'Model 3' },
+  'starter-model-6': { id: 'starter-exact-4', oldName: 'Model 6', name: 'Model 4' },
+};
+export const DELETED_STARTER_IDS = ['starter-model-5'];
+
+/** Old starter record → the same record under its new id (all fields kept; default name renumbered). */
+export const renumberedStarter = (stored, to) => ({ ...stored, id: to.id, name: stored.name === to.oldName ? to.name : stored.name });
+
+/** knownStarters after the renumbering (non-arrays, i.e. "not recorded yet", pass through unchanged). */
+export const renumberedKnown = known => Array.isArray(known)
+  ? [...new Set(known.filter(id => !DELETED_STARTER_IDS.includes(id)).map(id => RENUMBER[id]?.id || id))] : known;
+
+/** What to do with a stored look: the same object (unchanged), a relinked copy, or null (delete: an app-seeded sample
+ *  look of a deleted starter). User/generated looks of a deleted starter are kept and detached (modelId null). */
+export const renumberedLook = look => {
+  if (!look) return look;
+  if (RENUMBER[look.modelId]) return { ...look, modelId: RENUMBER[look.modelId].id };
+  if (DELETED_STARTER_IDS.includes(look.modelId)) return look.sample === true && look.source === 'sample' ? null : { ...look, modelId: null };
+  return look;
 };
