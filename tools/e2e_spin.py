@@ -76,17 +76,17 @@ with sync_playwright() as p:
 
   # ---- every gallery model (manifest) is listed, loads its 8 frames and spins on drag; switcher scrolls on a phone ----
   gids = pg.evaluate("[...document.querySelectorAll('.sp-item')].map(b => b.dataset.id).filter(id => id.startsWith('gallery:'))")
-  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in range(1, 16)] + ['gallery:photoreal-1', 'gallery:generated-1']
-  # main row = Model 1-15 (exact reference), separate Photorealistic row = Photoreal 1 (old Model 2)
+  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in range(1, 17)] + ['gallery:photoreal-1', 'gallery:generated-1']
+  # main row = Model 1-16 (exact reference), separate Photorealistic row = Photoreal 1 (old Model 2)
   R['rows'] = pg.evaluate("""[...['#spSwitch', '#spPhotoRow', '#spGenRow']].map(q => [...document.querySelectorAll(q + ' .sp-item')].filter(b => b.dataset.id.startsWith('gallery:')).map(b => [b.querySelector('b').textContent.trim(), b.querySelector('small').textContent]))""")
   R['photo_heading'] = pg.evaluate("[document.querySelector('#spPhoto .sp-photo-h')?.textContent, !document.querySelector('#spPhoto').hidden]")
   # Generated 1 has her own Generated section below Photorealistic (order: Exact, Photorealistic, Generated)
   # (side by side in one row after Photorealistic, so the viewer is not pushed down on a phone)
   R['gen_heading'] = pg.evaluate("[document.querySelector('#spGen .sp-photo-h')?.textContent, !document.querySelector('#spGen').hidden, !!(document.querySelector('#spPhoto').compareDocumentPosition(document.querySelector('#spGen')) & Node.DOCUMENT_POSITION_FOLLOWING) && document.querySelector('#spPhoto').getBoundingClientRect().right <= document.querySelector('#spGen').getBoundingClientRect().left]")
   R['viewer_top'] = pg.evaluate("Math.round(document.querySelector('.sv').getBoundingClientRect().top + scrollY)"); R['viewer_top_ok'] = R['viewer_top'] < 420
-  R['lineup_ok'] = ([r[0] for r in R['rows'][0]] == [f'Model {n}' for n in range(1, 16)] and [r[1] for r in R['rows'][0]] == ['Strawberry blonde', 'Long black hair', 'Dark-brown hair', 'Platinum blonde', 'Wavy black hair',
+  R['lineup_ok'] = ([r[0] for r in R['rows'][0]] == [f'Model {n}' for n in range(1, 17)] and [r[1] for r in R['rows'][0]] == ['Strawberry blonde', 'Long black hair', 'Dark-brown hair', 'Platinum blonde', 'Wavy black hair',
                     'Pink hair', 'Wavy auburn hair', 'Long dark-brown hair', 'Silver-platinum hair', 'Curly black hair',
-                    'Auburn low bun', 'Black high bun', 'Wavy black braids', 'Curly high puff', 'Braided updo']
+                    'Auburn low bun', 'Black high bun', 'Wavy black braids', 'Curly high puff', 'Braided updo', 'Messy bun']
                     and R['rows'][1] == [['Photoreal 1', 'Dark curls']] and R['photo_heading'] == ['Photorealistic', True]
                     and R['rows'][2] == [['Generated 1', 'Wavy chestnut bob']] and R['gen_heading'] == ['Generated', True, True])
   spun, bad = {}, []
@@ -106,7 +106,7 @@ with sync_playwright() as p:
     spun[gid] = {'frames': st(pg, 'S.frames.length'), 'frame': [f0, f1], 'angle': [round(a0), round(a1)], 'selected': sel == gid, 'in_view': inview, 'img': img_ok}
     if not (f0 != f1 and sel == gid and inview and img_ok): bad.append(gid)
     if gid != 'gallery:generated-1' and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
-  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 17; R['gallery_bad'] = bad
+  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 18; R['gallery_bad'] = bad
 
   # ---- Generated 1: her 4 built-in outfits as small chips on the viewer; switching keeps the angle at all 8 angles ----
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:generated-1\"]').click()")
@@ -140,11 +140,16 @@ with sync_playwright() as p:
   R['outfit_frames'] = len(R['outfit_frames'])
   R['switcher'] = pg.evaluate("(() => { const x = document.querySelector('#spSwitch'); return { scrolls: x.scrollWidth > x.clientWidth, rows: new Set([...x.children].map(b => Math.round(b.getBoundingClientRect().top))).size, h: Math.round(x.getBoundingClientRect().height), fade: x.className, pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
   R['switcher_ok'] = R['switcher']['scrolls'] and R['switcher']['rows'] == 1 and R['switcher']['pageOverflow'] <= 0 and R['switcher']['h'] < 120
-  # with 15 gallery models: fades at both scroll ends, and the last model (Model 15) was scrolled into view when picked
+  # with 16 gallery models: fades at both scroll ends, and the last model (Model 16) was scrolled into view when picked
   R['switcher_ends'] = pg.evaluate("""async () => { const x = document.querySelector('#spSwitch'); x.scrollTo({left: 0}); await new Promise(r => setTimeout(r, 300)); const a = x.className;
     x.scrollTo({left: x.scrollWidth}); await new Promise(r => setTimeout(r, 300)); const b = x.className; return [a.includes('fade-r') && !a.includes('fade-l'), b.includes('fade-l') && !b.includes('fade-r')]; }""")
-  R['switcher_ends_ok'] = R['switcher_ends'] == [True, True] and spun.get('gallery:exact-15', {}).get('in_view') is True
-  # showcase screenshot: Model 6 selected, switcher scrolled to the new models (6-15)
+  R['switcher_ends_ok'] = R['switcher_ends'] == [True, True] and spun.get('gallery:exact-16', {}).get('in_view') is True
+  # Model 16 selected on a phone (her real back 3/4 is the 225 frame, 135 its mirror)
+  pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:exact-16\"]').click()"); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
+  R['model16'] = st(pg, '[S.frames.length, S.frames.map(f => f.lo.split("/model-gallery/")[1].split("?")[0])]')
+  R['model16_ok'] = R['model16'][0] == 8 and [u for u in R['model16'][1]] == [f'assets/exact-16/base/lo/{a}.webp' for a in ANG]
+  shot(pg, '16-model-16')
+  # showcase screenshot: Model 6 selected, switcher scrolled to the new models (6-16)
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:exact-6\"]').click()"); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
   pg.evaluate("document.querySelector('#spSwitch').scrollTo({left: document.querySelector('.sp-item[data-id=\"gallery:exact-5\"]').offsetLeft - 16})"); pg.wait_for_timeout(900)
   shot(pg, '00-new-models')
@@ -253,7 +258,7 @@ with sync_playwright() as p:
   c.close(); b.close()
 
 R['errors'] = errors; R['foreign_hosts'] = sorted(foreign)
-KEYS = ['tab_present', 'gallery_all', 'lineup_ok', 'viewer_top_ok', 'gallery_all_spin', 'outfit_chips_ok', 'outfit_chips_on_screen', 'outfit_switch_ok', 'outfit_keeps_spinning', 'outfit_frames_ok', 'switcher_ok', 'switcher_ends_ok', 'old_links_ok', 'align_ok', 'drag_changes_frame', 'hd_badge',
+KEYS = ['tab_present', 'gallery_all', 'lineup_ok', 'viewer_top_ok', 'gallery_all_spin', 'outfit_chips_ok', 'outfit_chips_on_screen', 'outfit_switch_ok', 'outfit_keeps_spinning', 'outfit_frames_ok', 'switcher_ok', 'switcher_ends_ok', 'model16_ok', 'old_links_ok', 'align_ok', 'drag_changes_frame', 'hd_badge',
         'reorder_toast', 'persist_ok', 'crossfade_ok', 'delete_cancel_keeps', 'delete_removes', 'sw']
 R['FAILED'] = [k for k in KEYS if R.get(k) is not True] + (['errors'] if errors else []) + (['foreign_hosts'] if foreign else [])
 R['PASS'] = not R['FAILED']

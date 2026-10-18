@@ -172,7 +172,7 @@ export async function initData() {
   await reload();
 }
 export async function reload() {
-  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..15, Photoreal 1, Generated 1), then user models by createdAt
+  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1..16, Photoreal 1, Generated 1), then user models by createdAt
   S.styles = await db.all('styles');
   S.looks = (await db.all('looks')).sort((a, b) => b.createdAt - a.createdAt);
 }

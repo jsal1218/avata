@@ -3,7 +3,7 @@
 // for a starter with outfits, over every outfit's four files in outfit order.
 // When you replace a starter's images, update its assetRev (npm test fails until it matches); installed copies then
 // refresh that starter's images on next launch, keeping the user's edits.
-// Exact-reference models are Model 1-15 (ids starter-exact-N; 6-15 added 2026-10-18); AI-generated photoreal models are listed separately
+// Exact-reference models are Model 1-16 (ids starter-exact-N; 6-16 added 2026-10-18); AI-generated photoreal models are listed separately
 // (starter-photoreal-N), then generated models (starter-generated-N, with built-in outfits). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
@@ -35,7 +35,7 @@ export const STARTERS = [
     note: 'Long wavy black hair, deep tan skin',
   },
   {
-    // Models 6-15 added 2026-10-18 from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
+    // Models 6-16 added 2026-10-18 from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
     id: 'starter-exact-6', name: 'Model 6', file: 'exact-6', assetRev: '16bc8fba9dc6', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, fair skin',
@@ -84,6 +84,11 @@ export const STARTERS = [
     id: 'starter-exact-15', name: 'Model 15', file: 'exact-15', assetRev: '128e48c60810', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
     measurements: { bust: 34, waist: 25, hips: 37, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Dark brown braided updo bun, bronze tan skin, gold bikini',
+  },
+  {
+    id: 'starter-exact-16', name: 'Model 16', file: 'exact-16', assetRev: '211327dacdfc', heightCm: 160, bodyType: 'curvy', size: '10–12 / L',
+    measurements: { bust: 38, waist: 29, hips: 42, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Dark brown hair in a messy bun, light olive skin',
   },
   {
     id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
