@@ -76,6 +76,17 @@ export const STARTERS = [
       { id: 'linen-set', name: 'Linen set', subtitle: 'Sage tank · linen pants', file: 'generated-1-linen-set' },
     ],
   },
+  {
+    // Generated 2 (added 2026-10-18): a second generated fictional model, listed after Generated 1 in the Generated section,
+    // with two built-in outfits. The first outfit is her base images (file); assetRev covers both outfits' images in this order.
+    id: 'starter-generated-2', name: 'Generated 2', file: 'generated-2', assetRev: 'e1a458afce26', heightCm: 160, bodyType: 'athletic', size: '4–6 / S',
+    measurements: { bust: 34, waist: 26, hips: 37, inseam: 31 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Sleek dark-brown ponytail, athletic build (generated model)', source: 'generated',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey tank · leggings', file: 'generated-2' },
+      { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'generated-2-yoga-set' },
+    ],
+  },
 ];
 
 // Clearly-labelled SAMPLE catalog so the app isn't empty. Not real factory data —
