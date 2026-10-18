@@ -330,13 +330,17 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 
 /* 360 spin */
 .spin-page{padding-top:2px}
-.sp-switch{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 10px;padding:2px 16px;scroll-snap-type:x proximity}
+.sp-switch{position:relative;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 10px;padding:2px 16px;scroll-snap-type:x proximity;scroll-padding:0 16px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+/* many models (spins + 6 gallery models): soft edge fades show there is more to scroll */
+.sp-switch.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+.sp-switch.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 34px);mask-image:linear-gradient(90deg,transparent,#000 34px)}
+.sp-switch.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent)}
 .sp-switch::-webkit-scrollbar{display:none}
 .sp-switch button{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;width:76px;min-height:0;padding:6px 4px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-weight:500}
 .sp-switch img,.sp-plus{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 10%;background:var(--surface2)}
 .sp-plus{display:grid;place-items:center;background:var(--solid);color:var(--on-solid)}
 .sp-switch b{font-size:11.5px;line-height:1.2;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
-.sp-switch small{font-size:9.5px;color:var(--muted);letter-spacing:.04em;line-height:1.1}
+.sp-switch small{font-size:9.5px;color:var(--muted);letter-spacing:.02em;line-height:1.15;max-width:68px;text-align:center;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
 .sp-switch [aria-selected=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .sv{position:relative;width:100%;height:min(calc(100dvh - 300px - var(--safe-t) - var(--safe-b)),150vw);min-height:340px;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab;outline:none}
 .sv:focus-visible{box-shadow:0 0 0 2px var(--acc)}.sv.ptr:focus-visible{box-shadow:var(--shadow)}

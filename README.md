@@ -16,7 +16,7 @@ server, no paid services. Live: https://jsal1218.github.io/avata/
   (margin shown), tags, photos (flat lays, tech sketches). Status bar with counts; detail page shows all mockups grouped
   by model; quick status change; CSV export.
 - **Models** — front/back reference sheets (auto-split), height (ft/in ⇄ cm), body type, size, measurements.
-  Two starter models bundled (5′3″ / 160 cm, measurements marked estimated).
+  Six starter models bundled (5′3″ / 160 cm, measurements marked estimated).
 - **360** — make a spin of a model from your own photos: tap **New 360**, pick several photos from different angles
   (multi-select from Photos) or one short turnaround video, done. Everything runs on the phone with the exact pixels — no AI,
   no uploads, nothing generated. Photos are auto-ordered (filename order when names are numbered, else picked order; drag to
@@ -61,6 +61,8 @@ cache-first; cross-origin requests are never touched. A new worker takes over im
 file picker, open sheet, unsaved edit, typing) it shows "Updated, tap to reload" and reloads the next time the app comes
 back from the background. Long tasks register with `holdWork()` from `js/ui.js`.
 Update e2e: `python3 tools/e2e_update.py` (serves a temp copy, deploys new versions, checks reload / toast / no loops).
-Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous release, adds user edits, deploys this tree, checks starter images refresh while user data is untouched).
+Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous release, adds user edits, deploys this tree, checks starter images refresh while user data is untouched, newly shipped starters are added once, and deleted starters stay deleted).
 
 **Changing a starter's images:** replace `assets/models/<file>-*.webp`, then set that starter's `assetRev` in `js/starters.js` (`npm test` prints the expected hash). Installed copies refresh only that starter's images on next launch; renames, notes, measurements, user models and looks are kept.
+
+**Adding a starter:** add its four images (Model 1's sizes: sheet 1500×1500, front 1025×1536, back 1023×1535, thumb 360×539 WebP; built with `/workspace/shared/model-gallery/tools/build_avata.py --model N`), append it to `STARTERS` with its `assetRev`, and add the files to the `SHELL` list in `sw.js`. Existing installs get it once on next launch (`addNewStarters`): kv `knownStarters` records every starter id an install has been given, so a starter the user deleted is never re-added. Sample looks stay limited to Models 1 and 2.

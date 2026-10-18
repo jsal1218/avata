@@ -74,6 +74,34 @@ with sync_playwright() as p:
   R['version'] = pg.evaluate("import('./js/app.js').then(m => m.VERSION)")
   shot(pg, '01-gallery-model')
 
+  # ---- every gallery model (manifest) is listed, loads its 8 frames and spins on drag; switcher scrolls on a phone ----
+  gids = pg.evaluate("[...document.querySelectorAll('.sp-item')].map(b => b.dataset.id).filter(id => id.startsWith('gallery:'))")
+  R['gallery_ids'] = gids; R['gallery_six'] = gids == [f'gallery:model-{n}' for n in range(1, 7)]
+  spun, bad = {}, []
+  for gid in gids:
+    pg.click(f'.sp-item[data-id="{gid}"]')
+    pg.wait_for_function(f"(() => {{ const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/{gid[8:]}/') && document.querySelector('.sv-busy').hidden; }})()", timeout=30000)
+    pg.wait_for_timeout(400); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(700)
+    vb = pg.locator('.sv').bounding_box(); y = vb['y'] + vb['height'] * 0.5
+    a0 = st(pg, 'S.angle'); f0 = int(pg.get_attribute('.sv', 'data-frame'))
+    pg.mouse.move(vb['x'] + 320, y); pg.mouse.down()
+    for i in range(12): pg.mouse.move(vb['x'] + 320 - i * 12, y); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(1200)
+    f1 = int(pg.get_attribute('.sv', 'data-frame')); a1 = st(pg, 'S.angle')
+    sel = pg.evaluate("document.querySelector('.sp-item[aria-selected=true]')?.dataset.id")
+    inview = pg.evaluate(f"""(() => {{ const b = document.querySelector('.sp-item[data-id="{gid}"]').getBoundingClientRect(), x = document.querySelector('#spSwitch').getBoundingClientRect(); return b.left >= x.left - 1 && b.right <= x.right + 1; }})()""")
+    img_ok = pg.evaluate("(() => { const a = document.querySelector('.sv-a'); return a.complete && a.naturalWidth === 600 && a.naturalHeight === 1024; })()")
+    spun[gid] = {'frames': st(pg, 'S.frames.length'), 'frame': [f0, f1], 'angle': [round(a0), round(a1)], 'selected': sel == gid, 'in_view': inview, 'img': img_ok}
+    if not (f0 != f1 and sel == gid and inview and img_ok): bad.append(gid)
+  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 6
+  R['switcher'] = pg.evaluate("(() => { const x = document.querySelector('#spSwitch'); return { scrolls: x.scrollWidth > x.clientWidth, rows: new Set([...x.children].map(b => Math.round(b.getBoundingClientRect().top))).size, h: Math.round(x.getBoundingClientRect().height), fade: x.className, pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
+  R['switcher_ok'] = R['switcher']['scrolls'] and R['switcher']['rows'] == 1 and R['switcher']['pageOverflow'] <= 0
+  # showcase screenshot: Model 5 selected, switcher scrolled to the new models
+  pg.click('.sp-item[data-id="gallery:model-5"]'); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
+  pg.evaluate("document.querySelector('#spSwitch').scrollTo({left: document.querySelector('.sp-item[data-id=\"gallery:model-3\"]').offsetLeft - 16})"); pg.wait_for_timeout(900)
+  shot(pg, '00-new-models')
+  pg.click('.sp-item[data-id="gallery:model-1"]'); pg.wait_for_timeout(800); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(400)
+
   # ---- build from 8 photos picked out of order ----
   pg.set_input_files('#spFile', upload); pg.wait_for_timeout(250); shot(pg, '02-building')
   wait_built(pg, 8); pg.wait_for_timeout(600)

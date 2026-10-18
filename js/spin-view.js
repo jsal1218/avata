@@ -7,6 +7,7 @@ import { buildSpin, makeSpinThumb } from './spin-build.js';
 
 const GALLERY = '../model-gallery/data/manifest.json';
 let galleryCache = null;
+let onResizeFade = null; addEventListener('resize', () => onResizeFade?.(), { passive: true }); // one listener for every render
 async function galleryModels() {
   if (galleryCache) return galleryCache;
   try {
@@ -34,10 +35,18 @@ export async function renderSpin(v, id) {
 
   function drawSwitch() {
     $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` +
-      items().map(m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b><small>${m.gallery ? 'Gallery' : `${m.frames.length} photos`}</small></button>`).join('');
+      items().map(m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(`${m.name} · ${m.sub || 'Gallery'}`)}"` : ''}><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b><small>${m.gallery ? esc(m.sub.split(' · ')[0] || 'Gallery') : `${m.frames.length} photos`}</small></button>`).join('');
     $('#spNew', v).onclick = () => $('#spFile', v).click();
     $$('.sp-item', v).forEach(b => b.onclick = () => select(b.dataset.id));
+    edgeFade();
   }
+  // edge fades on the scrolling switcher (6 gallery models + your spins rarely fit a phone width)
+  function edgeFade() {
+    const sw = $('#spSwitch', v); if (!sw) return;
+    sw.classList.toggle('fade-l', sw.scrollLeft > 4); sw.classList.toggle('fade-r', sw.scrollLeft + sw.clientWidth < sw.scrollWidth - 4);
+  }
+  $('#spSwitch', v).addEventListener('scroll', edgeFade, { passive: true });
+  onResizeFade = edgeFade;
   function drawEmpty() {
     const none = !items().length;
     $('#spEmpty', v).hidden = !none; $('#spView', v).hidden = none;

@@ -13,6 +13,26 @@ export const STARTERS = [
     measurements: { bust: 34, waist: 25, hips: 38, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long dark curls, tan skin',
   },
+  {
+    id: 'starter-model-3', name: 'Model 3', file: 'model-3', assetRev: '5bcd40dcd6fd', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight black hair, fair skin',
+  },
+  {
+    id: 'starter-model-4', name: 'Model 4', file: 'model-4', assetRev: '510dde6f33e6', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
+    measurements: { bust: 34, waist: 26, hips: 36, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight dark-brown hair, tan skin',
+  },
+  {
+    id: 'starter-model-5', name: 'Model 5', file: 'model-5', assetRev: '85ca8e62555e', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long wavy black hair, deep tan skin',
+  },
+  {
+    id: 'starter-model-6', name: 'Model 6', file: 'model-6', assetRev: '124ee766ccd1', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
+    measurements: { bust: 44, waist: 38, hips: 48, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight platinum-blonde hair, fair skin',
+  },
 ];
 
 // Clearly-labelled SAMPLE catalog so the app isn't empty. Not real factory data —

@@ -2,7 +2,7 @@
 import { db, uid } from './db.js';
 import { STARTERS, SAMPLE_STYLES, SAMPLE_LOOKS } from './starters.js';
 import { makeThumb } from './imaging.js';
-import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey } from './starter-sync.js';
+import { IMAGE_KEYS, contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, lookImageKey, initialKnownStarters, startersToAdd, withKnown, newStarterRecord } from './starter-sync.js';
 
 export const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Sets', 'Knitwear', 'Activewear', 'Swim', 'Loungewear', 'Accessories', 'Other'];
 export const STATUSES = ['Concept', 'Sampling', 'Approved', 'In production', 'Shipped', 'Archived'];
@@ -33,14 +33,34 @@ async function verifiedRev(s, blobs) { const h = await contentRev(blobs).catch((
 
 export async function seedStarters(force = false) {
   if ((await db.get('kv', 'seeded')) && !force) return;
-  for (const s of STARTERS) {
+  const t0 = Date.now();
+  for (const [i, s] of STARTERS.entries()) {
     if (!force && await db.get('models', s.id)) continue;
     const blobs = await fetchStarterImages(s, force);
-    const { file, assetRev, ...rest } = s;
     const rev = await verifiedRev(s, blobs); // unverified (stale cache) → no rev → syncStarters retries next launch
-    await db.put('models', { ...rest, ...blobs, ...(rev ? { assetRev: rev } : {}), starter: true, createdAt: Date.now() - (s.id.endsWith('1') ? 2 : 1) });
+    await db.put('models', newStarterRecord(s, blobs, rev, t0 - (STARTERS.length - i))); // keeps STARTERS order
   }
+  await db.put('kv', withKnown(await db.get('kv', 'knownStarters'), STARTERS.map(s => s.id)), 'knownStarters');
   await db.put('kv', true, 'seeded');
+}
+
+/** Existing installs: add bundled starters that shipped after this install was seeded (once each). A starter the user
+ *  deleted stays deleted (its id is in kv 'knownStarters'); user models/looks/edits are untouched. A failed download
+ *  isn't recorded as known, so it is retried on the next launch. */
+export async function addNewStarters() {
+  if (!(await db.get('kv', 'seeded'))) return;
+  let known = await db.get('kv', 'knownStarters');
+  if (!Array.isArray(known)) { known = initialKnownStarters(await db.all('models')); await db.put('kv', known, 'knownStarters'); }
+  const t0 = Date.now();
+  for (const [i, s] of startersToAdd(STARTERS, known).entries()) {
+    try {
+      if (!(await db.get('models', s.id))) {
+        const blobs = await fetchStarterImages(s, true);
+        await db.put('models', newStarterRecord(s, blobs, await verifiedRev(s, blobs), t0 + i));
+      }
+      known = withKnown(known, [s.id]); await db.put('kv', known, 'knownStarters');
+    } catch (e) { console.warn('Avata: could not add new starter', s.id, '— will retry', e); }
+  }
 }
 
 /** Re-sync installed starters with the shipped assets. Replaces ONLY image fields of a starter model whose assetRev
@@ -100,6 +120,7 @@ export async function initData() {
   await seedStarters();
   await migrateGens();
   await seedSamples();
+  await addNewStarters(); // starters shipped after this install was seeded (never re-adds deleted ones)
   await syncStarters(); // refresh starters whose shipped images changed since they were stored
   await reload();
 }

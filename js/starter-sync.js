@@ -28,3 +28,26 @@ export const refreshedLook = (stored, starter, blob) => ({ ...stored, image: blo
 
 /** Which shipped image a sample look shows (sample looks use the model's sheet/front/back file directly). */
 export const lookImageKey = sample => IMAGE_KEYS.includes(sample.view) ? sample.view : 'front';
+
+/* ---------- new starters on existing installs ----------
+ * kv 'knownStarters' = ids of every bundled starter this install has ever been given (kept OR deleted by the user).
+ * A starter shipped later (not in the list) is added once on the next launch and then recorded, so deleting it later
+ * sticks. Installs from before this list existed were seeded with exactly LEGACY_STARTER_IDS, so those count as known
+ * (a legacy starter the user deleted is never re-added). User models, looks and edits are never read or changed. */
+export const LEGACY_STARTER_IDS = ['starter-model-1', 'starter-model-2'];
+
+/** Known-starter list for an install that has none yet: the legacy seed set plus any starter records it still holds. */
+export const initialKnownStarters = (storedModels = []) =>
+  [...new Set([...LEGACY_STARTER_IDS, ...storedModels.filter(m => m && m.starter === true && typeof m.id === 'string').map(m => m.id)])];
+
+/** Shipped starters this install has never been given, in STARTERS order. */
+export const startersToAdd = (starters, known) => { const k = new Set(known || []); return starters.filter(s => !k.has(s.id)); };
+
+/** Known list after offering `ids` (order-preserving, no duplicates). */
+export const withKnown = (known, ids) => [...new Set([...(known || []), ...ids])];
+
+/** Model record for a newly added starter (same shape seedStarters writes). rev = verified assetRev or undefined. */
+export const newStarterRecord = (starter, blobs, rev, createdAt) => {
+  const { file, assetRev, ...rest } = starter;
+  return { ...rest, ...Object.fromEntries(IMAGE_KEYS.map(k => [k, blobs[k]])), ...(rev ? { assetRev: rev } : {}), starter: true, createdAt };
+};
