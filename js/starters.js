@@ -5,7 +5,7 @@
 // refresh that starter's images on next launch, keeping the user's edits.
 // Exact-reference models: Model 1-9 (ids starter-exact-5, 6, 7, 9, 10, 12, 13, 14, 17). On 2026-10-18 Jordan removed the old Models 1-4, 8,
 // 11, 15 and 16 (REMOVED_STARTER_IDS in starter-sync.js) and the rest were renumbered Model 1-8 by display name only (RELABEL;
-// ids are stable); exact-17 was added as Model 9. AI-generated photoreal models are listed separately
+// ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. AI-generated photoreal models are listed separately
 // (starter-photoreal-N), then generated models (starter-generated-N, with built-in outfits). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
@@ -57,6 +57,32 @@ export const STARTERS = [
     id: 'starter-exact-17', name: 'Model 9', file: 'exact-17', assetRev: 'f06a41c1b13f', heightCm: 160, bodyType: 'athletic', size: '6–8 / M',
     measurements: { bust: 36, waist: 28, hips: 40, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Short wavy dark-brown bob, tan skin',
+  },
+  // added 2026-10-18 from Jordan's 6-view sheets (same pipeline); new stable ids exact-18..22, labels Model 10-14; existing installs gain them once
+  {
+    id: 'starter-exact-18', name: 'Model 10', file: 'exact-18', assetRev: 'f9d35ab210eb', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
+    measurements: { bust: 34, waist: 26, hips: 37, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long curly red hair, freckles, fair skin, layered necklace',
+  },
+  {
+    id: 'starter-exact-19', name: 'Model 11', file: 'exact-19', assetRev: 'ea7997153b0b', heightCm: 160, bodyType: 'curvy', size: '6–8 / M',
+    measurements: { bust: 36, waist: 27, hips: 40, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight copper hair, half-cyborg face (left side), black top and flared pants',
+  },
+  {
+    id: 'starter-exact-20', name: 'Model 12', file: 'exact-20', assetRev: '90fad9235303', heightCm: 160, bodyType: 'curvy', size: '6–8 / M',
+    measurements: { bust: 36, waist: 27, hips: 40, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Platinum-blonde bob, half-cyborg face (left side), black top and flared pants',
+  },
+  {
+    id: 'starter-exact-21', name: 'Model 13', file: 'exact-21', assetRev: '19029f72dedf', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
+    measurements: { bust: 35, waist: 26, hips: 37, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long wavy brown hair, fair skin',
+  },
+  {
+    id: 'starter-exact-22', name: 'Model 14', file: 'exact-22', assetRev: '7b1c9e05547b', heightCm: 160, bodyType: 'average', size: 'M',
+    measurements: { bust: 40, waist: 32, hips: 39, inseam: 31 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Brown cap, white graphic tee, black shorts, slides (male model; face blurred in the sheet)',
   },
   {
     id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
