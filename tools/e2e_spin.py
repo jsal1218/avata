@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent; OUT = ROOT / 'screenshots
 SRC = pathlib.Path('/workspace/shared/model-gallery/assets/exact-5/base/hi')   # first remaining exact model (Model 1 was removed 2026-10-18)
 TMP = pathlib.Path(tempfile.mkdtemp(prefix='spin-'))
 random.seed(7)
-KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22]   # exact model ids after the 2026-10-18 removal + new exact-17..22; labelled Model 1-14 in this order
+KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24]   # exact model ids after the 2026-10-18 removal + new exact-17..22; labelled Model 1-14 in this order
 ANG = ['000', '045', '090', '135', '180', '225', '270', '315']
 
 # Simulate hand-held photos: the same exact frames, re-shot at different distances / positions on a bigger canvas.
@@ -89,7 +89,7 @@ with sync_playwright() as p:
   R['lineup_ok'] = ([r[0] for r in R['rows'][0]] == [f'Model {i + 1}' for i in range(len(KEEP))] and [r[1] for r in R['rows'][0]] == ['Wavy black hair',
                     'Pink hair', 'Wavy auburn hair', 'Silver-platinum hair', 'Curly black hair',
                     'Black high bun', 'Wavy black braids', 'Curly high puff', 'Short wavy bob',
-                    'Long curly red hair', 'Long copper hair', 'Blonde bob', 'Long wavy brown hair', 'Brown cap']
+                    'Long curly red hair', 'Long copper hair', 'Blonde bob', 'Long wavy brown hair', 'Brown cap', 'Curly brown hair', 'Burgundy-pink hair']
                     and R['photo_gone'] == [False, ['Generated'], 0]
                     and R['rows'][1] == [['Generated 1', 'Wavy chestnut bob'], ['Generated 2', 'Sleek ponytail'], ['Generated 3', 'Pink hair']] and R['gen_heading'] == ['Generated', True, True])
   spun, bad = {}, []
@@ -108,8 +108,8 @@ with sync_playwright() as p:
     img_ok = pg.evaluate("(() => { const a = document.querySelector('.sv-a'); return a.complete && a.naturalWidth === 600 && a.naturalHeight === 1024; })()")
     spun[gid] = {'frames': st(pg, 'S.frames.length'), 'frame': [f0, f1], 'angle': [round(a0), round(a1)], 'selected': sel == gid, 'in_view': inview, 'img': img_ok}
     if not (f0 != f1 and sel == gid and inview and img_ok): bad.append(gid)
-    if not gid.startswith('gallery:generated-') and gid != 'gallery:exact-5' and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
-  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 17; R['gallery_bad'] = bad
+    if not gid.startswith('gallery:generated-') and gid not in ('gallery:exact-5', 'gallery:exact-6') and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
+  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 19; R['gallery_bad'] = bad
 
   # ---- Generated 1: her 4 built-in outfits as small chips on the viewer; switching keeps the angle at all 8 angles ----
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:generated-1\"]').click()")
