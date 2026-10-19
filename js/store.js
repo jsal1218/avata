@@ -131,12 +131,13 @@ export async function renumberStarters(force = false) {
   await db.put('kv', true, 'renumbered-2026-10');
 }
 
-/** One-time (per install) removal of the starters Jordan removed on 2026-10-18 (Models 1-4, 8, 11, 15, 16). Deletes only
+/** One-time (per install) removal of the starters Jordan removed on 2026-10-18 (Models 1-4, 8, 11, 15, 16) and 2026-10-19
+ *  (Photoreal 1-2, the Photorealistic section). Deletes only
  *  their starter records (starter === true); user-created models are never touched. Their app-seeded sample looks are
  *  removed, the user's own looks of them are kept and detached. Their ids are recorded in knownStarters (never re-added).
  *  Idempotent; the done-flag is set last. force=true re-runs it (after importing an older backup). */
 export async function removeStarters(force = false) {
-  if (!force && await db.get('kv', 'removed-starters-2026-10-18')) return;
+  if (!force && await db.get('kv', 'removed-starters-2026-10-19')) return;   // second round (Photoreal 1-2) under a new flag; idempotent
   // an older install without a known list yet: record it now (from the records it holds), so the removed ids are recorded too
   if ((await db.get('kv', 'seeded')) && !Array.isArray(await db.get('kv', 'knownStarters'))) await db.put('kv', initialKnownStarters(await db.all('models')), 'knownStarters');
   for (const id of REMOVED_STARTER_IDS) { const m = await db.get('models', id); if (m && m.starter === true) await db.del('models', id); }
@@ -146,7 +147,7 @@ export async function removeStarters(force = false) {
   }
   const known = await db.get('kv', 'knownStarters');
   if (Array.isArray(known)) await db.put('kv', removedKnown(known), 'knownStarters');
-  await db.put('kv', true, 'removed-starters-2026-10-18');
+  await db.put('kv', true, 'removed-starters-2026-10-18'); await db.put('kv', true, 'removed-starters-2026-10-19');
 }
 
 /** One-time (per install) relabel of the remaining exact starters to Model 1-8 (old Model 5, 6, 7, 9, 10, 12, 13, 14; ids
@@ -193,7 +194,7 @@ export async function initData() {
   await seedStarters();
   await migrateGens();
   await renumberStarters(); // old starter-model-N ids → exact-N / photoreal-N; old Model 5 deleted (before anything adds starters)
-  await removeStarters(); // Models 1-4, 8, 11, 15, 16 removed (2026-10-18): their starter records go once, never re-added
+  await removeStarters(); // Models 1-4, 8, 11, 15, 16 removed (2026-10-18), Photoreal 1-2 (2026-10-19): their starter records go once, never re-added
   await relabelStarters(); // then the remaining exact models are renamed Model 1-8 once (ids unchanged; user names kept)
   await seedSamples();
   await addNewStarters(); // starters shipped after this install was seeded (never re-adds deleted ones)
@@ -201,7 +202,7 @@ export async function initData() {
   await reload();
 }
 export async function reload() {
-  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1-14, Photoreal 1-2, Generated 1-3), then user models by createdAt
+  S.models = orderedModels(await db.all('models'), STARTERS); // starters in canonical order (Model 1-14, Generated 1-3), then user models by createdAt
   S.styles = await db.all('styles');
   S.looks = (await db.all('looks')).sort((a, b) => b.createdAt - a.createdAt);
 }

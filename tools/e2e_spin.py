@@ -77,26 +77,25 @@ with sync_playwright() as p:
 
   # ---- every gallery model (manifest) is listed, loads its 8 frames and spins on drag; switcher scrolls on a phone ----
   gids = pg.evaluate("[...document.querySelectorAll('.sp-item')].map(b => b.dataset.id).filter(id => id.startsWith('gallery:'))")
-  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in KEEP] + ['gallery:photoreal-1', 'gallery:photoreal-2', 'gallery:generated-1', 'gallery:generated-2', 'gallery:generated-3']
+  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in KEEP] + ['gallery:generated-1', 'gallery:generated-2', 'gallery:generated-3']
   # default selection on opening the tab = the first model (Model 1 = exact-5)
   R['default_model'] = pg.evaluate("document.querySelector('.sp-item[aria-selected=true]')?.dataset.id"); R['default_ok'] = R['default_model'] == 'gallery:exact-5'
-  # main row = Model 1-9 (exact reference; renumbered, stable ids), separate Photorealistic row = Photoreal 1 (old Model 2)
-  R['rows'] = pg.evaluate("""[...['#spSwitch', '#spPhotoRow', '#spGenRow']].map(q => [...document.querySelectorAll(q + ' .sp-item')].filter(b => b.dataset.id.startsWith('gallery:')).map(b => [b.querySelector('b').textContent.trim(), b.querySelector('small').textContent]))""")
-  R['photo_heading'] = pg.evaluate("[document.querySelector('#spPhoto .sp-photo-h')?.textContent, !document.querySelector('#spPhoto').hidden]")
-  # Generated 1 has her own Generated section below Photorealistic (order: Exact, Photorealistic, Generated)
-  # (side by side in one row after Photorealistic, so the viewer is not pushed down on a phone)
-  R['gen_heading'] = pg.evaluate("[document.querySelector('#spGen .sp-photo-h')?.textContent, !document.querySelector('#spGen').hidden, !!(document.querySelector('#spPhoto').compareDocumentPosition(document.querySelector('#spGen')) & Node.DOCUMENT_POSITION_FOLLOWING) && document.querySelector('#spPhoto').getBoundingClientRect().right <= document.querySelector('#spGen').getBoundingClientRect().left]")
+  # main row = Model 1-14 (exact reference; renumbered, stable ids); the Photorealistic row was removed (2026-10-19)
+  R['rows'] = pg.evaluate("""[...['#spSwitch', '#spGenRow']].map(q => [...document.querySelectorAll(q + ' .sp-item')].filter(b => b.dataset.id.startsWith('gallery:')).map(b => [b.querySelector('b').textContent.trim(), b.querySelector('small').textContent]))""")
+  R['photo_gone'] = pg.evaluate("[!!document.querySelector('#spPhoto, #spPhotoRow'), [...document.querySelectorAll('.sp-photo-h')].map(h => h.textContent), [...document.querySelectorAll('.sp-item')].filter(b => /photoreal/.test(b.dataset.id)).length]")
+  # the Generated section sits below the main row (order: Exact, Generated)
+  R['gen_heading'] = pg.evaluate("[document.querySelector('#spGen .sp-photo-h')?.textContent, !document.querySelector('#spGen').hidden, !!(document.querySelector('#spSwitch').compareDocumentPosition(document.querySelector('#spGen')) & Node.DOCUMENT_POSITION_FOLLOWING)]")
   R['viewer_top'] = pg.evaluate("Math.round(document.querySelector('.sv').getBoundingClientRect().top + scrollY)"); R['viewer_top_ok'] = R['viewer_top'] < 420
   R['lineup_ok'] = ([r[0] for r in R['rows'][0]] == [f'Model {i + 1}' for i in range(len(KEEP))] and [r[1] for r in R['rows'][0]] == ['Wavy black hair',
                     'Pink hair', 'Wavy auburn hair', 'Silver-platinum hair', 'Curly black hair',
                     'Black high bun', 'Wavy black braids', 'Curly high puff', 'Short wavy bob',
                     'Long curly red hair', 'Long copper hair', 'Blonde bob', 'Long wavy brown hair', 'Brown cap']
-                    and R['rows'][1] == [['Photoreal 1', 'Dark curls'], ['Photoreal 2', 'Pink hair']] and R['photo_heading'] == ['Photorealistic', True]
-                    and R['rows'][2] == [['Generated 1', 'Wavy chestnut bob'], ['Generated 2', 'Sleek ponytail'], ['Generated 3', 'Pink hair']] and R['gen_heading'] == ['Generated', True, True])
+                    and R['photo_gone'] == [False, ['Generated'], 0]
+                    and R['rows'][1] == [['Generated 1', 'Wavy chestnut bob'], ['Generated 2', 'Sleek ponytail'], ['Generated 3', 'Pink hair']] and R['gen_heading'] == ['Generated', True, True])
   spun, bad = {}, []
   for gid in gids:
     pg.click(f'.sp-item[data-id="{gid}"]')
-    pg.wait_for_function(f"(() => {{ const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/{'generated-3' if gid == 'gallery:photoreal-2' else gid[8:]}/') && document.querySelector('.sv-busy').hidden; }})()", timeout=30000)
+    pg.wait_for_function(f"(() => {{ const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/{gid[8:]}/') && document.querySelector('.sv-busy').hidden; }})()", timeout=30000)
     pg.wait_for_timeout(400); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(700)
     vb = pg.locator('.sv').bounding_box(); y = vb['y'] + vb['height'] * 0.5
     a0 = st(pg, 'S.angle'); f0 = int(pg.get_attribute('.sv', 'data-frame'))
@@ -109,8 +108,8 @@ with sync_playwright() as p:
     img_ok = pg.evaluate("(() => { const a = document.querySelector('.sv-a'); return a.complete && a.naturalWidth === 600 && a.naturalHeight === 1024; })()")
     spun[gid] = {'frames': st(pg, 'S.frames.length'), 'frame': [f0, f1], 'angle': [round(a0), round(a1)], 'selected': sel == gid, 'in_view': inview, 'img': img_ok}
     if not (f0 != f1 and sel == gid and inview and img_ok): bad.append(gid)
-    if not gid.startswith('gallery:generated-') and gid != 'gallery:photoreal-2' and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
-  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 19; R['gallery_bad'] = bad
+    if not gid.startswith('gallery:generated-') and gid != 'gallery:exact-5' and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
+  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 17; R['gallery_bad'] = bad
 
   # ---- Generated 1: her 4 built-in outfits as small chips on the viewer; switching keeps the angle at all 8 angles ----
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:generated-1\"]').click()")
@@ -201,8 +200,8 @@ with sync_playwright() as p:
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:exact-6\"]').click()"); pg.wait_for_timeout(1500); auto_off(pg) if st(pg, 'S.auto') else None
   pg.evaluate("document.querySelector('#spSwitch').scrollTo({left: document.querySelector('.sp-item[data-id=\"gallery:exact-5\"]').offsetLeft - 16})"); pg.wait_for_timeout(900)
   shot(pg, '00-new-models')
-  # old deep links: gallery:model-2 still maps to Photoreal 1; links to removed models (old model-N, exact-1..4/8/11/15/16) fall back to the first model (Model 1 = exact-5)
-  OLD = {'model-2': 'photoreal-1', **{h: 'exact-5' for h in ('model-1', 'model-3', 'model-6', 'exact-1', 'exact-4', 'exact-8', 'exact-11', 'exact-15', 'exact-16')}}
+  # old deep links: gallery:model-2 and gallery:photoreal-1/2 (section removed) fall back to Model 1, like links to removed models (old model-N, exact-1..4/8/11/15/16) fall back to the first model (Model 1 = exact-5)
+  OLD = {**{h: 'exact-5' for h in ('model-2', 'photoreal-1', 'photoreal-2', 'model-1', 'model-3', 'model-6', 'exact-1', 'exact-4', 'exact-8', 'exact-11', 'exact-15', 'exact-16')}}
   R['old_links'] = {}
   for old, want in OLD.items():
     pg.goto(BASE + f'#/spin/gallery:{old}'); pg.reload(); pg.wait_for_selector('.sp-item[aria-selected=true]'); pg.wait_for_timeout(1200)

@@ -5,16 +5,21 @@
 // refresh that starter's images on next launch, keeping the user's edits.
 // Exact-reference models: Model 1-9 (ids starter-exact-5, 6, 7, 9, 10, 12, 13, 14, 17). On 2026-10-18 Jordan removed the old Models 1-4, 8,
 // 11, 15 and 16 (REMOVED_STARTER_IDS in starter-sync.js) and the rest were renumbered Model 1-8 by display name only (RELABEL;
-// ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. AI-generated photoreal models are listed separately
-// (starter-photoreal-N), then generated models (starter-generated-N, with built-in outfits). Ids are stable, so renumbering display names never needs another migration. The old
+// ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. Then generated models (starter-generated-N, with built-in
+// outfits). The Photorealistic starters (Photoreal 1-2) were removed on 2026-10-19 (REMOVED_STARTER_IDS). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
   {
     // re-added 2026-10-18 from Jordan's corrected 6-view sheet (real back three-quarter view); new id, so existing
     // installs gain her once via addNewStarters (the deleted old starter-model-5 is never brought back)
-    id: 'starter-exact-5', name: 'Model 1', file: 'exact-5', assetRev: 'eab8d1ff6b34', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-5', name: 'Model 1', file: 'exact-5', assetRev: 'b313fc006675', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy black hair, deep tan skin',
+    // 2026-10-19 (Jordan): a second built-in outfit, Tank & shorts (generated with her own sheet as the reference); assetRev covers both
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-5' },
+      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'exact-5-tank-shorts' },
+    ],
   },
   {
     // Models 6-16 added 2026-10-18 (8, 11, 15, 16 since removed) from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
@@ -85,24 +90,6 @@ export const STARTERS = [
     note: 'Brown cap, white graphic tee, black shorts, slides (male model; face blurred in the sheet)',
   },
   {
-    id: 'starter-photoreal-1', name: 'Photoreal 1', file: 'photoreal-1', assetRev: 'dad36faeef8d', heightCm: 160, bodyType: 'slim hourglass', size: '4–6 / S',
-    measurements: { bust: 34, waist: 25, hips: 38, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long dark curls, tan skin',
-  },
-  {
-    // Photoreal 2 (added 2026-10-19, Jordan): the same model as Generated 3 (Model 2 in black), also listed in the Photorealistic
-    // section. Same image files and assetRev as Generated 3 (no duplicate images); a separate starter record.
-    id: 'starter-photoreal-2', name: 'Photoreal 2', file: 'generated-3', assetRev: '855750a049a8', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
-    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight pink hair, all-black outfits (Model 2 in black; same as Generated 3)', source: 'generated',
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-3' },
-      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
-      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
-      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
-    ],
-  },
-  {
     // Generated 1 (added 2026-10-18): a generated fictional model with four built-in outfits (her own Generated section).
     // The first outfit is her base images (file); assetRev covers all four outfits' images in this order.
     id: 'starter-generated-1', name: 'Generated 1', file: 'generated-1', assetRev: '77df5d3b06b8', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
@@ -128,7 +115,7 @@ export const STARTERS = [
   },
   {
     // Generated 3 (added 2026-10-19): Model 2 (pink hair, exact-6) in four outfits, three all-black, from generated sheets aligned to
-    // her own base sheet. Listed after Generated 2; also shown as Photoreal 2 (same files). assetRev covers all four outfits.
+    // her own base sheet. Listed after Generated 2. assetRev covers all four outfits.
     id: 'starter-generated-3', name: 'Generated 3', file: 'generated-3', assetRev: '855750a049a8', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, all-black outfits (Model 2 in black; generated model)', source: 'generated',
@@ -150,9 +137,9 @@ export const SAMPLE_STYLES = [
   { id: 'sample-style-3', sku: 'SAMPLE-003', name: 'Sample · Tank + Short Set', collection: 'Sample Collection', season: 'Sample', category: 'Sets', fabric: 'Rib knit + jersey (sample)', composition: 'See components (sample)', colorways: ['Heather grey'], sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Concept', supplier: '', notes: SAMPLE_NOTE, cost: null, price: null, tags: ['sample', 'sets'], photoFiles: ['assets/samples/sketch-set.svg'] },
 ];
 const SET = ['sample-style-3', 'sample-style-1', 'sample-style-2'];
-// Look ids keep their original 'model-1'/'model-2' names (stable ids, already stored on installs); the looks follow
-// their models: old Model 2 → starter-photoreal-1. (Model 1's sample looks went with her on 2026-10-18; removeStarters() drops them.)
-export const SAMPLE_LOOKS = [['model-2', 'photoreal-1', 'starter-photoreal-1']].flatMap(([m, file, modelId]) => [
+// Sample looks: the last ones (old Model 2 → starter-photoreal-1) went with the Photorealistic section on 2026-10-19
+// (removeStarters() drops app-seeded sample looks of removed starters; the user's own looks are kept, detached). None ship now.
+export const SAMPLE_LOOKS = [].flatMap(([m, file, modelId]) => [
   { id: `sample-look-${m}-front`, file: `assets/models/${file}-front.webp`, view: 'front' },
   { id: `sample-look-${m}-back`, file: `assets/models/${file}-back.webp`, view: 'back' },
   { id: `sample-look-${m}-sheet`, file: `assets/models/${file}-sheet.webp`, view: 'sheet' },

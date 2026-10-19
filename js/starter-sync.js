@@ -100,7 +100,9 @@ export const renumberedLook = look => {
  * starter are kept and detached (modelId null), like the old Model 5. The ids stay in knownStarters, and they are not in
  * STARTERS, so seedStarters / addNewStarters / syncStarters can never bring them back. The remaining models keep
  * their labels (Model 5, 6, 7, 9, 10, 12, 13, 14); nothing is renumbered. */
-export const REMOVED_STARTER_IDS = [1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`);
+// 2026-10-19 (Jordan): the Photorealistic section was removed too: Photoreal 1 and Photoreal 2 (its files stay, Generated 3 uses them)
+// are dropped once the same way (removeStarters re-runs once under a new done-flag) and never re-added.
+export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`), 'starter-photoreal-1', 'starter-photoreal-2'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {

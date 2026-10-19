@@ -15,7 +15,7 @@ test('each starter assetRev matches its shipped images (bump assetRev when asset
 });
 
 test('refresh decision: only stale bundled starters / app-seeded sample looks', () => {
-  const s = STARTERS.find(x => x.id === 'starter-photoreal-1'), sample = SAMPLE_LOOKS.find(l => l.modelId === s.id); // the only starter with sample looks now
+  const s = STARTERS.find(x => x.id === 'starter-exact-5'), sample = { id: 'sample-look-x-front', modelId: s.id, view: 'front' }; // no sample looks ship now (the last went with Photoreal 1)
   assert.equal(modelNeedsRefresh({ id: s.id, starter: true }, s), true);                       // legacy copy, no rev
   assert.equal(modelNeedsRefresh({ id: s.id, starter: true, assetRev: 'old' }, s), true);
   assert.equal(modelNeedsRefresh({ id: s.id, starter: true, assetRev: s.assetRev }, s), false); // idempotent
@@ -54,15 +54,14 @@ test('exact-reference starters (Model 1-14), Photoreal 1 and every Generated 1 o
   const read = (s, k) => readFileSync(new URL(`../assets/models/${s.file}-${k}.webp`, import.meta.url));
   const m1 = STARTERS.find(s => s.id === 'starter-exact-5'); /* Model 1 removed; every exact starter shares her sizes */ const ref = Object.fromEntries(IMAGE_KEYS.map(k => [k, webpSize(read(m1, k))]));
   assert.deepEqual(ref, { sheet: [1500, 1500], front: [1025, 1536], back: [1023, 1535], thumb: [360, 539] });
-  // Photoreal 1 (old Model 2) predates the exact-reference pipeline (slightly different crops), so it is the one exception
-  for (const s of STARTERS.filter(s => s.id !== 'starter-photoreal-1')) for (const o of (s.outfits || [s])) for (const k of IMAGE_KEYS) assert.deepEqual(webpSize(read(o, k)), ref[k], `${o.file}-${k}.webp size`);
+  for (const s of STARTERS) for (const o of (s.outfits || [s])) for (const k of IMAGE_KEYS) assert.deepEqual(webpSize(read(o, k)), ref[k], `${o.file}-${k}.webp size`);
   assert.equal(new Set(STARTERS.map(s => s.id)).size, STARTERS.length, 'unique starter ids');
   for (const s of STARTERS) assert.match(s.assetRev, /^[0-9a-f]{12}$/);
 });
 
 test('new starters reach existing installs once; deleted starters are never re-added', () => {
   const ids = STARTERS.map(s => s.id);
-  assert.ok(ids.length === 19 && ids.includes('starter-photoreal-1') && !ids.includes('starter-exact-1')); // legacy Model 1 itself was removed
+  assert.ok(ids.length === 17 && !ids.includes('starter-photoreal-1') && !ids.includes('starter-photoreal-2') && !ids.includes('starter-exact-1')); // legacy Model 1 itself was removed
   // legacy install (no knownStarters yet) that still has Model 1 and a user model, and deleted Model 2
   const legacy = initialKnownStarters([{ id: 'starter-exact-1', starter: true }, { id: 'u1', starter: false }]);
   assert.deepEqual(legacy, LEGACY_STARTER_IDS);                                              // Photoreal 1 (old Model 2) counts as known → stays deleted
@@ -89,19 +88,19 @@ test('new starter record has the seeded shape (no file/assetRev leak, rev only w
 
 import { RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook } from '../js/starter-sync.js';
 
-test('lineup: Model 1-14 (renumbered, stable ids), then Photoreal 1-2, then Generated 1-3; removed models gone', () => {
+test('lineup: Model 1-14 (renumbered, stable ids), then Generated 1-3; removed models (incl. Photoreal 1-2) gone', () => {
   assert.deepEqual(STARTERS.map(s => [s.id, s.name, s.file]), [
-    ...KEEP.map((n, i) => [`starter-exact-${n}`, `Model ${i + 1}`, `exact-${n}`]), ['starter-photoreal-1', 'Photoreal 1', 'photoreal-1'], ['starter-photoreal-2', 'Photoreal 2', 'generated-3'], ['starter-generated-1', 'Generated 1', 'generated-1'], ['starter-generated-2', 'Generated 2', 'generated-2'], ['starter-generated-3', 'Generated 3', 'generated-3']]);
+    ...KEEP.map((n, i) => [`starter-exact-${n}`, `Model ${i + 1}`, `exact-${n}`]), ['starter-generated-1', 'Generated 1', 'generated-1'], ['starter-generated-2', 'Generated 2', 'generated-2'], ['starter-generated-3', 'Generated 3', 'generated-3']]);
   assert.deepEqual(STARTERS.map(s => s.note.split(',')[0]), ['Long wavy black hair',
     'Long straight pink hair', 'Long wavy auburn hair', 'Long straight silver-platinum hair', 'Long curly black hair',
-    'Black hair in a high bun', 'Long wavy black hair with braids', 'Natural curly hair in a high puff', 'Short wavy dark-brown bob', 'Long curly red hair', 'Long straight copper hair', 'Platinum-blonde bob', 'Long wavy brown hair', 'Brown cap', 'Long dark curls', 'Long straight pink hair', 'Shoulder-length wavy chestnut hair', 'Sleek dark-brown ponytail', 'Long straight pink hair']);
+    'Black hair in a high bun', 'Long wavy black hair with braids', 'Natural curly hair in a high puff', 'Short wavy dark-brown bob', 'Long curly red hair', 'Long straight copper hair', 'Platinum-blonde bob', 'Long wavy brown hair', 'Brown cap', 'Shoulder-length wavy chestnut hair', 'Sleek dark-brown ponytail', 'Long straight pink hair']);
   assert.ok(!STARTERS.some(s => s.id === 'starter-model-5'), 'old Model 5 id is gone (re-added under the new id starter-exact-5)');
   assert.ok(!existsSync(new URL('../assets/models/model-5-front.webp', import.meta.url)) && !existsSync(new URL('../assets/models/model-6-front.webp', import.meta.url)));
   // every renumber target is a shipped starter; sample looks follow their models
   // (renumber targets are shipped starters or since removed ones)
   for (const to of Object.values(RENUMBER)) assert.ok(STARTERS.some(s => s.id === to.id && s.name === to.name) || REMOVED_STARTER_IDS.includes(to.id), to.id);
   for (const id of REMOVED_STARTER_IDS) { assert.ok(!STARTERS.some(s => s.id === id), id); const f = id.replace('starter-', ''); for (const k of IMAGE_KEYS) assert.ok(!existsSync(new URL(`../assets/models/${f}-${k}.webp`, import.meta.url)), `${f}-${k} removed`); }
-  assert.deepEqual([...new Set(SAMPLE_LOOKS.map(l => l.modelId))], ['starter-photoreal-1']);
+  assert.deepEqual(SAMPLE_LOOKS, []);   // the last sample looks (Photoreal 1's) were removed with her
   for (const l of SAMPLE_LOOKS) assert.ok(existsSync(new URL('../' + l.file, import.meta.url)), l.file);
 });
 
@@ -117,11 +116,11 @@ test('renumbering existing installs: ids/names mapped, user edits kept, only old
   assert.deepEqual(k, ['starter-exact-1', 'starter-photoreal-1', 'starter-exact-2', 'starter-exact-3', 'starter-exact-4']);
   assert.deepEqual(renumberedKnown(k), k);
   const later = KEEP.slice(1).map(n => `starter-exact-${n}`); // every kept exact starter after exact-5 (incl. new exact-17)
-  assert.deepEqual(startersToAdd(STARTERS, k).map(s => s.id), ['starter-exact-5', ...later, 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3']);      // only the re-added Model 5 + remaining Models 6-14 + Generated 1, 2 are new; nothing duplicated / resurrected
-  assert.deepEqual(startersToAdd(STARTERS, withKnown(k, ['starter-exact-5', ...later, 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3'])), []);
+  assert.deepEqual(startersToAdd(STARTERS, k).map(s => s.id), ['starter-exact-5', ...later, 'starter-generated-1', 'starter-generated-2', 'starter-generated-3']);      // only the re-added Model 5 + remaining Models 6-14 + Generated 1-3 are new; nothing duplicated / resurrected
+  assert.deepEqual(startersToAdd(STARTERS, withKnown(k, ['starter-exact-5', ...later, 'starter-generated-1', 'starter-generated-2', 'starter-generated-3'])), []);
   assert.equal(renumberedKnown(undefined), undefined);
   // legacy install that only ever had Models 1+2: the remaining exact models are offered once (removed ones never)
-  assert.deepEqual(startersToAdd(STARTERS, renumberedKnown(['starter-model-1', 'starter-model-2'])).map(s => s.id), [...KEEP.map(n => `starter-exact-${n}`), 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3']);
+  assert.deepEqual(startersToAdd(STARTERS, renumberedKnown(['starter-model-1', 'starter-model-2'])).map(s => s.id), [...KEEP.map(n => `starter-exact-${n}`), 'starter-generated-1', 'starter-generated-2', 'starter-generated-3']);
   // looks follow their model; Model 5's user looks detached, its app-seeded sample looks removed; others untouched
   const sample2 = { id: 'sample-look-model-2-front', modelId: 'starter-model-2', sample: true, source: 'sample', title: 'Edited' };
   assert.deepEqual(renumberedLook(sample2), { ...sample2, modelId: 'starter-photoreal-1' });
@@ -134,19 +133,17 @@ test('renumbering existing installs: ids/names mapped, user edits kept, only old
 
 import { orderedModels } from '../js/starter-sync.js';
 
-test('Models tab order: starters in canonical order (Model 1-14, Photoreal 1-2, Generated 1-3), then user models in their own createdAt order', () => {
+test('Models tab order: starters in canonical order (Model 1-14, Generated 1-3), then user models in their own createdAt order', () => {
   const ids = STARTERS.map(s => s.id);
   // install from the Model 1-5 release: Model 1-5 + Photoreal 1 seeded, user models made later, Models 6-10 added later still
   const recs = [
-    ...['starter-photoreal-1'].map((id, i) => ({ id, starter: true, createdAt: 100 + i })),
     { id: 'starter-exact-5', starter: true, createdAt: 300 },             // added by addNewStarters after the user's first model
     { id: 'u-b', starter: false, createdAt: 250, name: 'Mine B' }, { id: 'u-a', starter: false, createdAt: 200, name: 'Mine A' },
     { id: 'u-c', starter: false, createdAt: 400, name: 'Model 7' },        // user model that happens to share a starter's name
     ...[22, 21, 20, 19, 18, 17, 14, 13, 12, 10, 9, 7, 6].map((n, i) => ({ id: `starter-exact-${n}`, starter: true, createdAt: 500 + i })),   // the other kept exact starters, added later, added later (any createdAt order)
-    { id: 'starter-generated-1', starter: true, createdAt: 450 },         // Generated 1 added later still; listed after Photoreal 1
+    { id: 'starter-generated-1', starter: true, createdAt: 450 },         // Generated 1 added later still; listed after Model 14
     { id: 'starter-generated-2', starter: true, createdAt: 50 },          // Generated 2 (any createdAt) is listed after Generated 1
     { id: 'starter-generated-3', starter: true, createdAt: 40 },          // Generated 3 after Generated 2
-    { id: 'starter-photoreal-2', starter: true, createdAt: 30 },          // Photoreal 2 after Photoreal 1, before the Generated section
   ];
   const shuffled = [...recs].reverse();
   const out = orderedModels(shuffled, STARTERS).map(m => m.id);
@@ -155,8 +152,8 @@ test('Models tab order: starters in canonical order (Model 1-14, Photoreal 1-2, 
   assert.deepEqual(orderedModels([{ id: 'starter-exact-6', starter: false, createdAt: 1 }, { id: 'starter-exact-5', starter: true, createdAt: 9 }], STARTERS).map(m => [m.id, m.starter]),
     [['starter-exact-5', true], ['starter-exact-6', false]]);
   // deleted starters simply are absent; records are returned unchanged (same objects, nothing migrated)
-  const few = [{ id: 'u', starter: false, createdAt: 1 }, { id: 'starter-photoreal-1', starter: true, createdAt: 2 }, { id: 'starter-exact-9', starter: true, createdAt: 3 }];
-  const o = orderedModels(few, STARTERS); assert.deepEqual(o.map(m => m.id), ['starter-exact-9', 'starter-photoreal-1', 'u']); assert.ok(o.every(m => few.includes(m)));
+  const few = [{ id: 'u', starter: false, createdAt: 1 }, { id: 'starter-generated-2', starter: true, createdAt: 2 }, { id: 'starter-exact-9', starter: true, createdAt: 3 }];
+  const o = orderedModels(few, STARTERS); assert.deepEqual(o.map(m => m.id), ['starter-exact-9', 'starter-generated-2', 'u']); assert.ok(o.every(m => few.includes(m)));
   assert.deepEqual(orderedModels([], STARTERS), []);
 });
 
@@ -170,7 +167,7 @@ test('Generated 1: one model with four built-in outfits (Base, Summer denim, Sun
   for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   // no outfit is a separate model; other starters have just their base
   assert.deepEqual(STARTERS.filter(s => /generated/.test(s.id)).map(s => s.id), ['starter-generated-1', 'starter-generated-2', 'starter-generated-3']);
-  for (const s of STARTERS.filter(s => !/generated/.test(s.id) && s.id !== 'starter-photoreal-2')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
+  for (const s of STARTERS.filter(s => !/generated/.test(s.id) && s.id !== 'starter-exact-5')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
   // the four outfits' images differ (no duplicate outfit) and assetRev covers all of them (changing any outfit changes it)
   const b = shipped(g), fronts = await Promise.all(b.outfits.map(o => o.front.arrayBuffer().then(x => Buffer.from(x).toString('base64'))));
   assert.equal(new Set(fronts).size, 4);
@@ -185,15 +182,18 @@ test('Generated 1: one model with four built-in outfits (Base, Summer denim, Sun
   const old = { ...r, name: 'Gen (mine)', outfits: [r.outfits[0]], assetRev: 'old' };
   const nr = refreshedModel(old, g, b); assert.equal(nr.name, 'Gen (mine)'); assert.equal(nr.outfits.length, 4); assert.equal(nr.assetRev, g.assetRev);
   // a plain starter record never gains an outfits field
-  const p = STARTERS[0]; assert.ok(!('outfits' in newStarterRecord(p, shipped(p), p.assetRev, 1)));
+  const p = STARTERS[1]; assert.ok(!('outfits' in newStarterRecord(p, shipped(p), p.assetRev, 1)));
 });
 
-test('removal of Models 1-4, 8, 11, 15, 16: starter records dropped once, sample looks removed, user looks detached, never re-added', () => {
-  assert.deepEqual(REMOVED_STARTER_IDS, ['starter-exact-1', 'starter-exact-2', 'starter-exact-3', 'starter-exact-4', 'starter-exact-8', 'starter-exact-11', 'starter-exact-15', 'starter-exact-16']);
+test('removal of Models 1-4, 8, 11, 15, 16 and Photoreal 1-2: starter records dropped once, sample looks removed, user looks detached, never re-added', () => {
+  assert.deepEqual(REMOVED_STARTER_IDS, ['starter-exact-1', 'starter-exact-2', 'starter-exact-3', 'starter-exact-4', 'starter-exact-8', 'starter-exact-11', 'starter-exact-15', 'starter-exact-16', 'starter-photoreal-1', 'starter-photoreal-2']);
   // looks: app-seeded sample looks of a removed starter go; the user's own / generated looks are kept, detached; others untouched (same object)
   assert.equal(removedLook({ id: 'sample-look-model-1-front', modelId: 'starter-exact-1', sample: true, source: 'sample', favorite: true }), null);
   assert.deepEqual(removedLook({ id: 'g', modelId: 'starter-exact-8', source: 'generated', title: 'mine' }), { id: 'g', modelId: null, source: 'generated', title: 'mine' });
-  for (const l of [{ id: 'a', modelId: 'starter-exact-5' }, { id: 'b', modelId: 'user-1' }, { id: 'c', modelId: null }, { id: 'p', modelId: 'starter-photoreal-1', sample: true, source: 'sample' }]) assert.equal(removedLook(l), l);
+  for (const l of [{ id: 'a', modelId: 'starter-exact-5' }, { id: 'b', modelId: 'user-1' }, { id: 'c', modelId: null }, { id: 'g3', modelId: 'starter-generated-3', sample: true, source: 'sample' }]) assert.equal(removedLook(l), l);
+  // Photoreal 1's app-seeded sample looks go with her; the user's own looks of Photoreal 1/2 are kept, detached
+  assert.equal(removedLook({ id: 'sample-look-model-2-front', modelId: 'starter-photoreal-1', sample: true, source: 'sample' }), null);
+  assert.deepEqual(removedLook({ id: 'm', modelId: 'starter-photoreal-2', source: 'generated' }), { id: 'm', modelId: null, source: 'generated' });
   // known list gains the removed ids (idempotent); nothing is offered again, whatever an install knew before
   const k = removedKnown(['starter-exact-1', 'starter-photoreal-1', 'starter-exact-5']);
   assert.deepEqual(removedKnown(k), k); assert.equal(removedKnown(undefined), undefined);
@@ -218,7 +218,7 @@ test('relabel to Model 1-8 (ids unchanged): default names follow, user names / u
   // a full old install relabels to Model 1-8 with unique names
   const all = Object.keys(RELABEL).map(id => relabeledStarter({ id, name: RELABEL[id].oldName, starter: true }).name);
   assert.deepEqual(all, Array.from({ length: 8 }, (_, i) => `Model ${i + 1}`));
-  assert.ok(!startersToAdd(STARTERS, KEEP.slice(0, 8).map(n => `starter-exact-${n}`).concat(REMOVED_STARTER_IDS, ['starter-photoreal-1', 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3'])).map(s => s.id).join() !== [17, 18, 19, 20, 21, 22].map(n => `starter-exact-${n}`).join());
+  assert.ok(!startersToAdd(STARTERS, KEEP.slice(0, 8).map(n => `starter-exact-${n}`).concat(REMOVED_STARTER_IDS, ['starter-generated-1', 'starter-generated-2', 'starter-generated-3'])).map(s => s.id).join() !== [17, 18, 19, 20, 21, 22].map(n => `starter-exact-${n}`).join());
 });
 
 test('Generated 2: one model with two built-in outfits (Base, Yoga set), source generated, after Generated 1', async () => {
@@ -258,13 +258,28 @@ test('Generated 3: Model 2 (pink hair) in black, four built-in outfits (Base, Tu
   assert.deepEqual(startersToAdd(STARTERS, withKnown(known, ['starter-generated-3'])), []);
 });
 
-test('Photoreal 2: the same model as Generated 3, in the Photorealistic section, same files + assetRev (no duplicate images); added once', async () => {
-  const p = STARTERS.find(s => s.id === 'starter-photoreal-2'), g = STARTERS.find(s => s.id === 'starter-generated-3');
-  assert.equal(STARTERS[STARTERS.findIndex(s => s.id === 'starter-photoreal-1') + 1], p);
-  assert.equal(p.name, 'Photoreal 2'); assert.equal(p.file, g.file); assert.equal(p.assetRev, g.assetRev);
-  assert.deepEqual(p.outfits, g.outfits);
-  assert.equal(await contentRev(shipped(p)), p.assetRev);
-  const known = STARTERS.filter(s => s !== p).map(s => s.id).concat(REMOVED_STARTER_IDS);
-  assert.deepEqual(startersToAdd(STARTERS, known).map(s => s.id), ['starter-photoreal-2']);
-  assert.deepEqual(startersToAdd(STARTERS, withKnown(known, ['starter-photoreal-2'])), []);
+test('Photorealistic section removed (2026-10-19): Photoreal 1-2 not shipped, never offered again; Generated 3 keeps the shared files', () => {
+  assert.ok(!STARTERS.some(s => /photoreal/.test(s.id)));
+  for (const k of IMAGE_KEYS) assert.ok(!existsSync(new URL(`../assets/models/photoreal-1-${k}.webp`, import.meta.url)), `photoreal-1-${k} archived`);
+  const g = STARTERS.find(s => s.id === 'starter-generated-3');
+  for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k} kept`);
+  // an install that had both (known list incl. them) is offered nothing; one that never saw them is not offered them either
+  const all = STARTERS.map(s => s.id);
+  assert.deepEqual(startersToAdd(STARTERS, removedKnown(all.concat(['starter-photoreal-1', 'starter-photoreal-2']))), []);
+  assert.deepEqual(startersToAdd(STARTERS, all), []);
+});
+
+test('Model 1 gains a second built-in outfit, Tank & shorts, on her own record (not a separate model); assetRev covers both', async () => {
+  const m = STARTERS.find(s => s.id === 'starter-exact-5');
+  assert.equal(STARTERS[0], m); assert.equal(m.name, 'Model 1'); assert.ok(!m.source, 'still an exact-reference model');
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-5'], ['tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts']]);
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.notEqual(m.assetRev, 'eab8d1ff6b34', 'assetRev bumped');
+  assert.notEqual(await contentRev(files(m.file)), m.assetRev, 'rev covers both outfits');
+  for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
+  // an existing install's Model 1 (old rev, single outfit, renamed) is refreshed in place: gains the outfit, keeps the user's edits
+  const old = { id: m.id, name: 'Mine 1', note: 'my note', starter: true, assetRev: 'eab8d1ff6b34', createdAt: 5 };
+  assert.equal(modelNeedsRefresh(old, m), true);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Mine 1'); assert.equal(nr.note, 'my note'); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'tank-shorts']); assert.equal(nr.assetRev, m.assetRev);
+  assert.equal(modelNeedsRefresh(nr, m), false);
+  assert.ok(!STARTERS.some(s => s !== m && s.outfits?.some(o => o.file === 'exact-5-tank-shorts')), 'not a separate model');
 });
