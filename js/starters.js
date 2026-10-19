@@ -90,6 +90,19 @@ export const STARTERS = [
     note: 'Long dark curls, tan skin',
   },
   {
+    // Photoreal 2 (added 2026-10-19, Jordan): the same model as Generated 3 (Model 2 in black), also listed in the Photorealistic
+    // section. Same image files and assetRev as Generated 3 (no duplicate images); a separate starter record.
+    id: 'starter-photoreal-2', name: 'Photoreal 2', file: 'generated-3', assetRev: '855750a049a8', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight pink hair, all-black outfits (Model 2 in black; same as Generated 3)', source: 'generated',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-3' },
+      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
+      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
+      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
+    ],
+  },
+  {
     // Generated 1 (added 2026-10-18): a generated fictional model with four built-in outfits (her own Generated section).
     // The first outfit is her base images (file); assetRev covers all four outfits' images in this order.
     id: 'starter-generated-1', name: 'Generated 1', file: 'generated-1', assetRev: '77df5d3b06b8', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
@@ -111,6 +124,19 @@ export const STARTERS = [
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey tank · leggings', file: 'generated-2' },
       { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'generated-2-yoga-set' },
+    ],
+  },
+  {
+    // Generated 3 (added 2026-10-19): Model 2 (pink hair, exact-6) in four outfits, three all-black, from generated sheets aligned to
+    // her own base sheet. Listed after Generated 2; also shown as Photoreal 2 (same files). assetRev covers all four outfits.
+    id: 'starter-generated-3', name: 'Generated 3', file: 'generated-3', assetRev: '855750a049a8', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight pink hair, all-black outfits (Model 2 in black; generated model)', source: 'generated',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-3' },
+      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
+      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
+      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
     ],
   },
 ];

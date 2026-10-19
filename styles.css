@@ -392,3 +392,5 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 @media (prefers-reduced-motion:reduce){.sv-auto[aria-pressed=true] svg{animation:none}}
 .upd-toast{position:fixed;inset:auto auto auto 50%;margin:0;overflow:visible;left:50%;bottom:calc(var(--tabh) + var(--safe-b) + 14px);transform:translateX(-50%);z-index:120;min-height:44px;padding:0 20px;border:0;border-radius:99px;background:var(--solid);color:var(--on-solid);font:600 14.5px/1 system-ui,-apple-system,sans-serif;box-shadow:var(--shadow-lg);cursor:pointer;white-space:nowrap;animation:rise .25s}
 @media (max-width:440px){.sv-outfits{gap:2px;max-width:calc(100% - 12px)}.sv-oc{gap:4px;padding:0 7px 0 3px;font-size:10.5px}.sv-oc i{width:20px;height:20px}}
+/* 4 outfit chips (Generated 3 / Photoreal 2): tighter chips so all four fit on a phone without scrolling */
+.sv-outfits:has(> .sv-oc:nth-child(4)){gap:2px}.sv-outfits:has(> .sv-oc:nth-child(4)) .sv-oc{gap:4px;padding:0 6px 0 3px;font-size:10.5px}.sv-outfits:has(> .sv-oc:nth-child(4)) .sv-oc i{width:20px;height:20px}

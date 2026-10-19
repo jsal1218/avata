@@ -77,7 +77,7 @@ with sync_playwright() as p:
 
   # ---- every gallery model (manifest) is listed, loads its 8 frames and spins on drag; switcher scrolls on a phone ----
   gids = pg.evaluate("[...document.querySelectorAll('.sp-item')].map(b => b.dataset.id).filter(id => id.startsWith('gallery:'))")
-  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in KEEP] + ['gallery:photoreal-1', 'gallery:generated-1', 'gallery:generated-2']
+  R['gallery_ids'] = gids; R['gallery_all'] = gids == [f'gallery:exact-{n}' for n in KEEP] + ['gallery:photoreal-1', 'gallery:photoreal-2', 'gallery:generated-1', 'gallery:generated-2', 'gallery:generated-3']
   # default selection on opening the tab = the first model (Model 1 = exact-5)
   R['default_model'] = pg.evaluate("document.querySelector('.sp-item[aria-selected=true]')?.dataset.id"); R['default_ok'] = R['default_model'] == 'gallery:exact-5'
   # main row = Model 1-9 (exact reference; renumbered, stable ids), separate Photorealistic row = Photoreal 1 (old Model 2)
@@ -91,12 +91,12 @@ with sync_playwright() as p:
                     'Pink hair', 'Wavy auburn hair', 'Silver-platinum hair', 'Curly black hair',
                     'Black high bun', 'Wavy black braids', 'Curly high puff', 'Short wavy bob',
                     'Long curly red hair', 'Long copper hair', 'Blonde bob', 'Long wavy brown hair', 'Brown cap']
-                    and R['rows'][1] == [['Photoreal 1', 'Dark curls']] and R['photo_heading'] == ['Photorealistic', True]
-                    and R['rows'][2] == [['Generated 1', 'Wavy chestnut bob'], ['Generated 2', 'Sleek ponytail']] and R['gen_heading'] == ['Generated', True, True])
+                    and R['rows'][1] == [['Photoreal 1', 'Dark curls'], ['Photoreal 2', 'Pink hair']] and R['photo_heading'] == ['Photorealistic', True]
+                    and R['rows'][2] == [['Generated 1', 'Wavy chestnut bob'], ['Generated 2', 'Sleek ponytail'], ['Generated 3', 'Pink hair']] and R['gen_heading'] == ['Generated', True, True])
   spun, bad = {}, []
   for gid in gids:
     pg.click(f'.sp-item[data-id="{gid}"]')
-    pg.wait_for_function(f"(() => {{ const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/{gid[8:]}/') && document.querySelector('.sv-busy').hidden; }})()", timeout=30000)
+    pg.wait_for_function(f"(() => {{ const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/{'generated-3' if gid == 'gallery:photoreal-2' else gid[8:]}/') && document.querySelector('.sv-busy').hidden; }})()", timeout=30000)
     pg.wait_for_timeout(400); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(700)
     vb = pg.locator('.sv').bounding_box(); y = vb['y'] + vb['height'] * 0.5
     a0 = st(pg, 'S.angle'); f0 = int(pg.get_attribute('.sv', 'data-frame'))
@@ -109,8 +109,8 @@ with sync_playwright() as p:
     img_ok = pg.evaluate("(() => { const a = document.querySelector('.sv-a'); return a.complete && a.naturalWidth === 600 && a.naturalHeight === 1024; })()")
     spun[gid] = {'frames': st(pg, 'S.frames.length'), 'frame': [f0, f1], 'angle': [round(a0), round(a1)], 'selected': sel == gid, 'in_view': inview, 'img': img_ok}
     if not (f0 != f1 and sel == gid and inview and img_ok): bad.append(gid)
-    if not gid.startswith('gallery:generated-') and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
-  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 17; R['gallery_bad'] = bad
+    if not gid.startswith('gallery:generated-') and gid != 'gallery:photoreal-2' and pg.evaluate("!document.querySelector('.sv-outfits').hidden || document.querySelectorAll('.sv-oc').length > 0"): bad.append(gid + ':has-outfit-chips')
+  R['gallery_spins'] = spun; R['gallery_all_spin'] = not bad and len(gids) == 19; R['gallery_bad'] = bad
 
   # ---- Generated 1: her 4 built-in outfits as small chips on the viewer; switching keeps the angle at all 8 angles ----
   pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:generated-1\"]').click()")
@@ -168,6 +168,29 @@ with sync_playwright() as p:
   R['g2_switch_bad'] = g2_bad[:4]; R['g2_switch_ok'] = not g2_bad and R['g2_page_overflow'] <= 0
   fr = pg.evaluate("""fetch('../model-gallery/data/manifest.json', {cache: 'no-cache'}).then(r => r.json()).then(m => Promise.all(m.models.find(x => x.id === 'generated-2').outfits.flatMap(o => o.frames.map(f => new Promise(r => { const i = new Image(); i.onload = () => r([o.id, f.angle, i.naturalWidth]); i.onerror = () => r([o.id, f.angle, 0]); i.src = '../model-gallery/' + f.lo; })))))""")
   R['g2_frames_ok'] = len(fr) == 16 and all(x[2] == 600 for x in fr)
+  # ---- Generated 3: her 4 built-in outfits (Base, Turtleneck, Slip dress, Tank & shorts) as chips on the viewer; switching keeps the angle at all 8 angles ----
+  pg.evaluate("document.querySelector('.sp-item[data-id=\"gallery:generated-3\"]').click()")
+  pg.wait_for_function("(() => { const S = document.querySelector('#spView').__spin; return S && S.frames.length === 8 && S.frames[0].lo.includes('/generated-3/base/'); })()", timeout=30000)
+  pg.wait_for_timeout(500); auto_off(pg) if st(pg, 'S.auto') else None; pg.wait_for_timeout(700)
+  R['g3_chips'] = pg.evaluate("""(() => { const box = document.querySelector('.sv-outfits'), v = document.querySelector('.sv').getBoundingClientRect(), r = box.getBoundingClientRect(), cs = [...box.querySelectorAll('.sv-oc')];
+    return { shown: !box.hidden && !!box.getClientRects().length, inViewer: r.left >= v.left && r.right <= v.right && r.top >= v.top && r.bottom <= v.bottom, names: cs.map(c => c.textContent.trim()),
+      checked: cs.filter(c => c.getAttribute('aria-checked') === 'true').map(c => c.dataset.id), fit: box.scrollWidth <= box.clientWidth + 1, selected: document.querySelector('.sp-item[aria-selected=true]')?.dataset.id }; })()""")
+  g3 = R['g3_chips']; R['g3_chips_ok'] = g3['shown'] and g3['inViewer'] and g3['fit'] and g3['names'] == ['Base', 'Turtleneck', 'Slip dress', 'Tank & shorts'] and g3['checked'] == ['base'] and g3['selected'] == 'gallery:generated-3'
+  pg.evaluate("scrollTo(0, 0)"); pg.wait_for_timeout(400)
+  R['g3_on_screen'] = pg.evaluate("(() => { const r = document.querySelector('.sv-outfits').getBoundingClientRect(), t = document.querySelector('#tabs')?.getBoundingClientRect(), c = document.querySelector('.sp-item[data-id=\"gallery:generated-3\"]').getBoundingClientRect(); return r.top >= 0 && r.bottom <= (t ? t.top : innerHeight) && r.right <= innerWidth && r.left >= 0 && c.left >= 0 && c.right <= innerWidth; })()")
+  R['g3_page_overflow'] = pg.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
+  pg.screenshot(path=str(OUT / 'spin-12-generated-3-outfits.png'))
+  g3_bad = []
+  for a in (0, 45, 90, 135, 180, 225, 270, 315):
+    for oid in ('turtleneck', 'slip-dress', 'tank-shorts', 'base'):
+      pg.evaluate(f"(() => {{ const S = document.querySelector('#spView').__spin; S.angle = {a}; S.snapTo = null; S.vel = 0; }})()"); pg.wait_for_timeout(80)
+      pg.evaluate(f"document.querySelector('.sv-oc[data-id=\"{oid}\"]').click()")
+      pg.wait_for_function(f"document.querySelector('#spView').__spin.frames[0].lo.includes('/generated-3/{oid}/')", timeout=15000); pg.wait_for_timeout(150)
+      got = pg.evaluate("(() => { const S = document.querySelector('#spView').__spin; return [Math.round(S.angle), S.frames[S.shown].lo.split('/model-gallery/')[1], document.querySelector('.sv-a').getAttribute('src').split('/model-gallery/')[1], document.querySelector('.sv-oc[aria-checked=true]').dataset.id, S.frames.length]; })()")
+      if not (got[0] == a and f'generated-3/{oid}/lo/{a:03d}.webp' in got[1] and f'generated-3/{oid}/lo/{a:03d}.webp' in got[2] and got[3] == oid and got[4] == 8): g3_bad.append((a, oid, got))
+  R['g3_switch_bad'] = g3_bad[:4]; R['g3_switch_ok'] = not g3_bad and R['g3_page_overflow'] <= 0
+  fr = pg.evaluate("""fetch('../model-gallery/data/manifest.json', {cache: 'no-cache'}).then(r => r.json()).then(m => Promise.all(m.models.find(x => x.id === 'generated-3').outfits.flatMap(o => o.frames.map(f => new Promise(r => { const i = new Image(); i.onload = () => r([o.id, f.angle, i.naturalWidth]); i.onerror = () => r([o.id, f.angle, 0]); i.src = '../model-gallery/' + f.lo; })))))""")
+  R['g3_frames_ok'] = len(fr) == 32 and all(x[2] == 600 for x in fr)
   R['switcher'] = pg.evaluate("(() => { const x = document.querySelector('#spSwitch'); return { scrolls: x.scrollWidth > x.clientWidth, rows: new Set([...x.children].map(b => Math.round(b.getBoundingClientRect().top))).size, h: Math.round(x.getBoundingClientRect().height), fade: x.className, pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
   R['switcher_ok'] = R['switcher']['scrolls'] and R['switcher']['rows'] == 1 and R['switcher']['pageOverflow'] <= 0 and R['switcher']['h'] < 120
   # with 14 exact gallery models: fades at both scroll ends, and the last model (Model 14 = exact-22) was scrolled into view when picked
@@ -284,7 +307,7 @@ with sync_playwright() as p:
   c.close(); b.close()
 
 R['errors'] = errors; R['foreign_hosts'] = sorted(foreign)
-KEYS = ['tab_present', 'gallery_all', 'lineup_ok', 'viewer_top_ok', 'gallery_all_spin', 'outfit_chips_ok', 'outfit_chips_on_screen', 'outfit_switch_ok', 'outfit_keeps_spinning', 'outfit_frames_ok', 'g2_chips_ok', 'g2_on_screen', 'g2_switch_ok', 'g2_frames_ok', 'names_fit', 'switcher_ok', 'switcher_ends_ok', 'default_ok', 'old_links_ok', 'align_ok', 'drag_changes_frame', 'hd_badge',
+KEYS = ['tab_present', 'gallery_all', 'lineup_ok', 'viewer_top_ok', 'gallery_all_spin', 'outfit_chips_ok', 'outfit_chips_on_screen', 'outfit_switch_ok', 'outfit_keeps_spinning', 'outfit_frames_ok', 'g2_chips_ok', 'g2_on_screen', 'g2_switch_ok', 'g2_frames_ok', 'g3_chips_ok', 'g3_on_screen', 'g3_switch_ok', 'g3_frames_ok', 'names_fit', 'switcher_ok', 'switcher_ends_ok', 'default_ok', 'old_links_ok', 'align_ok', 'drag_changes_frame', 'hd_badge',
         'reorder_toast', 'persist_ok', 'crossfade_ok', 'delete_cancel_keeps', 'delete_removes', 'sw']
 R['FAILED'] = [k for k in KEYS if R.get(k) is not True] + (['errors'] if errors else []) + (['foreign_hosts'] if foreign else [])
 R['PASS'] = not R['FAILED']
