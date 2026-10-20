@@ -272,17 +272,20 @@ test('Photorealistic section removed (2026-10-19): Photoreal 1-2 not shipped, ne
 test('Model 1 gains a second built-in outfit, Tank & shorts, on her own record (not a separate model); assetRev covers both', async () => {
   const m = STARTERS.find(s => s.id === 'starter-exact-5');
   assert.equal(STARTERS[0], m); assert.equal(m.name, 'Model 1'); assert.ok(!m.source, 'still an exact-reference model');
-  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-5'], ['tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'], ['yoga-set', 'Yoga set', 'exact-5-yoga-set'], ['linen-set', 'Linen set', 'exact-5-linen-set']]);
-  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['eab8d1ff6b34', 'b313fc006675'].includes(m.assetRev), 'assetRev bumped');
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-5'], ['tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'], ['yoga-set', 'Yoga set', 'exact-5-yoga-set'], ['linen-set', 'Linen set', 'exact-5-linen-set'], ['red-dress', 'Red dress', 'exact-5-red-dress']]);
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['eab8d1ff6b34', 'b313fc006675', 'a1d4c39dc847'].includes(m.assetRev), 'assetRev bumped');
   assert.notEqual(await contentRev(files(m.file)), m.assetRev, 'rev covers both outfits');
   for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
   // an existing install's Model 1 (old rev, single outfit, renamed) is refreshed in place: gains the outfit, keeps the user's edits
   const old = { id: m.id, name: 'Mine 1', note: 'my note', starter: true, assetRev: 'eab8d1ff6b34', createdAt: 5 };
   assert.equal(modelNeedsRefresh(old, m), true);
-  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Mine 1'); assert.equal(nr.note, 'my note'); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'tank-shorts', 'yoga-set', 'linen-set']); assert.equal(nr.assetRev, m.assetRev);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Mine 1'); assert.equal(nr.note, 'my note'); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'tank-shorts', 'yoga-set', 'linen-set', 'red-dress']); assert.equal(nr.assetRev, m.assetRev);
   // an install with the Tank & shorts release (rev b313fc006675, 2 outfits) is upgraded in place too
   const two = { ...old, assetRev: 'b313fc006675', outfits: [{ id: 'base' }, { id: 'tank-shorts' }] }; assert.equal(modelNeedsRefresh(two, m), true);
-  const nr2 = refreshedModel(two, m, b); assert.equal(nr2.name, 'Mine 1'); assert.deepEqual(nr2.outfits.map(o => o.id), ['base', 'tank-shorts', 'yoga-set', 'linen-set']);
+  const nr2 = refreshedModel(two, m, b); assert.equal(nr2.name, 'Mine 1'); assert.deepEqual(nr2.outfits.map(o => o.id), ['base', 'tank-shorts', 'yoga-set', 'linen-set', 'red-dress']);
+  // an install with the Yoga/Linen release (rev a1d4c39dc847, 4 outfits) gains Red dress in place, edits kept
+  const four = { ...old, assetRev: 'a1d4c39dc847', outfits: ['base', 'tank-shorts', 'yoga-set', 'linen-set'].map(id => ({ id })) }; assert.equal(modelNeedsRefresh(four, m), true);
+  const nr3 = refreshedModel(four, m, b); assert.equal(nr3.name, 'Mine 1'); assert.equal(nr3.note, 'my note'); assert.deepEqual(nr3.outfits.map(o => o.id), ['base', 'tank-shorts', 'yoga-set', 'linen-set', 'red-dress']);
   assert.equal(modelNeedsRefresh(nr, m), false);
   assert.ok(!STARTERS.some(s => s !== m && s.outfits?.some(o => o.file.startsWith('exact-5-'))), 'not a separate model');
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);

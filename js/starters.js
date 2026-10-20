@@ -12,7 +12,7 @@ export const STARTERS = [
   {
     // re-added 2026-10-18 from Jordan's corrected 6-view sheet (real back three-quarter view); new id, so existing
     // installs gain her once via addNewStarters (the deleted old starter-model-5 is never brought back)
-    id: 'starter-exact-5', name: 'Model 1', file: 'exact-5', assetRev: 'a1d4c39dc847', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-5', name: 'Model 1', file: 'exact-5', assetRev: '51325ea83e03', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy black hair, deep tan skin',
     // 2026-10-19 (Jordan): a second built-in outfit, Tank & shorts (generated with her own sheet as the reference); assetRev covers both
@@ -22,6 +22,8 @@ export const STARTERS = [
       // 2026-10-19 (Jordan): Generated 2's Yoga set and Generated 1's Linen set, generated on her own sheet
       { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'exact-5-yoga-set' },
       { id: 'linen-set', name: 'Linen set', subtitle: 'Sage tank · linen pants', file: 'exact-5-linen-set' },
+      // 2026-10-20 (Jordan): the same red dress as Model 17, generated on her own sheet
+      { id: 'red-dress', name: 'Red dress', subtitle: 'Red V-neck mini dress', file: 'exact-5-red-dress' },
     ],
   },
   {

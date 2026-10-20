@@ -394,3 +394,5 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 @media (max-width:440px){.sv-outfits{gap:2px;max-width:calc(100% - 12px)}.sv-oc{gap:4px;padding:0 7px 0 3px;font-size:10.5px}.sv-oc i{width:20px;height:20px}}
 /* 4 outfit chips (Generated 3 / Photoreal 2): tighter chips so all four fit on a phone without scrolling */
 .sv-outfits:has(> .sv-oc:nth-child(4)){gap:2px}.sv-outfits:has(> .sv-oc:nth-child(4)) .sv-oc{gap:4px;padding:0 6px 0 3px;font-size:10.5px}.sv-outfits:has(> .sv-oc:nth-child(4)) .sv-oc i{width:20px;height:20px}
+/* 5+ outfits on a phone: compact, swatch only on the selected chip, so every chip fits */
+@media (max-width:440px){.sv-outfits:has(> .sv-oc:nth-child(5)){gap:1px;padding:2px;max-width:calc(100% - 8px)}.sv-outfits:has(> .sv-oc:nth-child(5)) .sv-oc{gap:3px;height:26px;padding:0 6px 0 2px;font-size:10px;letter-spacing:-.01em}.sv-outfits:has(> .sv-oc:nth-child(5)) .sv-oc i{width:17px;height:17px}.sv-outfits:has(> .sv-oc:nth-child(5)) .sv-oc:not([aria-checked=true]) i{display:none}.sv-outfits:has(> .sv-oc:nth-child(5)) .sv-oc:not([aria-checked=true]){padding:0 7px}}
