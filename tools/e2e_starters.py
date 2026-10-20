@@ -27,6 +27,7 @@ J) Generated 3 + Photoreal 2 release (5664f6d, the last one live): renamed Photo
    kept detached; renamed Model 1 gains Tank & shorts (name kept, model page chips); Generated 3 kept; idempotent; never re-added.
 K) Model 1 Tank & shorts release (c217703, the last one live): Model 1 gains Yoga set + Linen set and Model 2 gains Yoga set in place
    (renamed, edits kept), Models 15-16 (exact-23, 24) added once, everything else untouched.
+L) Model 17 Base + Red dress release (f2c6373): renamed Model 17 gains Leather catsuit + Tech suit and renamed Model 13 gains Beige Linen + A, in place, edits kept; nothing else changes.
 """
 import hashlib, json, pathlib, re, shutil, socket, subprocess, sys, tempfile, time, io, tarfile
 from playwright.sync_api import sync_playwright
@@ -49,8 +50,10 @@ GEN_OUTFITS = [('base', 'Base', 'generated-1'), ('summer-denim', 'Summer denim',
 GEN2_OUTFITS = [('base', 'Base', 'generated-2'), ('yoga-set', 'Yoga set', 'generated-2-yoga-set')]
 M1_OUTFITS = [('base', 'Base', 'exact-5'), ('tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'), ('yoga-set', 'Yoga set', 'exact-5-yoga-set'), ('linen-set', 'Linen set', 'exact-5-linen-set')]
 M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set')]
+M13_OUTFITS = [('base', 'Base', 'exact-21'), ('beige-linen', 'Beige Linen', 'exact-21-beige-linen'), ('a', 'A', 'exact-21-a')]
+M17_OUTFITS = [('base', 'Base', 'exact-25'), ('red-dress', 'Red dress', 'exact-25-red-dress'), ('leather-catsuit', 'Leather catsuit', 'exact-25-leather-catsuit'), ('tech-suit', 'Tech suit', 'exact-25-tech-suit')]
 GEN3_OUTFITS = [('base', 'Base', 'generated-3'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts')]
-FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + ['exact-25-red-dress'] + [o[2] for o in GEN_OUTFITS] + [o[2] for o in GEN2_OUTFITS] + [o[2] for o in GEN3_OUTFITS]
+FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + [o[2] for o in M17_OUTFITS[1:]] + [o[2] for o in M13_OUTFITS[1:]] + [o[2] for o in GEN_OUTFITS] + [o[2] for o in GEN2_OUTFITS] + [o[2] for o in GEN3_OUTFITS]
 NEW = {f'{m}-{k}': sha((ROOT / f'assets/models/{m}-{k}.webp').read_bytes()) for m in FILES for k in K}
 REVS = dict(re.findall(r"id: '(starter-[a-z]+-\d+)'.*?assetRev: '([0-9a-f]+)'", (ROOT / 'js/starters.js').read_text()))
 EXACT = [f'starter-exact-{n}' for n in KEEP]
@@ -113,9 +116,21 @@ def m2_ok(M, prev=None):  # Model 2 = one record carrying Base + Yoga set (curre
           and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in M2_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, M2_OUTFITS)))
 def no_photoreal(M, L=None):  # Photoreal 1-2 gone; their app-seeded sample looks gone
   return not any('photoreal' in k for k in M) and (L is None or not any(k.startswith('sample-look-') for k in L))
-def kept(M, before, f=lambda v: v):  # every surviving record unchanged (relabel aside), except Models 1 and 2, which only gain their outfits
-  return (all(M[k] == f(v) for k, v in before.items() if k not in REMOVED_IDS and k not in ('starter-exact-5', 'starter-exact-6'))
-          and ('starter-exact-5' not in before or m1_ok(M, before['starter-exact-5'])) and ('starter-exact-6' not in before or m2_ok(M, before['starter-exact-6'])))
+def m17_ok(M, prev=None):  # Model 17 = one record carrying Base, Red dress, Leather catsuit, Tech suit (current images); an upgraded record keeps every other field
+  g = M.get('starter-exact-25', {}); o = g.get('outfits') or []
+  same = prev is None or {k: v for k, v in g.items() if k not in (*K, 'outfits', 'assetRev')} == {k: v for k, v in prev.items() if k not in (*K, 'outfits', 'assetRev')}
+  return (same and g.get('starter') is True and g.get('assetRev') == REVS['starter-exact-25'] and imgs_current(g, 'exact-25')
+          and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in M17_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, M17_OUTFITS)))
+def m13_ok(M, prev=None):  # Model 13 = one record carrying Base + Beige Linen (current images); an upgraded record keeps every other field
+  g = M.get('starter-exact-21', {}); o = g.get('outfits') or []
+  same = prev is None or {k: v for k, v in g.items() if k not in (*K, 'outfits', 'assetRev')} == {k: v for k, v in relabeled(prev).items() if k not in (*K, 'outfits', 'assetRev')}
+  return (same and g.get('starter') is True and g.get('assetRev') == REVS['starter-exact-21'] and imgs_current(g, 'exact-21')
+          and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in M13_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, M13_OUTFITS)))
+def kept(M, before, f=lambda v: v):  # every surviving record unchanged (relabel aside), except Models 1, 2, 13 and 17, which only gain their outfits
+  return (all(M[k] == f(v) for k, v in before.items() if k not in REMOVED_IDS and k not in ('starter-exact-5', 'starter-exact-6', 'starter-exact-21', 'starter-exact-25'))
+          and ('starter-exact-21' not in before or m13_ok(M, before['starter-exact-21']))
+          and ('starter-exact-5' not in before or m1_ok(M, before['starter-exact-5'])) and ('starter-exact-6' not in before or m2_ok(M, before['starter-exact-6']))
+          and ('starter-exact-25' not in before or m17_ok(M, before['starter-exact-25'])))
 def ui_names(pg, base):
   pg.goto(base + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(500); return pg.locator('.lib-card .nm').all_inner_texts()
 
@@ -450,7 +465,7 @@ try:
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, L = after['models'], after['looks']
     check('K_model1_gains_yoga_linen_keeps_edits', m1_ok(M, BM['starter-exact-5']) and M['starter-exact-5']['name'] == 'Ava (mine)' and M['starter-exact-5']['heightCm'] == 166 and M['starter-exact-5']['note'] == 'my note')
     check('K_model2_gains_yoga_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171)
-    check('K_models_15_16_17_added_once', NEW_15_16 - set(BM) == NEW_15_16 and M['starter-exact-25']['name'] == 'Model 17' and [o.get('id') for o in M['starter-exact-25'].get('outfits') or []] == ['base', 'red-dress'] and M['starter-exact-23']['name'] == 'Model 15' and M['starter-exact-24']['name'] == 'Model 16' and imgs_current(M['starter-exact-23'], 'exact-23') and imgs_current(M['starter-exact-24'], 'exact-24'))
+    check('K_models_15_16_17_added_once', NEW_15_16 - set(BM) == NEW_15_16 and M['starter-exact-25']['name'] == 'Model 17' and [o.get('id') for o in M['starter-exact-25'].get('outfits') or []] == [o[0] for o in M17_OUTFITS] and M['starter-exact-23']['name'] == 'Model 15' and M['starter-exact-24']['name'] == 'Model 16' and imgs_current(M['starter-exact-23'], 'exact-23') and imgs_current(M['starter-exact-24'], 'exact-24'))
     check('K_same_records_others_untouched', set(M) == set(BM) | NEW_15_16 and kept(M, BM) and M['user-model-k'] == BM['user-model-k'] and L == before['looks'])
     R['K_ui_names'] = names; check('K_ui_order', names == ['Ava (mine)', 'Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine K'])
     for mid, outs, shot in (('starter-exact-5', M1_OUTFITS, 'starters-model-1-yoga-linen'), ('starter-exact-6', M2_OUTFITS, 'starters-model-2-yoga')):
@@ -466,6 +481,37 @@ try:
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('K_idempotent', pg.evaluate(SNAP) == after)
+    c.close()
+    # ---------------- L) Model 17 Base + Red dress release (f2c6373, live before this change) → Model 17 gains Leather catsuit + Tech suit in place, edits kept ----------------
+    Ld = site('f2c6373'); srv, BASE = serve(Ld); servers.append(srv); time.sleep(0.5)
+    c, pg = ctx(b)
+    pg.goto(BASE); pg.wait_for_function("navigator.serviceWorker.controller"); pg.wait_for_timeout(1500)
+    pg.goto(BASE + '#/models'); pg.wait_for_function("document.querySelectorAll('.lib-card').length >= 20"); pg.wait_for_timeout(500)
+    pg.evaluate("""async idb => { const f = eval(idb);
+      const m = await f(['models', 'get', 'starter-exact-25']); m.name = 'Plat (mine)'; m.heightCm = 165; m.note = 'mine'; await f(['models', 'put', m]);
+      await f(['looks', 'put', { id: 'gen-on-m17', image: m.front, thumb: m.thumb, modelId: 'starter-exact-25', styleIds: [], view: 'front', title: 'Render on Model 17', tags: [], favorite: true, source: 'generated', createdAt: Date.now() }]);
+      const m13 = await f(['models', 'get', 'starter-exact-21']); m13.name = 'Wavy (mine)'; m13.heightCm = 168; await f(['models', 'put', m13]);
+      await f(['models', 'put', { id: 'user-model-l', name: 'Mine L', front: m.front, back: null, sheet: null, thumb: m.thumb, heightCm: 160, createdAt: Date.now(), starter: false }]); }""", IDB)
+    before = pg.evaluate(SNAP); BM = before['models']
+    check('L_old_install_model17_2_outfits', [o.get('id') for o in BM['starter-exact-25'].get('outfits') or []] == ['base', 'red-dress'] and len(BM) == 21)
+    deploy(Ld); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
+    names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
+    check('L_model17_gains_2_outfits_keeps_edits', m17_ok(M, BM['starter-exact-25']) and M['starter-exact-25']['name'] == 'Plat (mine)' and M['starter-exact-25']['heightCm'] == 165 and M['starter-exact-25']['note'] == 'mine')
+    check('L_model13_gains_beige_linen_keeps_edits', m13_ok(M, BM['starter-exact-21']) and M['starter-exact-21']['name'] == 'Wavy (mine)' and M['starter-exact-21']['heightCm'] == 168)
+    check('L_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'])
+    R['L_ui_names'] = names; check('L_ui_order', names == UI_STARTERS[:12] + ['Wavy (mine)'] + UI_STARTERS[13:16] + ['Plat (mine)', 'Generated 1', 'Generated 2', 'Generated 3', 'Mine L'])
+    pg.goto(BASE + '#/model/starter-exact-25'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
+    chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['L_chips'] = chips; bad = []
+    for i, (oid, nm, f) in enumerate(M17_OUTFITS):
+      pg.click(f'#mOutfits .oc[data-i="{i}"]'); pg.wait_for_timeout(400)
+      sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
+        return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
+      if sel != [NEW[f'{f}-front'], NEW[f'{f}-back'], nm]: bad.append(oid)
+    check('L_model17_detail_outfit_switch', chips == [o[1] for o in M17_OUTFITS] and not bad)
+    pg.screenshot(path=str(ROOT / 'screenshots/starters-model-17-outfits.png'))
+    pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
+    for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
+    check('L_idempotent', pg.evaluate(SNAP) == after)
     c.close()
     b.close()
 finally:

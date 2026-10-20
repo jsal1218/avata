@@ -167,7 +167,7 @@ test('Generated 1: one model with four built-in outfits (Base, Summer denim, Sun
   for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   // no outfit is a separate model; other starters have just their base
   assert.deepEqual(STARTERS.filter(s => /generated/.test(s.id)).map(s => s.id), ['starter-generated-1', 'starter-generated-2', 'starter-generated-3']);
-  for (const s of STARTERS.filter(s => !/generated/.test(s.id) && s.id !== 'starter-exact-5' && s.id !== 'starter-exact-6' && s.id !== 'starter-exact-25')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
+  for (const s of STARTERS.filter(s => !/generated/.test(s.id) && s.id !== 'starter-exact-5' && s.id !== 'starter-exact-6' && s.id !== 'starter-exact-21' && s.id !== 'starter-exact-25')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
   // the four outfits' images differ (no duplicate outfit) and assetRev covers all of them (changing any outfit changes it)
   const b = shipped(g), fronts = await Promise.all(b.outfits.map(o => o.front.arrayBuffer().then(x => Buffer.from(x).toString('base64'))));
   assert.equal(new Set(fronts).size, 4);
@@ -302,11 +302,27 @@ test('Model 2 gains a built-in Yoga set on her own record; existing installs ref
   assert.ok(!STARTERS.some(s => s !== m && s.outfits?.some(o => o.file === 'exact-6-yoga-set')), 'not a separate model');
 });
 
-test('Model 17 (starter-exact-25): new exact starter after Model 16 with two built-in outfits (Base, Red dress)', async () => {
+test('Model 17 (starter-exact-25): exact starter after Model 16 with four built-in outfits (Base, Red dress, Leather catsuit, Tech suit); the Base + Red dress install upgrades in place', async () => {
   const m = STARTERS.find(s => s.id === 'starter-exact-25');
   assert.equal(m.name, 'Model 17'); assert.ok(!m.source); assert.equal(STARTERS.indexOf(m), STARTERS.findIndex(s => s.id === 'starter-exact-24') + 1);
-  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-25'], ['red-dress', 'Red dress', 'exact-25-red-dress']]);
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-25'], ['red-dress', 'Red dress', 'exact-25-red-dress'], ['leather-catsuit', 'Leather catsuit', 'exact-25-leather-catsuit'], ['tech-suit', 'Tech suit', 'exact-25-tech-suit']]);
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.notEqual(await contentRev(files(m.file)), m.assetRev, 'rev covers both outfits');
-  const r = newStarterRecord(m, b, m.assetRev, 1); assert.deepEqual(r.outfits.map(o => o.id), ['base', 'red-dress']);
+  const r = newStarterRecord(m, b, m.assetRev, 1); assert.deepEqual(r.outfits.map(o => o.id), ['base', 'red-dress', 'leather-catsuit', 'tech-suit']);
+  for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
+  const old = { id: m.id, name: 'Plat (mine)', heightCm: 165, starter: true, assetRev: '5eb22514a354', outfits: [{ id: 'base' }, { id: 'red-dress' }], createdAt: 5 };
+  assert.notEqual(m.assetRev, '5eb22514a354', 'assetRev bumped'); assert.equal(modelNeedsRefresh(old, m), true);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Plat (mine)'); assert.equal(nr.heightCm, 165); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'red-dress', 'leather-catsuit', 'tech-suit']); assert.equal(modelNeedsRefresh(nr, m), false);
+});
+
+test('Model 13 (starter-exact-21) gains built-in Beige Linen and A outfits on her own record; existing installs refresh her in place, edits kept', async () => {
+  const m = STARTERS.find(s => s.id === 'starter-exact-21');
+  assert.equal(m.name, 'Model 13'); assert.ok(!m.source);
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-21'], ['beige-linen', 'Beige Linen', 'exact-21-beige-linen'], ['a', 'A', 'exact-21-a']]);
+  for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.notEqual(m.assetRev, '19029f72dedf', 'assetRev bumped');
+  for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
+  const old = { id: m.id, name: 'Wavy (mine)', heightCm: 168, starter: true, assetRev: '19029f72dedf', createdAt: 5 };
+  assert.equal(modelNeedsRefresh(old, m), true);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Wavy (mine)'); assert.equal(nr.heightCm, 168); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'beige-linen', 'a']); assert.equal(modelNeedsRefresh(nr, m), false);
 });

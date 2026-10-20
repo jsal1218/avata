@@ -88,9 +88,15 @@ export const STARTERS = [
     note: 'Platinum-blonde bob, half-cyborg face (left side), black top and flared pants',
   },
   {
-    id: 'starter-exact-21', name: 'Model 13', file: 'exact-21', assetRev: '19029f72dedf', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
+    id: 'starter-exact-21', name: 'Model 13', file: 'exact-21', assetRev: '86e0dd266c1e', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
     measurements: { bust: 35, waist: 26, hips: 37, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy brown hair, fair skin',
+    // 2026-10-20 (Jordan): Beige Linen, from Jordan's own 6-view sheet (no generation); existing installs refresh her in place
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-21' },
+      { id: 'beige-linen', name: 'Beige Linen', subtitle: 'Belted linen shirt dress', file: 'exact-21-beige-linen' },
+      { id: 'a', name: 'A', subtitle: 'Beige crop tank · baggy jeans · sneakers', file: 'exact-21-a' },
+    ],
   },
   {
     id: 'starter-exact-22', name: 'Model 14', file: 'exact-22', assetRev: '7b1c9e05547b', heightCm: 160, bodyType: 'average', size: 'M',
@@ -110,12 +116,15 @@ export const STARTERS = [
   },
   {
     // added 2026-10-20 (Jordan): Model 17 with a second built-in outfit, Red dress (generated on her own sheet; clothing only from the outfit reference)
-    id: 'starter-exact-25', name: 'Model 17', file: 'exact-25', assetRev: '5eb22514a354', heightCm: 160, bodyType: 'curvy', size: '14–16 / XL',
+    id: 'starter-exact-25', name: 'Model 17', file: 'exact-25', assetRev: '6f8c36180b7e', heightCm: 160, bodyType: 'curvy', size: '14–16 / XL',
     measurements: { bust: 42, waist: 35, hips: 46, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight platinum hair, fair skin, grey racerback crop set',
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-25' },
       { id: 'red-dress', name: 'Red dress', subtitle: 'Red V-neck mini dress', file: 'exact-25-red-dress' },
+      // 2026-10-20 (Jordan confirmed): Leather catsuit and Tech suit; existing installs refresh her in place (assetRev covers all four)
+      { id: 'leather-catsuit', name: 'Leather catsuit', subtitle: 'Black leather · laced open back', file: 'exact-25-leather-catsuit' },
+      { id: 'tech-suit', name: 'Tech suit', subtitle: 'Black armor · blue core', file: 'exact-25-tech-suit' },
     ],
   },
   {
