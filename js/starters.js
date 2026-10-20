@@ -109,6 +109,16 @@ export const STARTERS = [
     note: 'Long wavy burgundy hair with pink streaks, clear glasses, fair skin, pink crop set',
   },
   {
+    // added 2026-10-20 (Jordan): Model 17 with a second built-in outfit, Red dress (generated on her own sheet; clothing only from the outfit reference)
+    id: 'starter-exact-25', name: 'Model 17', file: 'exact-25', assetRev: '5eb22514a354', heightCm: 160, bodyType: 'curvy', size: '14–16 / XL',
+    measurements: { bust: 42, waist: 35, hips: 46, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long straight platinum hair, fair skin, grey racerback crop set',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-25' },
+      { id: 'red-dress', name: 'Red dress', subtitle: 'Red V-neck mini dress', file: 'exact-25-red-dress' },
+    ],
+  },
+  {
     // Generated 1 (added 2026-10-18): a generated fictional model with four built-in outfits (her own Generated section).
     // The first outfit is her base images (file); assetRev covers all four outfits' images in this order.
     id: 'starter-generated-1', name: 'Generated 1', file: 'generated-1', assetRev: '77df5d3b06b8', heightCm: 160, bodyType: 'slim', size: '4–6 / S',

@@ -38,7 +38,7 @@ def site(ref):
   return d
 def sha(b): return hashlib.sha256(b).hexdigest()
 K = ('sheet', 'front', 'back', 'thumb')
-KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24]; REMOVED = [1, 2, 3, 4, 8, 11, 15, 16]   # stable ids; KEEP is labelled Model 1-14 in this order
+KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25]; REMOVED = [1, 2, 3, 4, 8, 11, 15, 16]   # stable ids; KEEP is labelled Model 1-14 in this order
 LABEL = {f'starter-exact-{n}': f'Model {i + 1}' for i, n in enumerate(KEEP)}
 OLD_DEFAULT = {f'starter-exact-{n}': f'Model {n}' for n in KEEP if n < 17}   # names before the relabel
 def relabeled(rec):   # what relabelStarters() makes of a stored record
@@ -50,14 +50,14 @@ GEN2_OUTFITS = [('base', 'Base', 'generated-2'), ('yoga-set', 'Yoga set', 'gener
 M1_OUTFITS = [('base', 'Base', 'exact-5'), ('tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'), ('yoga-set', 'Yoga set', 'exact-5-yoga-set'), ('linen-set', 'Linen set', 'exact-5-linen-set')]
 M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set')]
 GEN3_OUTFITS = [('base', 'Base', 'generated-3'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts')]
-FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + [o[2] for o in GEN_OUTFITS] + [o[2] for o in GEN2_OUTFITS] + [o[2] for o in GEN3_OUTFITS]
+FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + ['exact-25-red-dress'] + [o[2] for o in GEN_OUTFITS] + [o[2] for o in GEN2_OUTFITS] + [o[2] for o in GEN3_OUTFITS]
 NEW = {f'{m}-{k}': sha((ROOT / f'assets/models/{m}-{k}.webp').read_bytes()) for m in FILES for k in K}
 REVS = dict(re.findall(r"id: '(starter-[a-z]+-\d+)'.*?assetRev: '([0-9a-f]+)'", (ROOT / 'js/starters.js').read_text()))
 EXACT = [f'starter-exact-{n}' for n in KEEP]
 ALL_NEW = EXACT + ['starter-generated-1', 'starter-generated-2', 'starter-generated-3']
 LATER = [f'starter-exact-{n}' for n in KEEP if n >= 6]   # every kept exact starter after exact-5 (incl. new exact-17..22)
 KNOWN_AFTER = sorted(set(ALL_NEW) | set(REMOVED_IDS))   # removed ids stay known, so they are never re-added
-NEW_15_16 = {'starter-exact-23', 'starter-exact-24'}   # Models 15-16, added 2026-10-19 (every older install gains them once)
+NEW_15_16 = {'starter-exact-23', 'starter-exact-24', 'starter-exact-25'}   # Models 15-16 (2026-10-19) and Model 17 (2026-10-20): every older install gains them once
 UI_STARTERS = [f'Model {i + 1}' for i in range(len(KEEP))]
 assert sorted(REVS) == sorted(ALL_NEW), REVS
 for n in REMOVED: assert not (ROOT / f'assets/models/exact-{n}-front.webp').exists()
@@ -450,8 +450,8 @@ try:
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, L = after['models'], after['looks']
     check('K_model1_gains_yoga_linen_keeps_edits', m1_ok(M, BM['starter-exact-5']) and M['starter-exact-5']['name'] == 'Ava (mine)' and M['starter-exact-5']['heightCm'] == 166 and M['starter-exact-5']['note'] == 'my note')
     check('K_model2_gains_yoga_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171)
-    check('K_models_15_16_added_once', {'starter-exact-23', 'starter-exact-24'} - set(BM) == {'starter-exact-23', 'starter-exact-24'} and M['starter-exact-23']['name'] == 'Model 15' and M['starter-exact-24']['name'] == 'Model 16' and imgs_current(M['starter-exact-23'], 'exact-23') and imgs_current(M['starter-exact-24'], 'exact-24'))
-    check('K_same_records_others_untouched', set(M) == set(BM) | {'starter-exact-23', 'starter-exact-24'} and kept(M, BM) and M['user-model-k'] == BM['user-model-k'] and L == before['looks'])
+    check('K_models_15_16_17_added_once', NEW_15_16 - set(BM) == NEW_15_16 and M['starter-exact-25']['name'] == 'Model 17' and [o.get('id') for o in M['starter-exact-25'].get('outfits') or []] == ['base', 'red-dress'] and M['starter-exact-23']['name'] == 'Model 15' and M['starter-exact-24']['name'] == 'Model 16' and imgs_current(M['starter-exact-23'], 'exact-23') and imgs_current(M['starter-exact-24'], 'exact-24'))
+    check('K_same_records_others_untouched', set(M) == set(BM) | NEW_15_16 and kept(M, BM) and M['user-model-k'] == BM['user-model-k'] and L == before['looks'])
     R['K_ui_names'] = names; check('K_ui_order', names == ['Ava (mine)', 'Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine K'])
     for mid, outs, shot in (('starter-exact-5', M1_OUTFITS, 'starters-model-1-yoga-linen'), ('starter-exact-6', M2_OUTFITS, 'starters-model-2-yoga')):
       pg.goto(BASE + '#/model/' + mid); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
