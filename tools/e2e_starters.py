@@ -29,6 +29,8 @@ K) Model 1 Tank & shorts release (c217703, the last one live): Model 1 gains Yog
    (renamed, edits kept), Models 15-16 (exact-23, 24) added once, everything else untouched.
 N) Model 1 Red dress release (a1a2db9, the last one live): renamed Model 2 (Base, Yoga set) gains Generated 3's Turtleneck, Slip dress, Tank & shorts in place, edits kept; nothing else changes.
 O) Model 2 + Generated 3 outfits release (bbd088a): renamed Model 2 (5 outfits) gains USA jersey in place, edits kept; nothing else changes.
+P) Model 2 USA jersey release (2dcfa92, the last one live): Generated 1-3 dropped once even renamed, looks on them kept detached, user model and Model 2 (six outfits) untouched, never re-added.
+Since 2026-10-21 every scenario ends with the Generated section removed (no Generated 1-3 records).
 M) Model 13 / Model 17 outfits release (a20674e): renamed Model 1 (4 outfits) gains Red dress in place, edits kept; nothing else changes.
 L) Model 17 Base + Red dress release (f2c6373): renamed Model 17 gains Leather catsuit + Tech suit and renamed Model 13 gains Beige Linen + A, in place, edits kept; nothing else changes.
 """
@@ -47,20 +49,18 @@ LABEL = {f'starter-exact-{n}': f'Model {i + 1}' for i, n in enumerate(KEEP)}
 OLD_DEFAULT = {f'starter-exact-{n}': f'Model {n}' for n in KEEP if n < 17}   # names before the relabel
 def relabeled(rec):   # what relabelStarters() makes of a stored record
   return {**rec, 'name': LABEL[rec['id']]} if rec.get('starter') is True and OLD_DEFAULT.get(rec.get('id')) == rec.get('name') else rec
-REMOVED_IDS = [f'starter-exact-{n}' for n in REMOVED] + ['starter-photoreal-1', 'starter-photoreal-2']   # Photoreal 1-2 removed 2026-10-19
+GEN_IDS = ['starter-generated-1', 'starter-generated-2', 'starter-generated-3']   # the Generated section, removed 2026-10-21
+REMOVED_IDS = [f'starter-exact-{n}' for n in REMOVED] + ['starter-photoreal-1', 'starter-photoreal-2'] + GEN_IDS   # Photoreal 1-2 removed 2026-10-19
 NEW_EXACT = [f'starter-exact-{n}' for n in KEEP if n >= 17]   # added after the relabel: Model 9 (exact-17), Model 10-14 (exact-18..22)
-GEN_OUTFITS = [('base', 'Base', 'generated-1'), ('summer-denim', 'Summer denim', 'generated-1-summer-denim'), ('sundress', 'Sundress', 'generated-1-sundress'), ('linen-set', 'Linen set', 'generated-1-linen-set')]
-GEN2_OUTFITS = [('base', 'Base', 'generated-2'), ('yoga-set', 'Yoga set', 'generated-2-yoga-set')]
 M1_OUTFITS = [('base', 'Base', 'exact-5'), ('tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'), ('yoga-set', 'Yoga set', 'exact-5-yoga-set'), ('linen-set', 'Linen set', 'exact-5-linen-set'), ('red-dress', 'Red dress', 'exact-5-red-dress')]
-M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts'), ('usa-jersey', 'USA jersey', 'exact-6-usa-jersey')]
+M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set'), ('turtleneck', 'Turtleneck', 'exact-6-turtleneck'), ('slip-dress', 'Slip dress', 'exact-6-slip-dress'), ('tank-shorts', 'Tank & shorts', 'exact-6-tank-shorts'), ('usa-jersey', 'USA jersey', 'exact-6-usa-jersey')]
 M13_OUTFITS = [('base', 'Base', 'exact-21'), ('beige-linen', 'Beige Linen', 'exact-21-beige-linen'), ('a', 'A', 'exact-21-a')]
 M17_OUTFITS = [('base', 'Base', 'exact-25'), ('red-dress', 'Red dress', 'exact-25-red-dress'), ('leather-catsuit', 'Leather catsuit', 'exact-25-leather-catsuit'), ('tech-suit', 'Tech suit', 'exact-25-tech-suit')]
-GEN3_OUTFITS = [('base', 'Base', 'generated-3'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts')]
-FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + [o[2] for o in M17_OUTFITS[1:]] + [o[2] for o in M13_OUTFITS[1:]] + [o[2] for o in GEN_OUTFITS] + [o[2] for o in GEN2_OUTFITS] + [o[2] for o in GEN3_OUTFITS]
+FILES = [f'exact-{n}' for n in KEEP] + [o[2] for o in M1_OUTFITS[1:]] + [o[2] for o in M2_OUTFITS[1:]] + [o[2] for o in M17_OUTFITS[1:]] + [o[2] for o in M13_OUTFITS[1:]]
 NEW = {f'{m}-{k}': sha((ROOT / f'assets/models/{m}-{k}.webp').read_bytes()) for m in FILES for k in K}
 REVS = dict(re.findall(r"id: '(starter-[a-z]+-\d+)'.*?assetRev: '([0-9a-f]+)'", (ROOT / 'js/starters.js').read_text()))
 EXACT = [f'starter-exact-{n}' for n in KEEP]
-ALL_NEW = EXACT + ['starter-generated-1', 'starter-generated-2', 'starter-generated-3']
+ALL_NEW = EXACT
 LATER = [f'starter-exact-{n}' for n in KEEP if n >= 6]   # every kept exact starter after exact-5 (incl. new exact-17..22)
 KNOWN_AFTER = sorted(set(ALL_NEW) | set(REMOVED_IDS))   # removed ids stay known, so they are never re-added
 NEW_15_16 = {'starter-exact-23', 'starter-exact-24', 'starter-exact-25'}   # Models 15-16 (2026-10-19) and Model 17 (2026-10-20): every older install gains them once
@@ -68,6 +68,7 @@ UI_STARTERS = [f'Model {i + 1}' for i in range(len(KEEP))]
 assert sorted(REVS) == sorted(ALL_NEW), REVS
 for n in REMOVED: assert not (ROOT / f'assets/models/exact-{n}-front.webp').exists()
 assert not (ROOT / 'assets/models/photoreal-1-front.webp').exists()
+for g in ('generated-1', 'generated-2', 'generated-3', 'generated-3-turtleneck'): assert not (ROOT / f'assets/models/{g}-front.webp').exists(), g
 
 IDB = """async ([store, op, val]) => { const db = await new Promise((r, j) => { const q = indexedDB.open('avata'); q.onsuccess = () => r(q.result); q.onerror = () => j(q.error); });
   const res = await new Promise((r, j) => { const t = db.transaction(store, op === 'get' || op === 'all' ? 'readonly' : 'readwrite'); const s = t.objectStore(store);
@@ -92,21 +93,9 @@ def ctx(b):
   c = b.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True); pg = c.new_page()
   pg.on('pageerror', lambda e: errors.append(str(e))); return c, pg
 def imgs_current(m, f): return all(m.get(k) == 'sha:' + NEW[f'{f}-{k}'] for k in K)
-def gen_ok(M):  # Generated 1 = one model record carrying all 4 outfits (current images); top-level images = her base outfit
-  g = M.get('starter-generated-1', {}); o = g.get('outfits') or []
-  return (g.get('name') == 'Generated 1' and g.get('starter') is True and g.get('assetRev') == REVS['starter-generated-1'] and imgs_current(g, 'generated-1')
-          and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in GEN_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, GEN_OUTFITS))
-          and not any(k.startswith('starter-generated-1-') or 'summer' in k for k in M))
-def gen2_ok(M):  # Generated 2 = one model record carrying both outfits (current images); top-level images = her base outfit
-  g = M.get('starter-generated-2', {}); o = g.get('outfits') or []
-  return (g.get('name') == 'Generated 2' and g.get('starter') is True and g.get('assetRev') == REVS['starter-generated-2'] and imgs_current(g, 'generated-2')
-          and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in GEN2_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, GEN2_OUTFITS))
-          and not any(k.startswith('starter-generated-2-') for k in M))
-def gen3_ok(M):  # Generated 3 = Model 2 in black: one model record carrying all 4 outfits (current images)
-  g = M.get('starter-generated-3', {}); o = g.get('outfits') or []
-  return (g.get('name') == 'Generated 3' and g.get('starter') is True and g.get('assetRev') == REVS['starter-generated-3'] and imgs_current(g, 'generated-3')
-          and [[x.get('id'), x.get('name')] for x in o] == [[a, n] for a, n, _ in GEN3_OUTFITS] and all(imgs_current(x, f) for x, (_, _, f) in zip(o, GEN3_OUTFITS))
-          and not any(k.startswith('starter-generated-3-') for k in M))
+def gen_gone(M):  # Generated 1-3 (section removed 2026-10-21): no record of them, whatever they were renamed to
+  return not any(k.startswith('starter-generated-') for k in M)
+gen_ok = gen2_ok = gen3_ok = gen_gone
 def m1_ok(M, prev=None):  # Model 1 = one record carrying Base + Tank & shorts (current images); an upgraded record keeps every other field
   g = M.get('starter-exact-5', {}); o = g.get('outfits') or []
   same = prev is None or {k: v for k, v in g.items() if k not in (*K, 'outfits', 'assetRev')} == {k: v for k, v in relabeled(prev).items() if k not in (*K, 'outfits', 'assetRev')}
@@ -168,10 +157,10 @@ try:
     check('A_generated_look_on_model1_kept_detached', {**L['gen-look-1'], 'modelId': 0} == {**before['looks']['gen-look-1'], 'modelId': 0} and L['gen-look-1']['modelId'] is None)
     check('A_model1_sample_looks_removed', not (M1_SAMPLES & set(L)))
     check('A_photoreal_sample_looks_removed', not (M2_SAMPLES & set(L)) and set(L) == set(before['looks']) - M1_SAMPLES - M2_SAMPLES)
-    check('A_remaining_exact_added_once', added_ok(M, EXACT) and set(M) == {'user-model-x', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3', *EXACT} and no_removed(M) and m1_ok(M))
-    check('A_generated1_with_4_outfits', gen_ok(M))
+    check('A_remaining_exact_added_once', added_ok(M, EXACT) and set(M) == {'user-model-x', *EXACT} and no_removed(M) and m1_ok(M))
+    check('A_no_generated', gen_ok(M))
     R['A_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('A_known', sorted(R['A_known_list']) == KNOWN_AFTER)
-    R['A_ui_names'] = names; check('A_ui_names', names == UI_STARTERS + ['Generated 1', 'Generated 2', 'Generated 3', 'My Model'])
+    R['A_ui_names'] = names; check('A_ui_names', names == UI_STARTERS + ['My Model'])
     pg.screenshot(path=str(ROOT / 'screenshots/starters-after-upgrade.png'))
     pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500); check('A_idempotent', pg.evaluate(SNAP) == after)
     pg.evaluate(IDB, ['models', 'del', 'starter-exact-6']); pg.evaluate(IDB, ['models', 'del', 'starter-generated-1']); gone = pg.evaluate(SNAP)
@@ -204,12 +193,12 @@ try:
     e5 = M.get('starter-exact-5', {}); check('B_new_model5_added_once', e5.get('name') == 'Model 1' and m1_ok(M))
     check('B_user_models_untouched', M.get('user-model-y') == before['models']['user-model-y'])
     check('B_remaining_6_14_added_once', added_ok(M, LATER))
-    check('B_exact_set', set(M) == {*EXACT, 'starter-generated-1', 'starter-generated-2', 'starter-generated-3', 'user-model-y'})
-    check('B_generated1_with_4_outfits', gen_ok(M))
+    check('B_exact_set', set(M) == {*EXACT, 'user-model-y'})
+    check('B_no_generated', gen_ok(M))
     check('B_looks_kept_except_sample_looks', set(L) == set(before['looks']) - M1_SAMPLES - M2_SAMPLES)
     R['B_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('B_known', sorted(R['B_known_list']) == KNOWN_AFTER)
     R['B_ui_names'] = names
-    check('B_ui', names == UI_STARTERS + ['Generated 1', 'Generated 2', 'Generated 3', 'Model 5'])   # the user's own 'Model 5' after the starters
+    check('B_ui', names == UI_STARTERS + ['Model 5'])   # the user's own 'Model 5' after the starters
     pg.screenshot(path=str(ROOT / 'screenshots/starters-after-renumber.png'))
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('B_idempotent', pg.evaluate(SNAP) == after)
@@ -221,14 +210,12 @@ try:
     fresh = pg.evaluate(SNAP)
     check('C_fresh_all_starters', all(fresh['models'].get(s, {}).get('assetRev') == REVS[s] for s in ALL_NEW) and set(fresh['models']) == set(ALL_NEW))
     check('C_fresh_order', [k for k, v in sorted(fresh['models'].items(), key=lambda kv: kv[1]['createdAt'])] == ALL_NEW)
-    check('C_fresh_generated1_with_4_outfits', gen_ok(fresh['models']))
-    check('C_fresh_generated2_with_2_outfits', gen2_ok(fresh['models']))
-    check('C_fresh_generated3_with_4_outfits', gen3_ok(fresh['models']))
+    check('C_fresh_no_generated', gen_ok(fresh['models']))
     check('C_fresh_model1_with_2_outfits', m1_ok(fresh['models']))
     check('C_fresh_no_photoreal_no_sample_looks', no_photoreal(fresh['models'], fresh['looks']))
     check('C_fresh_known', sorted(pg.evaluate(IDB, ['kv', 'get', 'knownStarters'])) == KNOWN_AFTER)
     R['C_ui_names'] = pg.locator('.lib-card .nm').all_inner_texts()
-    check('C_ui_names', R['C_ui_names'] == UI_STARTERS + ['Generated 1', 'Generated 2', 'Generated 3'])
+    check('C_ui_names', R['C_ui_names'] == UI_STARTERS)
     pg.screenshot(path=str(ROOT / 'screenshots/starters-fresh.png'), full_page=True)
     c.close()
 
@@ -247,11 +234,11 @@ try:
     deploy(D); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M = after['models']
     check('D_remaining_6_14_added_once', added_ok(M, LATER))
-    check('D_exact_set', set(M) == {'starter-exact-5', 'user-model-z', 'user-model-w', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3', *LATER} and no_removed(M))
-    check('D_generated1_with_4_outfits', gen_ok(M))
+    check('D_exact_set', set(M) == {'starter-exact-5', 'user-model-z', 'user-model-w', *LATER} and no_removed(M))
+    check('D_no_generated', gen_ok(M))
     check('D_kept_records_untouched_model1_gains_outfit', kept(M, before['models']) and M['starter-exact-5']['name'] == 'Wavy (mine)')
     R['D_ui_names'] = names
-    check('D_ui_order', names == ['Wavy (mine)'] + UI_STARTERS[1:] + ['Generated 1', 'Generated 2', 'Generated 3', 'My Own', 'My Second'])
+    check('D_ui_order', names == ['Wavy (mine)'] + UI_STARTERS[1:] + ['My Own', 'My Second'])
     R['D_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('D_known', sorted(R['D_known_list']) == KNOWN_AFTER)
     pg.screenshot(path=str(ROOT / 'screenshots/starters-after-m6-15.png'), full_page=True)
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
@@ -270,25 +257,15 @@ try:
     check('E_old_install_has_no_generated', 'starter-generated-1' not in before['models'] and len(before['models']) == 17)
     deploy(E); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M = after['models']
-    check('E_generated1_added_once_with_4_outfits', gen_ok(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | {'starter-generated-1', 'starter-generated-2', 'starter-generated-3', *NEW_EXACT} and added_ok(M, NEW_EXACT))
+    check('E_models_added_no_generated', gen_ok(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | {*NEW_EXACT} and added_ok(M, NEW_EXACT))
     check('E_removed_dropped_even_renamed_model15', no_removed(M) and not any(m.get('name') == 'Gold (mine)' for m in M.values()))
     check('E_kept_records_relabeled_only', kept(M, before['models'], relabeled))
     R['E_ui_names'] = names
-    check('E_ui_order', names == UI_STARTERS + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine E'])
-    pg.goto(BASE + '#/model/starter-generated-1'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
-    R['E_detail_chips'] = pg.locator('#mOutfits .oc').all_inner_texts()
-    pg.click('#mOutfits .oc[data-i="2"]'); pg.wait_for_timeout(400)
-    sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
-      return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
-    check('E_detail_outfit_switch', [c.strip() for c in R['E_detail_chips']] == ['Base', 'Summer denim', 'Sundress', 'Linen set'] and sel == [NEW['generated-1-sundress-front'], NEW['generated-1-sundress-back'], 'Sundress'])
-    pg.screenshot(path=str(ROOT / 'screenshots/starters-generated-1-detail.png'))
+    check('E_ui_order', names == UI_STARTERS + ['Mine E'])
     R['E_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('E_known', sorted(R['E_known_list']) == KNOWN_AFTER)
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('E_idempotent', pg.evaluate(SNAP) == after)
-    pg.evaluate(IDB, ['models', 'del', 'starter-generated-1']); gone = pg.evaluate(SNAP)
-    for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
-    check('E_deleted_generated_stays_deleted', pg.evaluate(SNAP) == gone and 'starter-generated-1' not in gone['models'])
     c.close()
 
     # ---------------- F) Model 1-16 + Generated 1 release (eb3faca, live before this change) → the 8 removed starters dropped once ----------------
@@ -308,17 +285,17 @@ try:
     check('F_old_install_has_all_16', all(f'starter-exact-{n}' in before['models'] for n in range(1, 17)) and len(before['models']) == 19)
     deploy(F); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, L = after['models'], after['looks']
-    check('F_generated2_added_once', gen2_ok(M))
+    check('F_no_generated', gen2_ok(M))
     check('F_removed_dropped_once_even_renamed', no_removed(M) and not any(m.get('name') == 'Bun (mine)' for m in M.values()))
-    check('F_model_set', set(M) == {*EXACT, 'starter-generated-1', 'starter-generated-2', 'starter-generated-3', 'user-model-f'} and added_ok(M, NEW_EXACT))
+    check('F_model_set', set(M) == {*EXACT, 'user-model-f'} and added_ok(M, NEW_EXACT))
     check('F_kept_records_relabeled_only', kept(M, before['models'], relabeled))
     check('F_user_renamed_starter_kept', M['starter-exact-9']['name'] == 'Silver (mine)' and M['starter-exact-9']['heightCm'] == 172 and M['starter-exact-10']['name'] == 'Model 5' and M['starter-exact-5']['name'] == 'Model 1')
-    check('F_user_model_and_renamed_generated_kept', M['user-model-f'] == before['models']['user-model-f'] and M['starter-generated-1']['name'] == 'Chestnut (mine)')
+    check('F_user_model_kept_renamed_generated_dropped', M['user-model-f'] == before['models']['user-model-f'] and not any(m.get('name') == 'Chestnut (mine)' for m in M.values()))
     check('F_look_on_removed_8_kept_detached', {**L['gen-on-8'], 'modelId': 0} == {**before['looks']['gen-on-8'], 'modelId': 0} and L['gen-on-8']['modelId'] is None)
     check('F_look_on_kept_9_untouched', L['gen-on-9'] == before['looks']['gen-on-9'])
     check('F_looks_kept_except_sample_looks', set(L) == set(before['looks']) - M1_SAMPLES - M2_SAMPLES)
     R['F_ui_names'] = names
-    check('F_ui_order', names == UI_STARTERS[:3] + ['Silver (mine)'] + UI_STARTERS[4:] + ['Chestnut (mine)', 'Generated 2', 'Generated 3', 'Mine F'])
+    check('F_ui_order', names == UI_STARTERS[:3] + ['Silver (mine)'] + UI_STARTERS[4:] + ['Mine F'])
     check('F_relabel_flag', pg.evaluate(IDB, ['kv', 'get', 'relabel-2026-10-18']) is True)
     R['F_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('F_known', sorted(R['F_known_list']) == KNOWN_AFTER)
     check('F_removal_flag', pg.evaluate(IDB, ['kv', 'get', 'removed-starters-2026-10-18']) is True)
@@ -340,26 +317,16 @@ try:
     check('G_old_install_has_no_generated2', 'starter-generated-2' not in before['models'] and 'starter-generated-1' in before['models'] and len(before['models']) == 11)
     deploy(G); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M = after['models']
-    check('G_generated2_and_models_10_14_added_once', gen2_ok(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | {'starter-generated-2', 'starter-generated-3', *NEW_EXACT[1:]} and added_ok(M, NEW_EXACT[1:]) and no_photoreal(M))
+    check('G_models_10_14_added_once_no_generated', gen2_ok(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | {*NEW_EXACT[1:]} and added_ok(M, NEW_EXACT[1:]) and no_photoreal(M))
     check('G_existing_records_untouched', kept(M, before['models']))
     check('G_deleted_model6_stays_deleted', 'starter-exact-12' not in M)
     R['G_ui_names'] = names
-    check('G_ui_order', names == UI_STARTERS[:2] + ['Auburn (mine)'] + UI_STARTERS[3:5] + UI_STARTERS[6:] + ['Chestnut (mine)', 'Generated 2', 'Generated 3', 'Mine G'])
+    check('G_ui_order', names == UI_STARTERS[:2] + ['Auburn (mine)'] + UI_STARTERS[3:5] + UI_STARTERS[6:] + ['Mine G'])
     check('G_models_10_14_after_model_9', names[7:13] == ['Model 9', 'Model 10', 'Model 11', 'Model 12', 'Model 13', 'Model 14'])
     R['G_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('G_known', sorted(R['G_known_list']) == KNOWN_AFTER)
-    pg.goto(BASE + '#/model/starter-generated-2'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
-    R['G_detail_chips'] = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]
-    pg.click('#mOutfits .oc[data-i="1"]'); pg.wait_for_timeout(400)
-    sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
-      return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
-    check('G_detail_outfit_switch', R['G_detail_chips'] == ['Base', 'Yoga set'] and sel == [NEW['generated-2-yoga-set-front'], NEW['generated-2-yoga-set-back'], 'Yoga set'])
-    pg.screenshot(path=str(ROOT / 'screenshots/starters-generated-2-detail.png'))
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('G_idempotent', pg.evaluate(SNAP) == after)
-    pg.evaluate(IDB, ['models', 'del', 'starter-generated-2']); gone = pg.evaluate(SNAP)
-    for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
-    check('G_deleted_generated2_stays_deleted', pg.evaluate(SNAP) == gone and 'starter-generated-2' not in gone['models'])
     c.close()
     # ---------------- H) Generated 2 release (1de7a72, live before this change) → Models 10-14 added once ----------------
     H = site('1de7a72'); srv, BASE = serve(H); servers.append(srv); time.sleep(0.5)
@@ -373,10 +340,10 @@ try:
     check('H_old_install_has_12_starters', len(before['models']) == 13 and not any(k in before['models'] for k in NEW_EXACT[1:]))
     deploy(H); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M = after['models']
-    check('H_models_10_14_added_once', set(M) == (set(before['models']) - set(REMOVED_IDS)) | set(NEW_EXACT[1:]) | {'starter-generated-3'} and added_ok(M, NEW_EXACT[1:]) and no_photoreal(M))
+    check('H_models_10_14_added_once', set(M) == (set(before['models']) - set(REMOVED_IDS)) | set(NEW_EXACT[1:]) and added_ok(M, NEW_EXACT[1:]) and no_photoreal(M))
     check('H_existing_records_untouched', kept(M, before['models']))
     R['H_ui_names'] = names
-    check('H_ui_order', names == UI_STARTERS[:8] + ['Bob (mine)'] + UI_STARTERS[9:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Model 10'])   # the user's own 'Model 10' stays after the starters
+    check('H_ui_order', names == UI_STARTERS[:8] + ['Bob (mine)'] + UI_STARTERS[9:] + ['Model 10'])   # the user's own 'Model 10' stays after the starters
     R['H_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('H_known', sorted(R['H_known_list']) == KNOWN_AFTER)
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('H_idempotent', pg.evaluate(SNAP) == after)
@@ -397,24 +364,14 @@ try:
     check('I_old_install_has_no_generated3', 'starter-generated-3' not in before['models'] and len(before['models']) == 18)
     deploy(I); pg.goto(BASE); pg.reload(); pg.wait_for_selector('#app, body'); pg.wait_for_timeout(1000); pg.wait_for_timeout(3000)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M = after['models']
-    check('I_generated3_added_once_with_4_outfits_photoreal_dropped', gen3_ok(M) and no_photoreal(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | {'starter-generated-3'} | NEW_15_16)
+    check('I_no_generated3_photoreal_dropped', gen3_ok(M) and no_photoreal(M) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | NEW_15_16)
     check('I_existing_records_untouched_incl_model2', kept(M, before['models']) and M['starter-exact-6']['name'] == 'Pink (mine)')
     R['I_ui_names'] = names
-    check('I_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine I'])
+    check('I_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Mine I'])
     R['I_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('I_known', sorted(R['I_known_list']) == KNOWN_AFTER)
-    pg.goto(BASE + '#/model/starter-generated-3'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
-    R['I_detail_chips'] = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]
-    pg.click('#mOutfits .oc[data-i="3"]'); pg.wait_for_timeout(400)
-    sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
-      return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
-    check('I_detail_outfit_switch', R['I_detail_chips'] == ['Base', 'Turtleneck', 'Slip dress', 'Tank & shorts'] and sel == [NEW['generated-3-tank-shorts-front'], NEW['generated-3-tank-shorts-back'], 'Tank & shorts'])
-    pg.screenshot(path=str(ROOT / 'screenshots/starters-generated-3-detail.png'))
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('I_idempotent', pg.evaluate(SNAP) == after)
-    pg.evaluate(IDB, ['models', 'del', 'starter-generated-3']); gone = pg.evaluate(SNAP)
-    for _ in range(2): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
-    check('I_deleted_generated3_stays_deleted', pg.evaluate(SNAP) == gone)
     c.close()
     # ---------------- J) Generated 3 + Photoreal 2 release (5664f6d, live before this change) → Photoreal 1-2 dropped once; Model 1 gains Tank & shorts ----------------
     J = site('5664f6d'); srv, BASE = serve(J); servers.append(srv); time.sleep(0.5)
@@ -431,13 +388,13 @@ try:
     check('J_old_install_has_photoreal_1_2', {'starter-photoreal-1', 'starter-photoreal-2', 'starter-generated-3'} <= set(before['models']) and len(before['models']) == 20 and not before['models']['starter-exact-5'].get('outfits'))
     deploy(J); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, L = after['models'], after['looks']
-    check('J_photoreal_1_2_dropped_once_even_renamed', no_photoreal(M, L) and not any(m.get('name') == 'Curls (mine)' for m in M.values()) and set(M) == (set(before['models']) - {'starter-photoreal-1', 'starter-photoreal-2'}) | NEW_15_16)
+    check('J_photoreal_1_2_dropped_once_even_renamed', no_photoreal(M, L) and not any(m.get('name') == 'Curls (mine)' for m in M.values()) and set(M) == (set(before['models']) - set(REMOVED_IDS)) | NEW_15_16)
     check('J_look_on_photoreal2_kept_detached', {**L['gen-on-p2'], 'modelId': 0} == {**before['looks']['gen-on-p2'], 'modelId': 0} and L['gen-on-p2']['modelId'] is None)
-    check('J_generated3_kept_with_4_outfits', gen3_ok(M) and M['starter-generated-3'] == before['models']['starter-generated-3'])
+    check('J_generated3_dropped', gen_gone(M))
     check('J_model1_gains_tank_shorts_keeps_edits', m1_ok(M, before['models']['starter-exact-5']) and M['starter-exact-5']['name'] == 'Ava (mine)' and M['starter-exact-5']['heightCm'] == 166)
     check('J_other_records_untouched', kept(M, before['models']) and M['user-model-j'] == before['models']['user-model-j'])
     R['J_ui_names'] = names
-    check('J_ui_order', names == ['Ava (mine)'] + UI_STARTERS[1:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine J'])
+    check('J_ui_order', names == ['Ava (mine)'] + UI_STARTERS[1:] + ['Mine J'])
     R['J_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('J_known', sorted(R['J_known_list']) == KNOWN_AFTER)
     check('J_removal_flag', pg.evaluate(IDB, ['kv', 'get', 'removed-starters-2026-10-19']) is True)
     pg.goto(BASE + '#/model/starter-exact-5'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
@@ -469,8 +426,8 @@ try:
     check('K_model1_gains_yoga_linen_keeps_edits', m1_ok(M, BM['starter-exact-5']) and M['starter-exact-5']['name'] == 'Ava (mine)' and M['starter-exact-5']['heightCm'] == 166 and M['starter-exact-5']['note'] == 'my note')
     check('K_model2_gains_yoga_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171)
     check('K_models_15_16_17_added_once', NEW_15_16 - set(BM) == NEW_15_16 and M['starter-exact-25']['name'] == 'Model 17' and [o.get('id') for o in M['starter-exact-25'].get('outfits') or []] == [o[0] for o in M17_OUTFITS] and M['starter-exact-23']['name'] == 'Model 15' and M['starter-exact-24']['name'] == 'Model 16' and imgs_current(M['starter-exact-23'], 'exact-23') and imgs_current(M['starter-exact-24'], 'exact-24'))
-    check('K_same_records_others_untouched', set(M) == set(BM) | NEW_15_16 and kept(M, BM) and M['user-model-k'] == BM['user-model-k'] and L == before['looks'])
-    R['K_ui_names'] = names; check('K_ui_order', names == ['Ava (mine)', 'Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine K'])
+    check('K_same_records_others_untouched', set(M) == (set(BM) - set(GEN_IDS)) | NEW_15_16 and kept(M, BM) and M['user-model-k'] == BM['user-model-k'] and L == before['looks'])
+    R['K_ui_names'] = names; check('K_ui_order', names == ['Ava (mine)', 'Pink (mine)'] + UI_STARTERS[2:] + ['Mine K'])
     for mid, outs, shot in (('starter-exact-5', M1_OUTFITS, 'starters-model-1-yoga-linen'), ('starter-exact-6', M2_OUTFITS, 'starters-model-2-yoga')):
       pg.goto(BASE + '#/model/' + mid); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
       chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R[f'K_{mid}_chips'] = chips; bad = []
@@ -501,8 +458,8 @@ try:
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
     check('L_model17_gains_2_outfits_keeps_edits', m17_ok(M, BM['starter-exact-25']) and M['starter-exact-25']['name'] == 'Plat (mine)' and M['starter-exact-25']['heightCm'] == 165 and M['starter-exact-25']['note'] == 'mine')
     check('L_model13_gains_beige_linen_keeps_edits', m13_ok(M, BM['starter-exact-21']) and M['starter-exact-21']['name'] == 'Wavy (mine)' and M['starter-exact-21']['heightCm'] == 168)
-    check('L_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'])
-    R['L_ui_names'] = names; check('L_ui_order', names == UI_STARTERS[:12] + ['Wavy (mine)'] + UI_STARTERS[13:16] + ['Plat (mine)', 'Generated 1', 'Generated 2', 'Generated 3', 'Mine L'])
+    check('L_same_records_others_untouched', set(M) == set(BM) - set(GEN_IDS) and kept(M, BM) and Lk == before['looks'])
+    R['L_ui_names'] = names; check('L_ui_order', names == UI_STARTERS[:12] + ['Wavy (mine)'] + UI_STARTERS[13:16] + ['Plat (mine)', 'Mine L'])
     pg.goto(BASE + '#/model/starter-exact-25'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
     chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['L_chips'] = chips; bad = []
     for i, (oid, nm, f) in enumerate(M17_OUTFITS):
@@ -530,8 +487,8 @@ try:
     deploy(Md); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
     check('M_model1_gains_red_dress_keeps_edits', m1_ok(M, BM['starter-exact-5']) and M['starter-exact-5']['name'] == 'Ava (mine)' and M['starter-exact-5']['heightCm'] == 166 and M['starter-exact-5']['note'] == 'mine')
-    check('M_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'])
-    R['M_ui_names'] = names; check('M_ui_order', names == ['Ava (mine)'] + UI_STARTERS[1:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine M'])
+    check('M_same_records_others_untouched', set(M) == set(BM) - set(GEN_IDS) and kept(M, BM) and Lk == before['looks'])
+    R['M_ui_names'] = names; check('M_ui_order', names == ['Ava (mine)'] + UI_STARTERS[1:] + ['Mine M'])
     pg.goto(BASE + '#/model/starter-exact-5'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
     chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['M_chips'] = chips
     pg.click('#mOutfits .oc[data-i="4"]'); pg.wait_for_timeout(400)
@@ -557,14 +514,14 @@ try:
     deploy(Nd); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
     check('N_model2_gains_g3_outfits_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171 and M['starter-exact-6']['note'] == 'mine')
-    check('N_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'] and M['starter-generated-3'] == BM['starter-generated-3'])
-    R['N_ui_names'] = names; check('N_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine N'])
+    check('N_same_records_others_untouched', set(M) == set(BM) - set(GEN_IDS) and kept(M, BM) and Lk == before['looks'] and gen_gone(M))
+    R['N_ui_names'] = names; check('N_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Mine N'])
     pg.goto(BASE + '#/model/starter-exact-6'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
     chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['N_chips'] = chips
     pg.click('#mOutfits .oc[data-i="4"]'); pg.wait_for_timeout(400)
     sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
       return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
-    check('N_model2_detail_tank_shorts', chips == [o[1] for o in M2_OUTFITS] and sel == [NEW['generated-3-tank-shorts-front'], NEW['generated-3-tank-shorts-back'], 'Tank & shorts'])
+    check('N_model2_detail_tank_shorts', chips == [o[1] for o in M2_OUTFITS] and sel == [NEW['exact-6-tank-shorts-front'], NEW['exact-6-tank-shorts-back'], 'Tank & shorts'])
     pg.screenshot(path=str(ROOT / 'screenshots/starters-model-2-g3-outfits.png'))
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
@@ -584,8 +541,8 @@ try:
     deploy(Od); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
     names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
     check('O_model2_gains_usa_jersey_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171 and M['starter-exact-6']['note'] == 'mine')
-    check('O_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'] and M['starter-generated-3'] == BM['starter-generated-3'])
-    R['O_ui_names'] = names; check('O_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine O'])
+    check('O_same_records_others_untouched', set(M) == set(BM) - set(GEN_IDS) and kept(M, BM) and Lk == before['looks'] and gen_gone(M))
+    R['O_ui_names'] = names; check('O_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Mine O'])
     pg.goto(BASE + '#/model/starter-exact-6'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
     chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['O_chips'] = chips
     pg.click('#mOutfits .oc[data-i="5"]'); pg.wait_for_timeout(400)
@@ -596,6 +553,51 @@ try:
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('O_idempotent', pg.evaluate(SNAP) == after)
+    c.close()
+    # ---------------- P) Model 2 USA jersey release (2dcfa92, the last one live) → Generated 1-3 dropped once (even renamed), looks on them kept detached, never re-added; Model 2 keeps all six outfits ----------------
+    Pd = site('2dcfa92'); srv, BASE = serve(Pd); servers.append(srv); time.sleep(0.5)
+    c, pg = ctx(b)
+    pg.goto(BASE); pg.wait_for_function("navigator.serviceWorker.controller"); pg.wait_for_timeout(1500)
+    pg.goto(BASE + '#/models'); pg.wait_for_function("document.querySelectorAll('.lib-card').length >= 20"); pg.wait_for_timeout(500)
+    pg.evaluate("""async idb => { const f = eval(idb);
+      const g3 = await f(['models', 'get', 'starter-generated-3']); g3.name = 'Black (mine)'; g3.heightCm = 170; await f(['models', 'put', g3]);
+      const g1 = await f(['models', 'get', 'starter-generated-1']); g1.name = 'Chestnut (mine)'; await f(['models', 'put', g1]);
+      await f(['looks', 'put', { id: 'gen-on-g3', image: g3.front, thumb: g3.thumb, modelId: 'starter-generated-3', styleIds: [], view: 'front', title: 'Render on Generated 3', tags: ['keep'], favorite: true, source: 'generated', createdAt: Date.now() }]);
+      const g2 = await f(['models', 'get', 'starter-generated-2']);
+      await f(['looks', 'put', { id: 'imp-on-g2', image: g2.front, thumb: g2.thumb, modelId: 'starter-generated-2', styleIds: [], view: 'back', title: 'Import on Generated 2', tags: [], favorite: false, source: 'import', createdAt: Date.now() }]);
+      const m = await f(['models', 'get', 'starter-exact-6']); m.name = 'Pink (mine)'; m.heightCm = 171; m.note = 'mine'; await f(['models', 'put', m]);
+      await f(['looks', 'put', { id: 'gen-on-m2p', image: m.front, thumb: m.thumb, modelId: 'starter-exact-6', styleIds: [], view: 'front', title: 'Render on Model 2', tags: [], favorite: true, source: 'generated', createdAt: Date.now() }]);
+      await f(['models', 'put', { id: 'user-model-p', name: 'Mine P', front: g1.front, back: null, sheet: null, thumb: g1.thumb, heightCm: 160, createdAt: Date.now(), starter: false }]); }""", IDB)
+    before = pg.evaluate(SNAP); BM, BL = before['models'], before['looks']
+    check('P_old_install_has_generated_1_3_and_model2_6_outfits', set(GEN_IDS) <= set(BM) and [o.get('id') for o in BM['starter-exact-6'].get('outfits') or []] == [o[0] for o in M2_OUTFITS] and len(BM) == 21)
+    deploy(Pd); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
+    names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
+    check('P_generated_1_3_dropped_once_even_renamed', gen_gone(M) and not any(m.get('name') in ('Black (mine)', 'Chestnut (mine)') for m in M.values()) and set(M) == set(BM) - set(GEN_IDS))
+    check('P_looks_on_generated_kept_detached', all({**Lk[i], 'modelId': 0} == {**BL[i], 'modelId': 0} and Lk[i]['modelId'] is None for i in ('gen-on-g3', 'imp-on-g2')))
+    check('P_other_looks_untouched', set(Lk) == set(BL) and all(Lk[i] == BL[i] for i in BL if i not in ('gen-on-g3', 'imp-on-g2')))
+    check('P_user_model_untouched', M['user-model-p'] == BM['user-model-p'])
+    check('P_model2_six_outfits_edits_kept', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6'] == BM['starter-exact-6'] and M['starter-exact-6']['name'] == 'Pink (mine)')
+    check('P_other_records_untouched', kept(M, BM))
+    R['P_ui_names'] = names; check('P_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Mine P'])
+    R['P_known_list'] = pg.evaluate(IDB, ['kv', 'get', 'knownStarters']); check('P_known', sorted(R['P_known_list']) == KNOWN_AFTER)
+    check('P_removal_flag', pg.evaluate(IDB, ['kv', 'get', 'removed-starters-2026-10-21']) is True)
+    pg.goto(BASE + '#/model/starter-exact-6'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
+    chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['P_chips'] = chips; bad = []
+    for i, (oid, nm, f) in enumerate(M2_OUTFITS):
+      pg.click(f'#mOutfits .oc[data-i="{i}"]'); pg.wait_for_timeout(400)
+      sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
+        return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
+      if sel != [NEW[f'{f}-front'], NEW[f'{f}-back'], nm]: bad.append(oid)
+      if oid == 'turtleneck': pg.screenshot(path=str(ROOT / 'screenshots/starters-model-2-after-generated-removal.png'))
+    check('P_model2_detail_all_six_outfits', chips == [o[1] for o in M2_OUTFITS] and not bad)
+    R['P_model2_bad'] = bad
+    pg.goto(BASE + '#/model/starter-generated-3'); pg.wait_for_timeout(1200)
+    check('P_old_generated_page_gone', 'Black (mine)' not in pg.locator('body').inner_text())
+    pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
+    R['P_models_text'] = pg.locator('body').inner_text(); check('P_no_generated_text_on_models_page', not re.search(r'Generated [123]', R['P_models_text'])); del R['P_models_text']
+    pg.screenshot(path=str(ROOT / 'screenshots/starters-after-generated-removal.png'), full_page=True)
+    for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
+    check('P_idempotent_never_readded', pg.evaluate(SNAP) == after and ui_names(pg, BASE) == names)
     c.close()
     b.close()
 finally:

@@ -71,7 +71,7 @@ export function renderModelDetail(id) {
   if (!m) { v.innerHTML = `<div class="empty"><p class="display">Model not found</p><a class="btn" href="#/models">Back to models</a></div>`; return; }
   setTop('Model', `<a class="btn btn-ghost" href="#/models" style="min-height:38px">${icon('back', 'sm')} Models</a>`);
   const n = looksForModel(m.id);
-  const outfits = m.outfits?.length > 1 ? m.outfits : null; // built-in outfits of this model (e.g. Generated 1): small chips swap the references shown
+  const outfits = m.outfits?.length > 1 ? m.outfits : null; // built-in outfits of this model (e.g. Model 2): small chips swap the references shown
   v.innerHTML = `<h1 class="display fade-in">${esc(m.name)}</h1>${specPills(m)}
   ${outfits ? `<div class="oc-row" id="mOutfits" role="radiogroup" aria-label="Outfits">${outfits.map((o, i) => `<button type="button" class="oc" role="radio" data-i="${i}" aria-checked="${i === 0}" title="${esc(o.subtitle || o.name)}"><i style="background-image:url('${urlFor(o.front)}')"></i><span>${esc(o.name)}</span></button>`).join('')}</div>` : ''}
   <div class="hero-pair" style="margin-top:14px"><figure><img id="mFront" src="${urlFor(m.front)}" alt="Front reference"><figcaption>Front</figcaption></figure>${m.back ? `<figure><img id="mBack" src="${urlFor(m.back)}" alt="Back reference"><figcaption>Back</figcaption></figure>` : '<figure style="display:grid;place-items:center;color:#888">No back view</figure>'}</div>

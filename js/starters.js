@@ -5,8 +5,8 @@
 // refresh that starter's images on next launch, keeping the user's edits.
 // Exact-reference models: Model 1-9 (ids starter-exact-5, 6, 7, 9, 10, 12, 13, 14, 17). On 2026-10-18 Jordan removed the old Models 1-4, 8,
 // 11, 15 and 16 (REMOVED_STARTER_IDS in starter-sync.js) and the rest were renumbered Model 1-8 by display name only (RELABEL;
-// ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. Then generated models (starter-generated-N, with built-in
-// outfits). The Photorealistic starters (Photoreal 1-2) were removed on 2026-10-19 (REMOVED_STARTER_IDS). Ids are stable, so renumbering display names never needs another migration. The old
+// ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. Generated models (starter-generated-1..3)
+// followed; the Photorealistic starters (Photoreal 1-2) were removed on 2026-10-19 and the Generated ones on 2026-10-21 (REMOVED_STARTER_IDS). Ids are stable, so renumbering display names never needs another migration. The old
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
   {
@@ -35,10 +35,10 @@ export const STARTERS = [
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-6' },
       { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'exact-6-yoga-set' },
-      // 2026-10-21 (Jordan): Generated 3's outfits (she is Model 2), reusing Generated 3's files (no duplicate images)
-      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
-      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
-      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
+      // 2026-10-21 (Jordan): Generated 3's outfits (she is Model 2); her own copies since the Generated section was removed
+      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'exact-6-turtleneck' },
+      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'exact-6-slip-dress' },
+      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'exact-6-tank-shorts' },
       // 2026-10-21 (Jordan): USA soccer home kit, generated on her own sheet
       { id: 'usa-jersey', name: 'USA jersey', subtitle: 'USA home kit · white jersey', file: 'exact-6-usa-jersey' },
     ],
@@ -133,43 +133,6 @@ export const STARTERS = [
       // 2026-10-20 (Jordan confirmed): Leather catsuit and Tech suit; existing installs refresh her in place (assetRev covers all four)
       { id: 'leather-catsuit', name: 'Leather catsuit', subtitle: 'Black leather · laced open back', file: 'exact-25-leather-catsuit' },
       { id: 'tech-suit', name: 'Tech suit', subtitle: 'Black armor · blue core', file: 'exact-25-tech-suit' },
-    ],
-  },
-  {
-    // Generated 1 (added 2026-10-18): a generated fictional model with four built-in outfits (her own Generated section).
-    // The first outfit is her base images (file); assetRev covers all four outfits' images in this order.
-    id: 'starter-generated-1', name: 'Generated 1', file: 'generated-1', assetRev: '77df5d3b06b8', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
-    measurements: { bust: 34, waist: 26, hips: 36, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Shoulder-length wavy chestnut hair, olive skin (generated model)', source: 'generated',
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-1' },
-      { id: 'summer-denim', name: 'Summer denim', subtitle: 'White tied shirt · denim shorts', file: 'generated-1-summer-denim' },
-      { id: 'sundress', name: 'Sundress', subtitle: 'Yellow floral sundress', file: 'generated-1-sundress' },
-      { id: 'linen-set', name: 'Linen set', subtitle: 'Sage tank · linen pants', file: 'generated-1-linen-set' },
-    ],
-  },
-  {
-    // Generated 2 (added 2026-10-18): a second generated fictional model, listed after Generated 1 in the Generated section,
-    // with two built-in outfits. The first outfit is her base images (file); assetRev covers both outfits' images in this order.
-    id: 'starter-generated-2', name: 'Generated 2', file: 'generated-2', assetRev: 'e1a458afce26', heightCm: 160, bodyType: 'athletic', size: '4–6 / S',
-    measurements: { bust: 34, waist: 26, hips: 37, inseam: 31 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Sleek dark-brown ponytail, athletic build (generated model)', source: 'generated',
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey tank · leggings', file: 'generated-2' },
-      { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'generated-2-yoga-set' },
-    ],
-  },
-  {
-    // Generated 3 (added 2026-10-19): Model 2 (pink hair, exact-6) in four outfits, three all-black, from generated sheets aligned to
-    // her own base sheet. Listed after Generated 2. assetRev covers all four outfits.
-    id: 'starter-generated-3', name: 'Generated 3', file: 'generated-3', assetRev: '855750a049a8', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
-    measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight pink hair, all-black outfits (Model 2 in black; generated model)', source: 'generated',
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'generated-3' },
-      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
-      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
-      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
     ],
   },
 ];

@@ -6,8 +6,8 @@
 export const IMAGE_KEYS = ['sheet', 'front', 'back', 'thumb'];
 
 /* ---------- outfits ----------
- * A starter may ship several outfits of the same model (e.g. Generated 1: Base, Summer denim, Sundress, Linen set):
- *   outfits: [{ id: 'base', name: 'Base', file: 'generated-1' }, { id: 'sundress', name: 'Sundress', subtitle, file: 'generated-1-sundress' }, ...]
+ * A starter may ship several outfits of the same model (e.g. Model 2: Base, Yoga set, ...):
+ *   outfits: [{ id: 'base', name: 'Base', file: 'exact-6' }, { id: 'yoga-set', name: 'Yoga set', subtitle, file: 'exact-6-yoga-set' }, ...]
  * The first outfit is the model's own images (file === starter.file), so every existing screen keeps using m.front /
  * m.back / m.sheet / m.thumb. The stored record gets outfits: [{ id, name, subtitle, sheet, front, back, thumb }] (Blobs),
  * all outfits included, and assetRev covers every outfit's images (base first), so changing any outfit refreshes it. */
@@ -102,7 +102,9 @@ export const renumberedLook = look => {
  * their labels (Model 5, 6, 7, 9, 10, 12, 13, 14); nothing is renumbered. */
 // 2026-10-19 (Jordan): the Photorealistic section was removed too: Photoreal 1 and Photoreal 2 (its files stay, Generated 3 uses them)
 // are dropped once the same way (removeStarters re-runs once under a new done-flag) and never re-added.
-export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`), 'starter-photoreal-1', 'starter-photoreal-2'];
+// 2026-10-21 (Jordan): the Generated section was removed: Generated 1-3, dropped once the same way (new done-flag) and never re-added.
+// Model 2 keeps Generated 3's outfits under her own exact-6-* files.
+export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`), 'starter-photoreal-1', 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {
