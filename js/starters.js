@@ -28,7 +28,7 @@ export const STARTERS = [
   },
   {
     // Models 6-16 added 2026-10-18 (8, 11, 15, 16 since removed) from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
-    id: 'starter-exact-6', name: 'Model 2', file: 'exact-6', assetRev: '2be37db713de', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-6', name: 'Model 2', file: 'exact-6', assetRev: '40a08b9f6a2a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, fair skin',
     // 2026-10-19 (Jordan): Generated 2's Yoga set, generated on her own sheet; existing installs gain it in place (assetRev covers both)
@@ -39,6 +39,8 @@ export const STARTERS = [
       { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
       { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
       { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
+      // 2026-10-21 (Jordan): USA soccer home kit, generated on her own sheet
+      { id: 'usa-jersey', name: 'USA jersey', subtitle: 'USA home kit · white jersey', file: 'exact-6-usa-jersey' },
     ],
   },
   {

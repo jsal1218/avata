@@ -28,6 +28,7 @@ J) Generated 3 + Photoreal 2 release (5664f6d, the last one live): renamed Photo
 K) Model 1 Tank & shorts release (c217703, the last one live): Model 1 gains Yoga set + Linen set and Model 2 gains Yoga set in place
    (renamed, edits kept), Models 15-16 (exact-23, 24) added once, everything else untouched.
 N) Model 1 Red dress release (a1a2db9, the last one live): renamed Model 2 (Base, Yoga set) gains Generated 3's Turtleneck, Slip dress, Tank & shorts in place, edits kept; nothing else changes.
+O) Model 2 + Generated 3 outfits release (bbd088a): renamed Model 2 (5 outfits) gains USA jersey in place, edits kept; nothing else changes.
 M) Model 13 / Model 17 outfits release (a20674e): renamed Model 1 (4 outfits) gains Red dress in place, edits kept; nothing else changes.
 L) Model 17 Base + Red dress release (f2c6373): renamed Model 17 gains Leather catsuit + Tech suit and renamed Model 13 gains Beige Linen + A, in place, edits kept; nothing else changes.
 """
@@ -51,7 +52,7 @@ NEW_EXACT = [f'starter-exact-{n}' for n in KEEP if n >= 17]   # added after the 
 GEN_OUTFITS = [('base', 'Base', 'generated-1'), ('summer-denim', 'Summer denim', 'generated-1-summer-denim'), ('sundress', 'Sundress', 'generated-1-sundress'), ('linen-set', 'Linen set', 'generated-1-linen-set')]
 GEN2_OUTFITS = [('base', 'Base', 'generated-2'), ('yoga-set', 'Yoga set', 'generated-2-yoga-set')]
 M1_OUTFITS = [('base', 'Base', 'exact-5'), ('tank-shorts', 'Tank & shorts', 'exact-5-tank-shorts'), ('yoga-set', 'Yoga set', 'exact-5-yoga-set'), ('linen-set', 'Linen set', 'exact-5-linen-set'), ('red-dress', 'Red dress', 'exact-5-red-dress')]
-M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts')]
+M2_OUTFITS = [('base', 'Base', 'exact-6'), ('yoga-set', 'Yoga set', 'exact-6-yoga-set'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts'), ('usa-jersey', 'USA jersey', 'exact-6-usa-jersey')]
 M13_OUTFITS = [('base', 'Base', 'exact-21'), ('beige-linen', 'Beige Linen', 'exact-21-beige-linen'), ('a', 'A', 'exact-21-a')]
 M17_OUTFITS = [('base', 'Base', 'exact-25'), ('red-dress', 'Red dress', 'exact-25-red-dress'), ('leather-catsuit', 'Leather catsuit', 'exact-25-leather-catsuit'), ('tech-suit', 'Tech suit', 'exact-25-tech-suit')]
 GEN3_OUTFITS = [('base', 'Base', 'generated-3'), ('turtleneck', 'Turtleneck', 'generated-3-turtleneck'), ('slip-dress', 'Slip dress', 'generated-3-slip-dress'), ('tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts')]
@@ -542,7 +543,7 @@ try:
     for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('M_idempotent', pg.evaluate(SNAP) == after)
     c.close()
-    # ---------------- N) Model 1 Red dress release (a1a2db9, live before this change) → Model 2 gains USA jersey in place, edits kept ----------------
+    # ---------------- N) Model 1 Red dress release (a1a2db9, live before this change) → Model 2 gains Generated 3's outfits in place, edits kept ----------------
     Nd = site('a1a2db9'); srv, BASE = serve(Nd); servers.append(srv); time.sleep(0.5)
     c, pg = ctx(b)
     pg.goto(BASE); pg.wait_for_function("navigator.serviceWorker.controller"); pg.wait_for_timeout(1500)
@@ -568,6 +569,33 @@ try:
     pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
     for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
     check('N_idempotent', pg.evaluate(SNAP) == after)
+    c.close()
+    # ---------------- O) Model 2 + Generated 3 outfits release (bbd088a) → Model 2 gains USA jersey in place, edits kept ----------------
+    Od = site('bbd088a'); srv, BASE = serve(Od); servers.append(srv); time.sleep(0.5)
+    c, pg = ctx(b)
+    pg.goto(BASE); pg.wait_for_function("navigator.serviceWorker.controller"); pg.wait_for_timeout(1500)
+    pg.goto(BASE + '#/models'); pg.wait_for_function("document.querySelectorAll('.lib-card').length >= 20"); pg.wait_for_timeout(500)
+    pg.evaluate("""async idb => { const f = eval(idb);
+      const m = await f(['models', 'get', 'starter-exact-6']); m.name = 'Pink (mine)'; m.heightCm = 171; m.note = 'mine'; await f(['models', 'put', m]);
+      await f(['looks', 'put', { id: 'gen-on-m2o', image: m.front, thumb: m.thumb, modelId: 'starter-exact-6', styleIds: [], view: 'front', title: 'Render on Model 2', tags: [], favorite: true, source: 'generated', createdAt: Date.now() }]);
+      await f(['models', 'put', { id: 'user-model-o', name: 'Mine O', front: m.front, back: null, sheet: null, thumb: m.thumb, heightCm: 160, createdAt: Date.now(), starter: false }]); }""", IDB)
+    before = pg.evaluate(SNAP); BM = before['models']
+    check('O_old_install_model2_5_outfits', [o.get('id') for o in BM['starter-exact-6'].get('outfits') or []] == ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts'] and len(BM) == 21)
+    deploy(Od); pg.goto(BASE); pg.reload(); pg.wait_for_timeout(3500)
+    names = ui_names(pg, BASE); after = pg.evaluate(SNAP); M, Lk = after['models'], after['looks']
+    check('O_model2_gains_usa_jersey_keeps_edits', m2_ok(M, BM['starter-exact-6']) and M['starter-exact-6']['name'] == 'Pink (mine)' and M['starter-exact-6']['heightCm'] == 171 and M['starter-exact-6']['note'] == 'mine')
+    check('O_same_records_others_untouched', set(M) == set(BM) and kept(M, BM) and Lk == before['looks'] and M['starter-generated-3'] == BM['starter-generated-3'])
+    R['O_ui_names'] = names; check('O_ui_order', names == UI_STARTERS[:1] + ['Pink (mine)'] + UI_STARTERS[2:] + ['Generated 1', 'Generated 2', 'Generated 3', 'Mine O'])
+    pg.goto(BASE + '#/model/starter-exact-6'); pg.wait_for_selector('#mOutfits'); pg.wait_for_timeout(600)
+    chips = [x.strip() for x in pg.locator('#mOutfits .oc').all_inner_texts()]; R['O_chips'] = chips
+    pg.click('#mOutfits .oc[data-i="5"]'); pg.wait_for_timeout(400)
+    sel = pg.evaluate("""async () => { const sha = async u => { const b = await (await fetch(u)).arrayBuffer(); return [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join(''); };
+      return [await sha(document.getElementById('mFront').src), await sha(document.getElementById('mBack').src), document.querySelector('#mOutfits .oc[aria-checked=true]').textContent.trim()]; }""")
+    check('O_model2_detail_usa_jersey', chips == [o[1] for o in M2_OUTFITS] and sel == [NEW['exact-6-usa-jersey-front'], NEW['exact-6-usa-jersey-back'], 'USA jersey'])
+    pg.screenshot(path=str(ROOT / 'screenshots/starters-model-2-usa-jersey.png'))
+    pg.goto(BASE + '#/models'); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(800)
+    for _ in range(3): pg.reload(); pg.wait_for_selector('.lib-card'); pg.wait_for_timeout(1500)
+    check('O_idempotent', pg.evaluate(SNAP) == after)
     c.close()
     b.close()
 finally:
