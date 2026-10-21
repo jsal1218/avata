@@ -137,7 +137,7 @@ export const STARTERS = [
   },
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 18', file: 'exact-26', assetRev: 'b4e9d6f5039b', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 18', file: 'exact-26', assetRev: '118b7cdbb414', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
     outfits: [
@@ -146,6 +146,9 @@ export const STARTERS = [
       { id: 'outfit-2', name: 'Outfit 2', subtitle: 'Brown halter crop · shorts', file: 'exact-26-outfit-2' },
       { id: 'outfit-3', name: 'Outfit 3', subtitle: 'Cream long-sleeve crop · cargo jeans', file: 'exact-26-outfit-3' },
       { id: 'outfit-4', name: 'Outfit 4', subtitle: 'White halter top · denim cargo jorts', file: 'exact-26-outfit-4' },
+      { id: 'outfit-5', name: 'Outfit 5', subtitle: 'Cream cami crop · grey wide sweatpants', file: 'exact-26-outfit-5' },
+      { id: 'outfit-6', name: 'Outfit 6', subtitle: 'Pale yellow tank crop · baggy jeans', file: 'exact-26-outfit-6' },
+      { id: 'outfit-7', name: 'Outfit 7', subtitle: 'White lace cami · black denim pleated mini', file: 'exact-26-outfit-7' },
     ],
   },
 ];
