@@ -135,6 +135,12 @@ export const STARTERS = [
       { id: 'tech-suit', name: 'Tech suit', subtitle: 'Black armor · blue core', file: 'exact-25-tech-suit' },
     ],
   },
+  {
+    // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
+    id: 'starter-exact-26', name: 'Model 18', file: 'exact-26', assetRev: 'b2521b3e10cc', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Long wavy blonde hair, fair skin, grey crop set',
+  },
 ];
 
 // Clearly-labelled SAMPLE catalog so the app isn't empty. Not real factory data —

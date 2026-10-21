@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { STARTERS, SAMPLE_LOOKS } from '../js/starters.js';
 import { REMOVED_STARTER_IDS, removedLook, removedKnown, RELABEL, relabeledStarter } from '../js/starter-sync.js';
-const KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25]; // exact starter ids after the 2026-10-18 removal (+ new exact-17..22); labelled Model 1-14 in this order
+const KEEP = [5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]; // exact starter ids after the 2026-10-18 removal (+ new exact-17..22); labelled Model 1-14 in this order
 import { contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, IMAGE_KEYS } from '../js/starter-sync.js';
 
 const files = file => Object.fromEntries(IMAGE_KEYS.map(k => [k, new Blob([readFileSync(new URL(`../assets/models/${file}-${k}.webp`, import.meta.url))])]));
@@ -61,7 +61,7 @@ test('every starter (Model 1-17) and every built-in outfit ship the same four We
 
 test('new starters reach existing installs once; deleted starters are never re-added', () => {
   const ids = STARTERS.map(s => s.id);
-  assert.ok(ids.length === 17 && !ids.some(id => id.startsWith('starter-generated-')) && !ids.includes('starter-photoreal-1') && !ids.includes('starter-photoreal-2') && !ids.includes('starter-exact-1')); // legacy Model 1 itself was removed
+  assert.ok(ids.length === 18 && !ids.some(id => id.startsWith('starter-generated-')) && !ids.includes('starter-photoreal-1') && !ids.includes('starter-photoreal-2') && !ids.includes('starter-exact-1')); // legacy Model 1 itself was removed
   // legacy install (no knownStarters yet) that still has Model 1 and a user model, and deleted Model 2
   const legacy = initialKnownStarters([{ id: 'starter-exact-1', starter: true }, { id: 'u1', starter: false }]);
   assert.deepEqual(legacy, LEGACY_STARTER_IDS);                                              // Photoreal 1 (old Model 2) counts as known → stays deleted
@@ -88,12 +88,12 @@ test('new starter record has the seeded shape (no file/assetRev leak, rev only w
 
 import { RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renumberedLook } from '../js/starter-sync.js';
 
-test('lineup: Model 1-17 only (renumbered, stable ids); removed models (incl. Photoreal 1-2, Generated 1-3) gone', () => {
+test('lineup: Model 1-18 only (renumbered, stable ids); removed models (incl. Photoreal 1-2, Generated 1-3) gone', () => {
   assert.deepEqual(STARTERS.map(s => [s.id, s.name, s.file]), [
     ...KEEP.map((n, i) => [`starter-exact-${n}`, `Model ${i + 1}`, `exact-${n}`])]);
   assert.deepEqual(STARTERS.map(s => s.note.split(',')[0]), ['Long wavy black hair',
     'Long straight pink hair', 'Long wavy auburn hair', 'Long straight silver-platinum hair', 'Long curly black hair',
-    'Black hair in a high bun', 'Long wavy black hair with braids', 'Natural curly hair in a high puff', 'Short wavy dark-brown bob', 'Long curly red hair', 'Long straight copper hair', 'Platinum-blonde bob', 'Long wavy brown hair', 'Brown cap', 'Long curly brown hair with caramel highlights', 'Long wavy burgundy hair with pink streaks', 'Long straight platinum hair']);
+    'Black hair in a high bun', 'Long wavy black hair with braids', 'Natural curly hair in a high puff', 'Short wavy dark-brown bob', 'Long curly red hair', 'Long straight copper hair', 'Platinum-blonde bob', 'Long wavy brown hair', 'Brown cap', 'Long curly brown hair with caramel highlights', 'Long wavy burgundy hair with pink streaks', 'Long straight platinum hair', 'Long wavy blonde hair']);
   assert.ok(!STARTERS.some(s => s.id === 'starter-model-5'), 'old Model 5 id is gone (re-added under the new id starter-exact-5)');
   assert.ok(!existsSync(new URL('../assets/models/model-5-front.webp', import.meta.url)) && !existsSync(new URL('../assets/models/model-6-front.webp', import.meta.url)));
   // every renumber target is a shipped starter; sample looks follow their models
@@ -140,7 +140,7 @@ test('Models tab order: starters in canonical order (Model 1-17), then user mode
     { id: 'starter-exact-5', starter: true, createdAt: 300 },             // added by addNewStarters after the user's first model
     { id: 'u-b', starter: false, createdAt: 250, name: 'Mine B' }, { id: 'u-a', starter: false, createdAt: 200, name: 'Mine A' },
     { id: 'u-c', starter: false, createdAt: 400, name: 'Model 7' },        // user model that happens to share a starter's name
-    ...[25, 24, 23, 22, 21, 20, 19, 18, 17, 14, 13, 12, 10, 9, 7, 6].map((n, i) => ({ id: `starter-exact-${n}`, starter: true, createdAt: 500 + i })),   // the other kept exact starters, added later, added later (any createdAt order)
+    ...[26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 14, 13, 12, 10, 9, 7, 6].map((n, i) => ({ id: `starter-exact-${n}`, starter: true, createdAt: 500 + i })),   // the other kept exact starters, added later, added later (any createdAt order)
   ];
   const shuffled = [...recs].reverse();
   const out = orderedModels(shuffled, STARTERS).map(m => m.id);
@@ -158,7 +158,7 @@ import { starterOutfits } from '../js/starter-sync.js';
 
 test('built-in outfits (Model 17 as the example): one record, assetRev covers every outfit, refresh keeps edits', async () => {
   const g = STARTERS.find(s => s.id === 'starter-exact-25');
-  assert.equal(STARTERS[STARTERS.length - 1], g); assert.ok(STARTERS.every(s => !s.source), 'no generated starters remain');
+  assert.equal(STARTERS[STARTERS.length - 2], g); assert.ok(STARTERS.every(s => !s.source), 'no generated starters remain');
   assert.equal(g.outfits[0].file, g.file, 'first outfit = the model\'s own images');
   for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   // no outfit is a separate model; other starters have just their base
