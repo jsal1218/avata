@@ -96,3 +96,5 @@ Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous rele
 **Model 18 outfits, batch 1 (2026-10-21):** `starter-exact-26` gains Outfit 1-4 (`exact-26-outfit-1..4`, Jordan's own sheets): outfits Base, Outfit 1-4; assetRev b4e9d6f5039b; existing installs (Base only) refresh her in place, edits kept.
 
 **Model 18 outfits, batch 2 (2026-10-21):** `starter-exact-26` gains Outfit 5-7 (`exact-26-outfit-5..7`, Jordan's own sheets): outfits Base, Outfit 1-7; assetRev 118b7cdbb414; existing installs (Base only, or Base + Outfit 1-4) refresh her in place, edits kept.
+
+**Model 18 Outfit 8 (2026-10-21):** `starter-exact-26` gains Outfit 8 (`exact-26-outfit-8`, dark grey cami, faded wide jeans, shoulder bag on her left shoulder; back view mirrored so the bag is on her left): outfits Base, Outfit 1-8; assetRev 020b48cbe49d; existing installs refresh her in place, edits kept.

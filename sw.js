@@ -3,7 +3,7 @@
 // offline fallback) so a new deploy is never served stale; big images/fonts are cache-first. Cross-origin requests
 // (only the optional BYOK APIs) are never touched. skipWaiting + clients.claim, so a new version takes over at once;
 // js/update.js then reloads the page when it's safe.
-const VERSION = '2026.10.21-220132-f3678ef';
+const VERSION = '2026.10.21-231619-1d86932';
 const CACHE = `avata-${VERSION}`;
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
@@ -13,7 +13,7 @@ const SHELL = [
   'assets/samples/sketch-tank.svg', 'assets/samples/sketch-short.svg', 'assets/samples/sketch-set.svg',
   'assets/fonts/bodoni-moda.woff2', 'assets/fonts/bodoni-moda-italic.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-64.png',
-  ...[...[5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26].map(n => `exact-${n}`), 'exact-5-tank-shorts', 'exact-5-yoga-set', 'exact-5-linen-set', 'exact-5-red-dress', 'exact-6-yoga-set', 'exact-6-turtleneck', 'exact-6-slip-dress', 'exact-6-tank-shorts', 'exact-6-usa-jersey', 'exact-21-beige-linen', 'exact-21-a', 'exact-25-red-dress', 'exact-25-leather-catsuit', 'exact-25-tech-suit', 'exact-26-outfit-1', 'exact-26-outfit-2', 'exact-26-outfit-3', 'exact-26-outfit-4', 'exact-26-outfit-5', 'exact-26-outfit-6', 'exact-26-outfit-7'].flatMap(m => ['sheet', 'front', 'back', 'thumb'].map(k => `assets/models/${m}-${k}.webp`)),
+  ...[...[5, 6, 7, 9, 10, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26].map(n => `exact-${n}`), 'exact-5-tank-shorts', 'exact-5-yoga-set', 'exact-5-linen-set', 'exact-5-red-dress', 'exact-6-yoga-set', 'exact-6-turtleneck', 'exact-6-slip-dress', 'exact-6-tank-shorts', 'exact-6-usa-jersey', 'exact-21-beige-linen', 'exact-21-a', 'exact-25-red-dress', 'exact-25-leather-catsuit', 'exact-25-tech-suit', 'exact-26-outfit-1', 'exact-26-outfit-2', 'exact-26-outfit-3', 'exact-26-outfit-4', 'exact-26-outfit-5', 'exact-26-outfit-6', 'exact-26-outfit-7', 'exact-26-outfit-8'].flatMap(m => ['sheet', 'front', 'back', 'thumb'].map(k => `assets/models/${m}-${k}.webp`)),
 ];
 // cache:'reload' bypasses the HTTP cache (GitHub Pages sends max-age=600) so a new version never precaches old files
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); });
