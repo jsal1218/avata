@@ -163,7 +163,7 @@ test('built-in outfits (Model 17 as the example): one record, assetRev covers ev
   for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   // no outfit is a separate model; other starters have just their base
   assert.deepEqual(STARTERS.filter(s => /generated/.test(s.id)).map(s => s.id), []);
-  for (const s of STARTERS.filter(s => s.id !== 'starter-exact-5' && s.id !== 'starter-exact-6' && s.id !== 'starter-exact-21' && s.id !== 'starter-exact-25')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
+  for (const s of STARTERS.filter(s => s.id !== 'starter-exact-5' && s.id !== 'starter-exact-6' && s.id !== 'starter-exact-21' && s.id !== 'starter-exact-25' && s.id !== 'starter-exact-26')) assert.deepEqual(starterOutfits(s), [{ id: 'base', name: 'Base', file: s.file }]);
   // the four outfits' images differ (no duplicate outfit) and assetRev covers all of them (changing any outfit changes it)
   const b = shipped(g), fronts = await Promise.all(b.outfits.map(o => o.front.arrayBuffer().then(x => Buffer.from(x).toString('base64'))));
   assert.equal(new Set(fronts).size, 4);

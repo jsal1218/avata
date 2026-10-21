@@ -137,9 +137,16 @@ export const STARTERS = [
   },
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 18', file: 'exact-26', assetRev: 'b2521b3e10cc', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 18', file: 'exact-26', assetRev: 'b4e9d6f5039b', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
+    outfits: [
+      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-26' },
+      { id: 'outfit-1', name: 'Outfit 1', subtitle: 'Pink zip hoodie crop · flared pants', file: 'exact-26-outfit-1' },
+      { id: 'outfit-2', name: 'Outfit 2', subtitle: 'Brown halter crop · shorts', file: 'exact-26-outfit-2' },
+      { id: 'outfit-3', name: 'Outfit 3', subtitle: 'Cream long-sleeve crop · cargo jeans', file: 'exact-26-outfit-3' },
+      { id: 'outfit-4', name: 'Outfit 4', subtitle: 'White halter top · denim cargo jorts', file: 'exact-26-outfit-4' },
+    ],
   },
 ];
 
