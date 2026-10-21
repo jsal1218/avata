@@ -28,13 +28,17 @@ export const STARTERS = [
   },
   {
     // Models 6-16 added 2026-10-18 (8, 11, 15, 16 since removed) from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
-    id: 'starter-exact-6', name: 'Model 2', file: 'exact-6', assetRev: 'd833e5ca404f', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-6', name: 'Model 2', file: 'exact-6', assetRev: '2be37db713de', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, fair skin',
     // 2026-10-19 (Jordan): Generated 2's Yoga set, generated on her own sheet; existing installs gain it in place (assetRev covers both)
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-6' },
       { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'exact-6-yoga-set' },
+      // 2026-10-21 (Jordan): Generated 3's outfits (she is Model 2), reusing Generated 3's files (no duplicate images)
+      { id: 'turtleneck', name: 'Turtleneck', subtitle: 'Black turtleneck · trousers', file: 'generated-3-turtleneck' },
+      { id: 'slip-dress', name: 'Slip dress', subtitle: 'Black slip dress · sandals', file: 'generated-3-slip-dress' },
+      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'generated-3-tank-shorts' },
     ],
   },
   {

@@ -252,7 +252,7 @@ test('Generated 3: Model 2 (pink hair) in black, four built-in outfits (Base, Tu
   const r = newStarterRecord(g, b, g.assetRev, 1);
   assert.deepEqual(r.outfits.map(o => o.id), ['base', 'turtleneck', 'slip-dress', 'tank-shorts']);
   // Model 2 herself (starter-exact-6) stays a separate starter (her own outfits: Base, Yoga set; none of Generated 3's)
-  const m2 = STARTERS.find(s => s.id === 'starter-exact-6'); assert.equal(m2.name, 'Model 2'); assert.deepEqual(m2.outfits.map(o => o.file), ['exact-6', 'exact-6-yoga-set']);
+  const m2 = STARTERS.find(s => s.id === 'starter-exact-6'); assert.equal(m2.name, 'Model 2'); assert.deepEqual(m2.outfits.map(o => o.file), ['exact-6', 'exact-6-yoga-set', 'generated-3-turtleneck', 'generated-3-slip-dress', 'generated-3-tank-shorts']);
   const known = STARTERS.filter(s => s !== g).map(s => s.id).concat(REMOVED_STARTER_IDS);
   assert.deepEqual(startersToAdd(STARTERS, known).map(s => s.id), ['starter-generated-3']);
   assert.deepEqual(startersToAdd(STARTERS, withKnown(known, ['starter-generated-3'])), []);
@@ -291,16 +291,18 @@ test('Model 1 gains a second built-in outfit, Tank & shorts, on her own record (
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
 });
 
-test('Model 2 gains a built-in Yoga set on her own record; existing installs refresh her in place, edits kept', async () => {
+test('Model 2 gains built-in Yoga set plus Generated 3\'s Turtleneck, Slip dress, Tank & shorts (shared files) on her own record; existing installs refresh her in place, edits kept', async () => {
   const m = STARTERS.find(s => s.id === 'starter-exact-6');
   assert.equal(STARTERS[1], m); assert.equal(m.name, 'Model 2'); assert.ok(!m.source);
-  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-6'], ['yoga-set', 'Yoga set', 'exact-6-yoga-set']]);
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-6'], ['yoga-set', 'Yoga set', 'exact-6-yoga-set'], ['turtleneck', 'Turtleneck', 'generated-3-turtleneck'], ['slip-dress', 'Slip dress', 'generated-3-slip-dress'], ['tank-shorts', 'Tank & shorts', 'generated-3-tank-shorts']]);
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
-  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.notEqual(m.assetRev, '16bc8fba9dc6', 'assetRev bumped');
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['16bc8fba9dc6', 'd833e5ca404f'].includes(m.assetRev), 'assetRev bumped');
   for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
   const old = { id: m.id, name: 'Pink (mine)', heightCm: 171, starter: true, assetRev: '16bc8fba9dc6', createdAt: 5 };
   assert.equal(modelNeedsRefresh(old, m), true);
-  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Pink (mine)'); assert.equal(nr.heightCm, 171); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'yoga-set']); assert.equal(nr.assetRev, m.assetRev);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Pink (mine)'); assert.equal(nr.heightCm, 171); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts']); assert.equal(nr.assetRev, m.assetRev);
+  const two = { ...old, assetRev: 'd833e5ca404f', outfits: [{ id: 'base' }, { id: 'yoga-set' }] }; assert.equal(modelNeedsRefresh(two, m), true);
+  const nr2 = refreshedModel(two, m, b); assert.equal(nr2.name, 'Pink (mine)'); assert.equal(nr2.heightCm, 171); assert.deepEqual(nr2.outfits.map(o => o.id), ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts']);
   assert.equal(modelNeedsRefresh(nr, m), false);
   assert.ok(!STARTERS.some(s => s !== m && s.outfits?.some(o => o.file === 'exact-6-yoga-set')), 'not a separate model');
 });
