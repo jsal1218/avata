@@ -56,6 +56,7 @@ export function mountViewer(root, { onAngle } = {}) {
   function setOutfits(list = [], cur = null, onPick = null) {
     const box = q('.sv-outfits'); box.hidden = list.length < 2; box.innerHTML = '';
     if (list.length < 2) return;
+    box.style.setProperty('--cols', Math.ceil(list.length / 2));   // 10+ outfits: two rows exactly on phones (styles.css)
     box.innerHTML = list.map(o => `<button type="button" class="sv-oc" role="radio" data-id="${o.id}" aria-checked="${o.id === cur}" title="${o.title || o.name}"><i style="background-image:url('${o.swatch}')"></i><span>${o.name}</span></button>`).join('');
     box.querySelectorAll('.sv-oc').forEach(b => b.onclick = e => {
       e.stopPropagation(); if (b.getAttribute('aria-checked') === 'true') return;
