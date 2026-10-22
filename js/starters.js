@@ -19,9 +19,10 @@ export const STARTERS = [
   // (exact-23, 24 and 25, added 2026-10-19/20 as Model 15-17, were removed 2026-10-21)
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 2', file: 'exact-26', assetRev: 'b4b3f89abcad', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 2', file: 'exact-26', assetRev: 'fdd410de3bce', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
+    // 2026-10-22 (Jordan): Outfit 6, 7, 13, 14 removed (ids outfit-6, -7, -13, -14); the rest renamed Outfit 1-12 by name only (ids kept)
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-26' },
       { id: 'outfit-1', name: 'Outfit 1', subtitle: 'Pink zip hoodie crop · flared pants', file: 'exact-26-outfit-1' },
@@ -29,17 +30,13 @@ export const STARTERS = [
       { id: 'outfit-3', name: 'Outfit 3', subtitle: 'Cream long-sleeve crop · cargo jeans', file: 'exact-26-outfit-3' },
       { id: 'outfit-4', name: 'Outfit 4', subtitle: 'White halter top · denim cargo jorts', file: 'exact-26-outfit-4' },
       { id: 'outfit-5', name: 'Outfit 5', subtitle: 'Cream cami crop · grey wide sweatpants', file: 'exact-26-outfit-5' },
-      { id: 'outfit-6', name: 'Outfit 6', subtitle: 'Pale yellow tank crop · baggy jeans', file: 'exact-26-outfit-6' },
-      { id: 'outfit-7', name: 'Outfit 7', subtitle: 'White lace cami · black denim pleated mini', file: 'exact-26-outfit-7' },
-      { id: 'outfit-8', name: 'Outfit 8', subtitle: 'Dark grey cami · faded wide jeans · shoulder bag', file: 'exact-26-outfit-8' },
-      { id: 'outfit-9', name: 'Outfit 9', subtitle: 'Black halter top · ruched mini skirt · heels', file: 'exact-26-outfit-9' },
-      { id: 'outfit-10', name: 'Outfit 10', subtitle: 'Black sports bra · running shorts', file: 'exact-26-outfit-10' },
-      { id: 'outfit-11', name: 'Outfit 11', subtitle: 'Red/black/white leather moto suit · boots', file: 'exact-26-outfit-11' },
-      { id: 'outfit-12', name: 'Outfit 12', subtitle: 'Black pantsuit · white shirt · heels', file: 'exact-26-outfit-12' },
-      { id: 'outfit-13', name: 'Outfit 13', subtitle: 'Chef whites · hat · apron · pinstripe pants', file: 'exact-26-outfit-13' },
-      { id: 'outfit-14', name: 'Outfit 14', subtitle: 'Light blue satin short robe', file: 'exact-26-outfit-14' },
-      { id: 'outfit-15', name: 'Outfit 15', subtitle: 'Black crop tank · pink satin shorts', file: 'exact-26-outfit-15' },
-      { id: 'outfit-16', name: 'Outfit 16', subtitle: 'Grey tie-dye oversized tee · grey shorts', file: 'exact-26-outfit-16' },
+      { id: 'outfit-8', name: 'Outfit 6', subtitle: 'Dark grey cami · faded wide jeans · shoulder bag', file: 'exact-26-outfit-8' },
+      { id: 'outfit-9', name: 'Outfit 7', subtitle: 'Black halter top · ruched mini skirt · heels', file: 'exact-26-outfit-9' },
+      { id: 'outfit-10', name: 'Outfit 8', subtitle: 'Black sports bra · running shorts', file: 'exact-26-outfit-10' },
+      { id: 'outfit-11', name: 'Outfit 9', subtitle: 'Red/black/white leather moto suit · boots', file: 'exact-26-outfit-11' },
+      { id: 'outfit-12', name: 'Outfit 10', subtitle: 'Black pantsuit · white shirt · heels', file: 'exact-26-outfit-12' },
+      { id: 'outfit-15', name: 'Outfit 11', subtitle: 'Black crop tank · pink satin shorts', file: 'exact-26-outfit-15' },
+      { id: 'outfit-16', name: 'Outfit 12', subtitle: 'Grey tie-dye oversized tee · grey shorts', file: 'exact-26-outfit-16' },
     ],
   },
   {

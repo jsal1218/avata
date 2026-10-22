@@ -171,11 +171,11 @@ test('built-in outfits (Model 12 = exact-26 as the example): one record, assetRe
   assert.notEqual(await contentRev(swapped), g.assetRev);
   // the stored record carries every outfit (Blobs) and no file names; the top-level images are the base outfit
   const r = newStarterRecord(g, b, g.assetRev, 1);
-  assert.deepEqual(r.outfits.map(o => o.id), g.outfits.map(o => o.id)); assert.equal(r.outfits.length, 17); assert.ok(r.outfits.every(o => IMAGE_KEYS.every(k => o[k] instanceof Blob) && !('file' in o)));
+  assert.deepEqual(r.outfits.map(o => o.id), g.outfits.map(o => o.id)); assert.equal(r.outfits.length, 13); assert.ok(r.outfits.every(o => IMAGE_KEYS.every(k => o[k] instanceof Blob) && !('file' in o)));
   for (const k of IMAGE_KEYS) assert.equal(r[k], b[k]);
   // a refresh replaces the outfit images too, keeping the user's edits
   const old = { ...r, name: 'Gen (mine)', outfits: [r.outfits[0]], assetRev: 'old' };
-  const nr = refreshedModel(old, g, b); assert.equal(nr.name, 'Gen (mine)'); assert.equal(nr.outfits.length, 17); assert.equal(nr.assetRev, g.assetRev);
+  const nr = refreshedModel(old, g, b); assert.equal(nr.name, 'Gen (mine)'); assert.equal(nr.outfits.length, 13); assert.equal(nr.assetRev, g.assetRev);
   // a plain starter record never gains an outfits field
   const p = STARTERS.find(s => !s.outfits); assert.ok(!('outfits' in newStarterRecord(p, shipped(p), p.assetRev, 1)));
 });
@@ -294,4 +294,16 @@ test('Model 5 (exact-21, Base / Beige Linen / A) removed later 2026-10-22: not s
   assert.deepEqual(removedLook({ id: 'y', modelId: id, source: 'generated', title: 'mine' }), { id: 'y', modelId: null, source: 'generated', title: 'mine' });
   assert.deepEqual(startersToAdd(STARTERS, removedKnown(STARTERS.map(s => s.id).concat([id]))), []); assert.ok(!startersToAdd(STARTERS, undefined).some(s => s.id === id));
   assert.ok(!(id in RELABEL)); assert.equal(relabeledStarter({ id: 'starter-exact-26', name: 'Model 6', starter: true }).name, 'Model 2'); assert.equal(relabeledStarter({ id: 'starter-exact-26', name: 'Model 5', starter: true }).name, 'Model 2');
+});
+
+test('Model 2 (exact-26) Outfit 6, 7, 13, 14 removed 2026-10-22: 13 outfits (Base + Outfit 1-12, ids kept), files gone, installs refresh in place keeping edits', async () => {
+  const m = STARTERS.find(s => s.id === 'starter-exact-26');
+  assert.deepEqual(m.outfits.map(o => [o.id, o.name]), [['base', 'Base'], ...['outfit-1', 'outfit-2', 'outfit-3', 'outfit-4', 'outfit-5', 'outfit-8', 'outfit-9', 'outfit-10', 'outfit-11', 'outfit-12', 'outfit-15', 'outfit-16'].map((id, i) => [id, `Outfit ${i + 1}`])]);
+  for (const n of [6, 7, 13, 14]) { for (const k of IMAGE_KEYS) assert.ok(!existsSync(new URL(`../assets/models/exact-26-outfit-${n}-${k}.webp`, import.meta.url))); assert.ok(!readFileSync(new URL('../sw.js', import.meta.url), 'utf8').includes(`'exact-26-outfit-${n}'`)); }
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.notEqual(m.assetRev, 'b4b3f89abcad');
+  const old = { id: m.id, name: 'Blonde (mine)', heightCm: 168, starter: true, assetRev: 'b4b3f89abcad', createdAt: 5, outfits: Array.from({ length: 17 }, (_, i) => ({ id: i ? `outfit-${i}` : 'base' })) };
+  assert.equal(modelNeedsRefresh(old, m), true);
+  const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Blonde (mine)'); assert.equal(nr.heightCm, 168);
+  assert.deepEqual(nr.outfits.map(o => o.id), m.outfits.map(o => o.id)); assert.ok(!nr.outfits.some(o => ['outfit-6', 'outfit-7', 'outfit-13', 'outfit-14'].includes(o.id)));
+  assert.equal(nr.outfits.find(o => o.id === 'outfit-16').name, 'Outfit 12');
 });
