@@ -85,9 +85,8 @@ export async function renderSpin(v, id) {
     const grid = $('#spOfGrid', v); grid.hidden = true; grid.innerHTML = ''; grid.dataset.model = m.gallery && outfits.length ? m.id : '';
     if (!grid.dataset.model) return;
     grid.innerHTML = outfits.map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
-    grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async () => {
-      openOutfits(false);
-      const vr = $('#spView', v).getBoundingClientRect(); if (vr.top < 0) scrollBy({ top: vr.top - 12, behavior: 'smooth' });
+    grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async e => {
+      e.stopPropagation();   // the gallery stays open so outfits can be flipped through; no scroll (tap her model card to close it)
       const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
       st.outfit = o.id; grid.querySelectorAll('.sp-oc').forEach(x => x.setAttribute('aria-selected', x === b));
       await viewer.swap(o.frames);

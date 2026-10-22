@@ -28,7 +28,9 @@ export function mountViewer(root, { onAngle } = {}) {
   root.__spin = S; // exposed for tests
 
   /* ---------- frames ---------- */
+  let swapTok = 0;
   function load(frames, { name = '', bg = '#fff', angle = 0, auto = false } = {}) {
+    swapTok++;   // a load supersedes any outfit swap still loading
     S.urls.forEach(u => URL.revokeObjectURL(u)); S.urls = [];
     const url = x => { if (typeof x === 'string') return x; const u = URL.createObjectURL(x); S.urls.push(u); return u; };
     S.frames = frames.map(f => ({ lo: url(f.lo), hi: url(f.hi || f.lo) }));
@@ -44,9 +46,11 @@ export function mountViewer(root, { onAngle } = {}) {
   /** Same model, another outfit: swap the frames in place, keeping the angle, auto-rotate and spin (outfit frames share
    *  the base outfit's angles and framing, so nothing jumps). */
   function swap(frames) {
+    const tok = ++swapTok;   // rapid taps: only the latest swap (or load) applies, whatever order the frames finish loading in
     const f2 = frames.map(f => ({ lo: f.lo, hi: f.hi || f.lo }));
     const pre = Promise.all(f2.map(f => new Promise(r => { const i = new Image(); i.onload = i.onerror = () => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()).then(r); i.src = f.lo; })));
     return pre.then(() => {
+      if (tok !== swapTok) return;
       S.frames = f2; S.angles = frames.every(f => typeof f.angle === 'number') ? frames.map(f => f.angle) : evenAngles(frames.length);
       S.hiLoaded = new Set(); if (S.zoom > 1) resetZoom(true); lastKey = ''; buildDial(); render(true);
     });
