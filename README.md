@@ -106,3 +106,5 @@ Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous rele
 **Model 18 Outfit 13 (2026-10-21):** `starter-exact-26` gains Outfit 13 (chef whites; Jordan's own sheet): outfits Base, Outfit 1-13; assetRev 27dc7c2d90ed; existing installs refresh her in place, edits kept.
 
 **Model 18 Outfits 14-15 (2026-10-21):** `starter-exact-26` gains Outfit 14 (light blue satin short robe) and Outfit 15 (black crop tank + pink satin shorts), both Jordan's own sheets: outfits Base, Outfit 1-15; assetRev ee76fe5dcc22; existing installs refresh her in place, edits kept. 360 outfit chips with 10+ outfits use a dense two-row grid (no swatch, 9.5px).
+
+**Model 18 Outfit 16 + Outfit 14 tie fix (2026-10-21):** `starter-exact-26` gains Outfit 16 (grey tie-dye oversized tee + grey shorts; Jordan's own sheet): outfits Base, Outfit 1-16; assetRev b4b3f89abcad; existing installs refresh her in place, edits kept. Outfit 14's 315° frame (gallery manifest) now has the robe tie on her left like every other angle.
