@@ -110,7 +110,9 @@ export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `sta
   // 2026-10-21 (Jordan), same pass: the original Model 15, 16 and 17 (exact-23, exact-24, exact-25) removed too (flag removed-starters-2026-10-21c)
   'starter-exact-23', 'starter-exact-24', 'starter-exact-25',
   // 2026-10-22 (Jordan): Model 1, 3, 4, 5, 9 and 10 (exact-5, 7, 9, 10, 18, 19) removed (flag removed-starters-2026-10-22)
-  'starter-exact-5', 'starter-exact-7', 'starter-exact-9', 'starter-exact-10', 'starter-exact-18', 'starter-exact-19'];
+  'starter-exact-5', 'starter-exact-7', 'starter-exact-9', 'starter-exact-10', 'starter-exact-18', 'starter-exact-19',
+  // later 2026-10-22 (Jordan): Model 5 (exact-21, Base / Beige Linen / A) removed too (flag removed-starters-2026-10-22b)
+  'starter-exact-21'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {
@@ -135,8 +137,8 @@ export const RELABEL = {
   'starter-exact-12': { oldName: ['Model 12', 'Model 6'], name: 'Model 2' },
   'starter-exact-13': { oldName: ['Model 13', 'Model 7'], name: 'Model 3' },
   'starter-exact-14': { oldName: ['Model 14', 'Model 8'], name: 'Model 4' },
-  'starter-exact-21': { oldName: ['Model 13', 'Model 11'], name: 'Model 5' },
-  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12'], name: 'Model 6' },
+  // later 2026-10-22: exact-21 removed, so exact-26 is Model 5 ('Model 6' was its default for one release; flag relabel-2026-10-22b)
+  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12', 'Model 6'], name: 'Model 5' },
 };
 
 /** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */
