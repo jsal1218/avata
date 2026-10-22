@@ -3,6 +3,7 @@
 import { holdWork, $, $$, esc, icon, toast, setTop, openSheet, closeSheet, urlFor } from './ui.js';
 import { db, uid } from './db.js';
 import { mountViewer } from './spin-viewer.js';
+import { orderOutfits, outfitNames, sortableCards } from './outfit-drag.js';
 import { buildSpin, makeSpinThumb } from './spin-build.js';
 
 const GALLERY = '../model-gallery/data/manifest.json';
@@ -16,7 +17,7 @@ async function galleryModels() {
     galleryAliases = Object.fromEntries(Object.entries(m.aliases || {}).filter(([k]) => !k.startsWith('_')).map(([k, x]) => [`gallery:${k}`, `gallery:${x}`])); // retired #model-N ids
     const frames = o => [...o.frames].sort((a, b) => a.angle - b.angle).map(f => ({ angle: f.angle, lo: new URL(f.lo, base).href, hi: new URL(f.hi, base).href }));
     // every outfit is kept (Model 2 has six); frames = the first (base) outfit's frames
-    galleryCache = m.models.map(md => { const outfits = md.outfits.map(o => { const fr = frames(o); return { id: o.id, name: o.name, title: `${o.name} · ${o.subtitle || ''}`, swatch: (fr.find(f => f.angle === 0) || fr[0]).lo, frames: fr }; });
+    galleryCache = m.models.map(md => { const names = outfitNames(md.outfits), outfits = md.outfits.map(o => { const fr = frames(o), name = names.get(o.id); return { id: o.id, name, title: `${name} · ${o.subtitle || ''}`, swatch: (fr.find(f => f.angle === 0) || fr[0]).lo, frames: fr }; });
       return { id: `gallery:${md.id}`, gallery: true, group: md.group || 'exact', name: md.name, sub: md.descriptor || '', thumbUrl: new URL(md.thumb, base).href, outfits, frames: outfits[0].frames }; });
   } catch { galleryCache = []; }
   return galleryCache;
@@ -33,7 +34,8 @@ export async function renderSpin(v, id) {
     <div id="spEmpty" hidden></div>
     <details class="section sp-edit" id="spEdit" hidden><summary><span class="eyebrow" style="margin:0" id="spEditT">Edit</span></summary><div id="spEditBody"></div></details>
     <input type="file" id="spFile" accept="image/*,video/*" multiple hidden>`;
-  const st = { spins: await listSpins(), gallery: [], cur: null };
+  // orders = each model's outfit-card order from long-press drag (kv 'outfitOrders', on this device; survives updates)
+  const st = { spins: await listSpins(), gallery: [], cur: null, orders: (await db.get('kv', 'outfitOrders').catch(() => null)) || {} };
   const viewer = mountViewer($('#spView', v));
   const items = () => [...st.spins.map(s => ({ ...s, thumbUrl: urlFor(s.thumb) })), ...st.gallery];
 
@@ -84,13 +86,14 @@ export async function renderSpin(v, id) {
   function drawOutfits(m, outfits) {
     const grid = $('#spOfGrid', v); grid.hidden = true; grid.innerHTML = ''; grid.dataset.model = m.gallery && outfits.length ? m.id : '';
     if (!grid.dataset.model) return;
-    grid.innerHTML = outfits.map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
+    grid.innerHTML = orderOutfits(outfits, st.orders[m.id]).map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" draggable="false" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
     grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async e => {
       e.stopPropagation();   // the gallery stays open so outfits can be flipped through; no scroll (tap her model card to close it)
       const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
       st.outfit = o.id; grid.querySelectorAll('.sp-oc').forEach(x => x.setAttribute('aria-selected', x === b));
       await viewer.swap(o.frames);
     });
+    sortableCards(grid, '.sp-oc', ids => { if (grid.dataset.model) { st.orders[grid.dataset.model] = ids; db.put('kv', st.orders, 'outfitOrders').catch(() => {}); } });
   }
   function openOutfits(open) {
     const grid = $('#spOfGrid', v), card = $$('.sp-item', v).find(b => b.dataset.id === st.cur?.id);

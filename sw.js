@@ -3,13 +3,13 @@
 // offline fallback) so a new deploy is never served stale; big images/fonts are cache-first. Cross-origin requests
 // (only the optional BYOK APIs) are never touched. skipWaiting + clients.claim, so a new version takes over at once;
 // js/update.js then reloads the page when it's safe.
-const VERSION = '2026.10.22-065422-33196fa';
+const VERSION = '2026.10.22-070727-642a952';
 const CACHE = `avata-${VERSION}`;
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/update.js', 'js/db.js', 'js/imaging.js', 'js/prompt.js', 'js/providers.js', 'js/starters.js', 'js/starter-sync.js', 'js/ui.js', 'js/store.js', 'js/backup.js',
   'js/looks.js', 'js/styles-view.js', 'js/models-view.js', 'js/studio.js', 'js/settings-view.js',
-  'js/spin-core.js', 'js/spin-build.js', 'js/spin-viewer.js', 'js/spin-view.js',
+  'js/spin-core.js', 'js/spin-build.js', 'js/spin-viewer.js', 'js/spin-view.js', 'js/outfit-drag.js',
   'assets/samples/sketch-tank.svg', 'assets/samples/sketch-short.svg', 'assets/samples/sketch-set.svg',
   'assets/fonts/bodoni-moda.woff2', 'assets/fonts/bodoni-moda-italic.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-64.png',
