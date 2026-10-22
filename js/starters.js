@@ -95,33 +95,10 @@ export const STARTERS = [
       { id: 'a', name: 'A', subtitle: 'Beige crop tank · baggy jeans · sneakers', file: 'exact-21-a' },
     ],
   },
-  // added 2026-10-19 from Jordan's 6-view sheets (same pipeline); new stable ids exact-23, 24 (15 and 16 stay retired), labels Model 15-16; existing installs gain them once
-  {
-    id: 'starter-exact-23', name: 'Model 12', file: 'exact-23', assetRev: 'd5c10514d239', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
-    measurements: { bust: 37, waist: 28, hips: 41, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long curly brown hair with caramel highlights, tan skin, grey crop set',
-  },
-  {
-    id: 'starter-exact-24', name: 'Model 13', file: 'exact-24', assetRev: 'f8de9ba57c27', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
-    measurements: { bust: 37, waist: 28, hips: 41, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long wavy burgundy hair with pink streaks, clear glasses, fair skin, pink crop set',
-  },
-  {
-    // added 2026-10-20 (Jordan): Model 17 with a second built-in outfit, Red dress (generated on her own sheet; clothing only from the outfit reference)
-    id: 'starter-exact-25', name: 'Model 14', file: 'exact-25', assetRev: '6f8c36180b7e', heightCm: 160, bodyType: 'curvy', size: '14–16 / XL',
-    measurements: { bust: 42, waist: 35, hips: 46, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight platinum hair, fair skin, grey racerback crop set',
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-25' },
-      { id: 'red-dress', name: 'Red dress', subtitle: 'Red V-neck mini dress', file: 'exact-25-red-dress' },
-      // 2026-10-20 (Jordan confirmed): Leather catsuit and Tech suit; existing installs refresh her in place (assetRev covers all four)
-      { id: 'leather-catsuit', name: 'Leather catsuit', subtitle: 'Black leather · laced open back', file: 'exact-25-leather-catsuit' },
-      { id: 'tech-suit', name: 'Tech suit', subtitle: 'Black armor · blue core', file: 'exact-25-tech-suit' },
-    ],
-  },
+  // (exact-23, 24 and 25, added 2026-10-19/20 as Model 15-17, were removed 2026-10-21)
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 15', file: 'exact-26', assetRev: 'b4b3f89abcad', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 12', file: 'exact-26', assetRev: 'b4b3f89abcad', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
     outfits: [
