@@ -265,13 +265,16 @@ test('Model 2 gains built-in Yoga set plus Generated 3\'s Turtleneck, Slip dress
   assert.equal(STARTERS[2], m); assert.equal(m.name, 'Model 3'); assert.ok(!m.source);
   assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-6'], ['yoga-set', 'Yoga set', 'exact-6-yoga-set'], ['turtleneck', 'Turtleneck', 'exact-6-turtleneck'], ['slip-dress', 'Slip dress', 'exact-6-slip-dress'], ['tank-shorts', 'Tank & shorts', 'exact-6-tank-shorts'], ['usa-jersey', 'USA jersey', 'exact-6-usa-jersey']]);
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
-  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['16bc8fba9dc6', 'd833e5ca404f', '2be37db713de'].includes(m.assetRev), 'assetRev bumped');
+  const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['16bc8fba9dc6', 'd833e5ca404f', '2be37db713de', '40a08b9f6a2a'].includes(m.assetRev), 'assetRev bumped (40a08b9f6a2a = before the 2026-10-22 barefoot fix)');
   for (const k of IMAGE_KEYS) assert.equal(Buffer.compare(Buffer.from(await b[k].arrayBuffer()), Buffer.from(await b.outfits[0][k].arrayBuffer())), 0, 'base images unchanged');
   const old = { id: m.id, name: 'Pink (mine)', heightCm: 171, starter: true, assetRev: '16bc8fba9dc6', createdAt: 5 };
   assert.equal(modelNeedsRefresh(old, m), true);
   const nr = refreshedModel(old, m, b); assert.equal(nr.name, 'Pink (mine)'); assert.equal(nr.heightCm, 171); assert.deepEqual(nr.outfits.map(o => o.id), ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts', 'usa-jersey']); assert.equal(nr.assetRev, m.assetRev);
   const two = { ...old, assetRev: 'd833e5ca404f', outfits: [{ id: 'base' }, { id: 'yoga-set' }] }; assert.equal(modelNeedsRefresh(two, m), true);
   const nr2 = refreshedModel(two, m, b); assert.equal(nr2.name, 'Pink (mine)'); assert.equal(nr2.heightCm, 171); assert.deepEqual(nr2.outfits.map(o => o.id), ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts', 'usa-jersey']);
+  // an install with the shoes / socks images (rev 40a08b9f6a2a) refreshes in place to the barefoot ones, edits kept
+  const shod = { ...old, assetRev: '40a08b9f6a2a', outfits: ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts', 'usa-jersey'].map(id => ({ id })) }; assert.equal(modelNeedsRefresh(shod, m), true);
+  const nr4 = refreshedModel(shod, m, b); assert.equal(nr4.name, 'Pink (mine)'); assert.equal(nr4.heightCm, 171); assert.equal(nr4.assetRev, m.assetRev);
   const five = { ...old, assetRev: '2be37db713de', outfits: [{ id: 'base' }, { id: 'yoga-set' }, { id: 'turtleneck' }, { id: 'slip-dress' }, { id: 'tank-shorts' }] }; assert.equal(modelNeedsRefresh(five, m), true);
   const nr3 = refreshedModel(five, m, b); assert.equal(nr3.name, 'Pink (mine)'); assert.equal(nr3.heightCm, 171); assert.deepEqual(nr3.outfits.map(o => o.id), ['base', 'yoga-set', 'turtleneck', 'slip-dress', 'tank-shorts', 'usa-jersey']);
   assert.equal(modelNeedsRefresh(nr, m), false);

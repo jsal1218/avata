@@ -44,10 +44,11 @@ export const STARTERS = [
   },
   {
     // Models 6-16 added 2026-10-18 (8, 11, 15, 16 since removed) from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
-    id: 'starter-exact-6', name: 'Model 3', file: 'exact-6', assetRev: '40a08b9f6a2a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-6', name: 'Model 3', file: 'exact-6', assetRev: '48394159d4cb', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, fair skin',
     // 2026-10-19 (Jordan): Generated 2's Yoga set, generated on her own sheet; existing installs gain it in place (assetRev covers both)
+    // 2026-10-22 (Jordan): barefoot in every outfit; Slip dress, Tank & shorts and USA jersey got her own Base feet composited (assetRev bumped)
     outfits: [
       { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-6' },
       { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'exact-6-yoga-set' },
