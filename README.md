@@ -104,3 +104,5 @@ Starter re-sync e2e: `python3 tools/e2e_starters.py` (installs the previous rele
 **Model 18 Outfits 11-12 (2026-10-21):** `starter-exact-26` gains Outfit 11 and Outfit 12 (Jordan's own sheets): outfits Base, Outfit 1-12; assetRev 30baf6de2226; existing installs refresh her in place, edits kept.
 
 **Model 18 Outfit 13 (2026-10-21):** `starter-exact-26` gains Outfit 13 (chef whites; Jordan's own sheet): outfits Base, Outfit 1-13; assetRev 27dc7c2d90ed; existing installs refresh her in place, edits kept.
+
+**Model 18 Outfits 14-15 (2026-10-21):** `starter-exact-26` gains Outfit 14 (light blue satin short robe) and Outfit 15 (black crop tank + pink satin shorts), both Jordan's own sheets: outfits Base, Outfit 1-15; assetRev ee76fe5dcc22; existing installs refresh her in place, edits kept. 360 outfit chips with 10+ outfits use a dense two-row grid (no swatch, 9.5px).
