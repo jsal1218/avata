@@ -104,7 +104,9 @@ export const renumberedLook = look => {
 // are dropped once the same way (removeStarters re-runs once under a new done-flag) and never re-added.
 // 2026-10-21 (Jordan): the Generated section was removed: Generated 1-3, dropped once the same way (new done-flag) and never re-added.
 // Model 2 keeps Generated 3's outfits under her own exact-6-* files.
-export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`), 'starter-photoreal-1', 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3'];
+export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `starter-exact-${n}`), 'starter-photoreal-1', 'starter-photoreal-2', 'starter-generated-1', 'starter-generated-2', 'starter-generated-3',
+  // 2026-10-21 (Jordan): Model 9, 12 and 14 (exact-17, exact-20, exact-22) removed, dropped once the same way (new done-flag), never re-added
+  'starter-exact-17', 'starter-exact-20', 'starter-exact-22'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {
@@ -129,6 +131,15 @@ export const RELABEL = {
   'starter-exact-12': { oldName: 'Model 12', name: 'Model 6' },
   'starter-exact-13': { oldName: 'Model 13', name: 'Model 7' },
   'starter-exact-14': { oldName: 'Model 14', name: 'Model 8' },
+  // 2026-10-21 (Jordan), after removing Model 9, 12 and 14: continuous numbers again (ids unchanged; user names kept),
+  // applied once under its own done-flag (relabel-2026-10-21)
+  'starter-exact-18': { oldName: 'Model 10', name: 'Model 9' },
+  'starter-exact-19': { oldName: 'Model 11', name: 'Model 10' },
+  'starter-exact-21': { oldName: 'Model 13', name: 'Model 11' },
+  'starter-exact-23': { oldName: 'Model 15', name: 'Model 12' },
+  'starter-exact-24': { oldName: 'Model 16', name: 'Model 13' },
+  'starter-exact-25': { oldName: 'Model 17', name: 'Model 14' },
+  'starter-exact-26': { oldName: 'Model 18', name: 'Model 15' },
 };
 
 /** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */
