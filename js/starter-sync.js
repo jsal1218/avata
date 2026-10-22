@@ -112,7 +112,9 @@ export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `sta
   // 2026-10-22 (Jordan): Model 1, 3, 4, 5, 9 and 10 (exact-5, 7, 9, 10, 18, 19) removed (flag removed-starters-2026-10-22)
   'starter-exact-5', 'starter-exact-7', 'starter-exact-9', 'starter-exact-10', 'starter-exact-18', 'starter-exact-19',
   // later 2026-10-22 (Jordan): Model 5 (exact-21, Base / Beige Linen / A) removed too (flag removed-starters-2026-10-22b)
-  'starter-exact-21'];
+  'starter-exact-21',
+  // later still 2026-10-22 (Jordan): Model 1 (exact-12) removed (flag removed-starters-2026-10-22c); her user looks are kept, unlinked
+  'starter-exact-12'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {
@@ -132,11 +134,11 @@ export const RELABEL = {
   // 2026-10-22 (Jordan), reorder after the removals (old Model 2, 5, 1, 4, 3 -> Model 1-5); ids unchanged, user names kept,
   // applied once under its own done-flag (relabel-2026-10-22c). oldName lists every default name the starter has shipped with,
   // so an install from any earlier release is renamed; no list contains its own new name (so it is idempotent).
-  'starter-exact-12': { oldName: ['Model 12', 'Model 6', 'Model 2'], name: 'Model 1' },
-  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12', 'Model 6', 'Model 5'], name: 'Model 2' },
-  'starter-exact-6': { oldName: ['Model 6', 'Model 2', 'Model 1'], name: 'Model 3' },
-  'starter-exact-14': { oldName: ['Model 14', 'Model 8'], name: 'Model 4' },
-  'starter-exact-13': { oldName: ['Model 13', 'Model 7', 'Model 3'], name: 'Model 5' },
+  // later still 2026-10-22 (Jordan): Model 1 (exact-12) removed, the rest renumbered Model 1-4 (flag relabel-2026-10-22d)
+  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12', 'Model 6', 'Model 5', 'Model 2'], name: 'Model 1' },
+  'starter-exact-6': { oldName: ['Model 6', 'Model 1', 'Model 3'], name: 'Model 2' },
+  'starter-exact-14': { oldName: ['Model 14', 'Model 8', 'Model 4'], name: 'Model 3' },
+  'starter-exact-13': { oldName: ['Model 13', 'Model 7', 'Model 3', 'Model 5'], name: 'Model 4' },
 };
 
 /** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */

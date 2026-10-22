@@ -137,7 +137,7 @@ export async function renumberStarters(force = false) {
  *  removed, the user's own looks of them are kept and detached. Their ids are recorded in knownStarters (never re-added).
  *  Idempotent; the done-flag is set last. force=true re-runs it (after importing an older backup). */
 export async function removeStarters(force = false) {
-  if (!force && await db.get('kv', 'removed-starters-2026-10-22b')) return;   // sixth round (Model 5 = exact-21, later 2026-10-22) under a new flag; idempotent   // third round (Generated 1-3) under a new flag; idempotent
+  if (!force && await db.get('kv', 'removed-starters-2026-10-22c')) return;   // seventh round (Model 1 = exact-12, later still 2026-10-22);   // sixth round (Model 5 = exact-21, later 2026-10-22) under a new flag; idempotent   // third round (Generated 1-3) under a new flag; idempotent
   // an older install without a known list yet: record it now (from the records it holds), so the removed ids are recorded too
   if ((await db.get('kv', 'seeded')) && !Array.isArray(await db.get('kv', 'knownStarters'))) await db.put('kv', initialKnownStarters(await db.all('models')), 'knownStarters');
   for (const id of REMOVED_STARTER_IDS) { const m = await db.get('models', id); if (m && m.starter === true) await db.del('models', id); }
@@ -147,16 +147,16 @@ export async function removeStarters(force = false) {
   }
   const known = await db.get('kv', 'knownStarters');
   if (Array.isArray(known)) await db.put('kv', removedKnown(known), 'knownStarters');
-  await db.put('kv', true, 'removed-starters-2026-10-18'); await db.put('kv', true, 'removed-starters-2026-10-19'); await db.put('kv', true, 'removed-starters-2026-10-21'); await db.put('kv', true, 'removed-starters-2026-10-21b'); await db.put('kv', true, 'removed-starters-2026-10-21c'); await db.put('kv', true, 'removed-starters-2026-10-22'); await db.put('kv', true, 'removed-starters-2026-10-22b');
+  await db.put('kv', true, 'removed-starters-2026-10-18'); await db.put('kv', true, 'removed-starters-2026-10-19'); await db.put('kv', true, 'removed-starters-2026-10-21'); await db.put('kv', true, 'removed-starters-2026-10-21b'); await db.put('kv', true, 'removed-starters-2026-10-21c'); await db.put('kv', true, 'removed-starters-2026-10-22'); await db.put('kv', true, 'removed-starters-2026-10-22b'); await db.put('kv', true, 'removed-starters-2026-10-22c');
 }
 
 /** One-time (per install) relabel of the remaining exact starters to Model 1-8 (old Model 5, 6, 7, 9, 10, 12, 13, 14; ids
  *  unchanged). Only a starter record still carrying its old default name is renamed; user names, user models and every
  *  other field are kept. Idempotent; force=true re-runs it (after importing an older backup). */
 export async function relabelStarters(force = false) {
-  if (!force && await db.get('kv', 'relabel-2026-10-22c')) return;   // fifth relabel (reorder: Model 1-5 = exact-12, 26, 6, 14, 13) under a new flag
+  if (!force && await db.get('kv', 'relabel-2026-10-22d')) return;   // sixth relabel (Model 1 removed: Model 1-4 = exact-26, 6, 14, 13);   // fifth relabel (reorder: Model 1-5 = exact-12, 26, 6, 14, 13) under a new flag
   for (const id of Object.keys(RELABEL)) { const m = await db.get('models', id); const r = relabeledStarter(m); if (r && r !== m) await db.put('models', r); }
-  await db.put('kv', true, 'relabel-2026-10-18'); await db.put('kv', true, 'relabel-2026-10-21'); await db.put('kv', true, 'relabel-2026-10-21c'); await db.put('kv', true, 'relabel-2026-10-22'); await db.put('kv', true, 'relabel-2026-10-22b'); await db.put('kv', true, 'relabel-2026-10-22c');
+  await db.put('kv', true, 'relabel-2026-10-18'); await db.put('kv', true, 'relabel-2026-10-21'); await db.put('kv', true, 'relabel-2026-10-21c'); await db.put('kv', true, 'relabel-2026-10-22'); await db.put('kv', true, 'relabel-2026-10-22b'); await db.put('kv', true, 'relabel-2026-10-22c'); await db.put('kv', true, 'relabel-2026-10-22d');
 }
 
 export async function seedSamples(force = false) {
