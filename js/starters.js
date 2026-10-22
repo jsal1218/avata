@@ -7,28 +7,12 @@
 // 11, 15 and 16 (REMOVED_STARTER_IDS in starter-sync.js) and the rest were renumbered Model 1-8 by display name only (RELABEL;
 // ids are stable); exact-17 was added as Model 9, exact-18..22 as Model 10-14. Generated models (starter-generated-1..3)
 // followed; the Photorealistic starters (Photoreal 1-2) were removed on 2026-10-19 and the Generated ones on 2026-10-21 (REMOVED_STARTER_IDS). Ids are stable, so renumbering display names never needs another migration. The old
+// 2026-10-22 (Jordan): Model 1, 3, 4, 5, 9, 10 (exact-5, 7, 9, 10, 18, 19) removed; lineup Model 1-6 = exact-6, 12, 13, 14, 21, 26 (RELABEL).
 // starter-model-N ids are mapped to these on existing installs by renumberStarters() (see starter-sync.js).
 export const STARTERS = [
   {
-    // re-added 2026-10-18 from Jordan's corrected 6-view sheet (real back three-quarter view); new id, so existing
-    // installs gain her once via addNewStarters (the deleted old starter-model-5 is never brought back)
-    id: 'starter-exact-5', name: 'Model 1', file: 'exact-5', assetRev: '51325ea83e03', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
-    measurements: { bust: 40, waist: 32, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long wavy black hair, deep tan skin',
-    // 2026-10-19 (Jordan): a second built-in outfit, Tank & shorts (generated with her own sheet as the reference); assetRev covers both
-    outfits: [
-      { id: 'base', name: 'Base', subtitle: 'Grey crop set', file: 'exact-5' },
-      { id: 'tank-shorts', name: 'Tank & shorts', subtitle: 'Black tank · shorts · sneakers', file: 'exact-5-tank-shorts' },
-      // 2026-10-19 (Jordan): Generated 2's Yoga set and Generated 1's Linen set, generated on her own sheet
-      { id: 'yoga-set', name: 'Yoga set', subtitle: 'Rose yoga set', file: 'exact-5-yoga-set' },
-      { id: 'linen-set', name: 'Linen set', subtitle: 'Sage tank · linen pants', file: 'exact-5-linen-set' },
-      // 2026-10-20 (Jordan): the same red dress as Model 17, generated on her own sheet
-      { id: 'red-dress', name: 'Red dress', subtitle: 'Red V-neck mini dress', file: 'exact-5-red-dress' },
-    ],
-  },
-  {
     // Models 6-16 added 2026-10-18 (8, 11, 15, 16 since removed) from Jordan's 6-view sheets (same pipeline as Model 1); existing installs gain them once
-    id: 'starter-exact-6', name: 'Model 2', file: 'exact-6', assetRev: '40a08b9f6a2a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-6', name: 'Model 1', file: 'exact-6', assetRev: '40a08b9f6a2a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long straight pink hair, fair skin',
     // 2026-10-19 (Jordan): Generated 2's Yoga set, generated on her own sheet; existing installs gain it in place (assetRev covers both)
@@ -44,48 +28,22 @@ export const STARTERS = [
     ],
   },
   {
-    id: 'starter-exact-7', name: 'Model 3', file: 'exact-7', assetRev: '5f4ee9be18ea', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
-    measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long wavy auburn hair, fair skin',
-  },
-  {
-    id: 'starter-exact-9', name: 'Model 4', file: 'exact-9', assetRev: 'd740b1e55ed7', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
-    measurements: { bust: 33, waist: 24, hips: 35, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight silver-platinum hair, fair skin',
-  },
-  {
-    id: 'starter-exact-10', name: 'Model 5', file: 'exact-10', assetRev: '276c5999ba5e', heightCm: 160, bodyType: 'slim athletic', size: '4–6 / S',
-    measurements: { bust: 34, waist: 25, hips: 36, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long curly black hair, tan skin',
-  },
-  {
-    id: 'starter-exact-12', name: 'Model 6', file: 'exact-12', assetRev: '559ec56e6687', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
+    id: 'starter-exact-12', name: 'Model 2', file: 'exact-12', assetRev: '559ec56e6687', heightCm: 160, bodyType: 'slim', size: '2–4 / XS',
     measurements: { bust: 32, waist: 24, hips: 34, inseam: 29 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Black hair in a high bun, tan skin',
   },
   {
-    id: 'starter-exact-13', name: 'Model 7', file: 'exact-13', assetRev: '101376e95972', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
+    id: 'starter-exact-13', name: 'Model 3', file: 'exact-13', assetRev: '101376e95972', heightCm: 160, bodyType: 'full-figured', size: '16–18 / XL',
     measurements: { bust: 44, waist: 37, hips: 48, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy black hair with braids, tan skin',
   },
   {
-    id: 'starter-exact-14', name: 'Model 8', file: 'exact-14', assetRev: '4f3301b5435a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
+    id: 'starter-exact-14', name: 'Model 4', file: 'exact-14', assetRev: '4f3301b5435a', heightCm: 160, bodyType: 'curvy', size: '12–14 / L',
     measurements: { bust: 40, waist: 31, hips: 44, inseam: 28 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Natural curly hair in a high puff, deep brown skin',
   },
-  // added 2026-10-18 from Jordan's 6-view sheets (same pipeline); new stable ids exact-18..22, labels Model 10-14; existing installs gain them once
   {
-    id: 'starter-exact-18', name: 'Model 9', file: 'exact-18', assetRev: 'f9d35ab210eb', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
-    measurements: { bust: 34, waist: 26, hips: 37, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long curly red hair, freckles, fair skin, layered necklace',
-  },
-  {
-    id: 'starter-exact-19', name: 'Model 10', file: 'exact-19', assetRev: 'ea7997153b0b', heightCm: 160, bodyType: 'curvy', size: '6–8 / M',
-    measurements: { bust: 36, waist: 27, hips: 40, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
-    note: 'Long straight copper hair, half-cyborg face (left side), black top and flared pants',
-  },
-  {
-    id: 'starter-exact-21', name: 'Model 11', file: 'exact-21', assetRev: '86e0dd266c1e', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
+    id: 'starter-exact-21', name: 'Model 5', file: 'exact-21', assetRev: '86e0dd266c1e', heightCm: 160, bodyType: 'slim', size: '4–6 / S',
     measurements: { bust: 35, waist: 26, hips: 37, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy brown hair, fair skin',
     // 2026-10-20 (Jordan): Beige Linen, from Jordan's own 6-view sheet (no generation); existing installs refresh her in place
@@ -98,7 +56,7 @@ export const STARTERS = [
   // (exact-23, 24 and 25, added 2026-10-19/20 as Model 15-17, were removed 2026-10-21)
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 12', file: 'exact-26', assetRev: 'b4b3f89abcad', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 6', file: 'exact-26', assetRev: 'b4b3f89abcad', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
     outfits: [

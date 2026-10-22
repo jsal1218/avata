@@ -108,7 +108,9 @@ export const REMOVED_STARTER_IDS = [...[1, 2, 3, 4, 8, 11, 15, 16].map(n => `sta
   // 2026-10-21 (Jordan): Model 9, 12 and 14 (exact-17, exact-20, exact-22) removed, dropped once the same way (new done-flag), never re-added
   'starter-exact-17', 'starter-exact-20', 'starter-exact-22',
   // 2026-10-21 (Jordan), same pass: the original Model 15, 16 and 17 (exact-23, exact-24, exact-25) removed too (flag removed-starters-2026-10-21c)
-  'starter-exact-23', 'starter-exact-24', 'starter-exact-25'];
+  'starter-exact-23', 'starter-exact-24', 'starter-exact-25',
+  // 2026-10-22 (Jordan): Model 1, 3, 4, 5, 9 and 10 (exact-5, 7, 9, 10, 18, 19) removed (flag removed-starters-2026-10-22)
+  'starter-exact-5', 'starter-exact-7', 'starter-exact-9', 'starter-exact-10', 'starter-exact-18', 'starter-exact-19'];
 
 /** What to do with a stored look after the removal: unchanged (same object), detached copy, or null (delete). */
 export const removedLook = look => {
@@ -125,21 +127,16 @@ export const removedKnown = known => Array.isArray(known) ? withKnown(known, REM
  * nothing can be duplicated or re-added). relabelStarters() (store.js) renames each starter record once, only if it still
  * has the old default name; a name the user chose is kept. User-created models (starter !== true) are never touched. */
 export const RELABEL = {
-  'starter-exact-5': { oldName: 'Model 5', name: 'Model 1' },
-  'starter-exact-6': { oldName: 'Model 6', name: 'Model 2' },
-  'starter-exact-7': { oldName: 'Model 7', name: 'Model 3' },
-  'starter-exact-9': { oldName: 'Model 9', name: 'Model 4' },
-  'starter-exact-10': { oldName: 'Model 10', name: 'Model 5' },
-  'starter-exact-12': { oldName: 'Model 12', name: 'Model 6' },
-  'starter-exact-13': { oldName: 'Model 13', name: 'Model 7' },
-  'starter-exact-14': { oldName: 'Model 14', name: 'Model 8' },
-  // 2026-10-21 (Jordan), after removing the original Model 9, 12, 14, 15, 16 and 17: continuous numbers again, Model 1-12
-  // (ids unchanged; user names kept), applied once under its own done-flag (relabel-2026-10-21c). oldName may list several
-  // defaults: Model 18 was briefly shipped as 'Model 15' (an install that saw that release has that name).
-  'starter-exact-18': { oldName: 'Model 10', name: 'Model 9' },
-  'starter-exact-19': { oldName: 'Model 11', name: 'Model 10' },
-  'starter-exact-21': { oldName: 'Model 13', name: 'Model 11' },
-  'starter-exact-26': { oldName: ['Model 18', 'Model 15'], name: 'Model 12' },
+  // 2026-10-22 (Jordan), after removing Model 1, 3, 4, 5, 9 and 10: continuous numbers again, Model 1-6 (ids unchanged; user names
+  // kept), applied once under its own done-flag (relabel-2026-10-22). oldName lists every default name the starter has shipped
+  // with, so an install that skipped earlier relabels (e.g. still 'Model 6' for exact-6) is renamed too. Earlier rounds: 2026-10-18
+  // (old Model 5..14 -> 1..8) and 2026-10-21 (exact-18, 19, 21, 26 -> Model 9-12).
+  'starter-exact-6': { oldName: ['Model 6', 'Model 2'], name: 'Model 1' },
+  'starter-exact-12': { oldName: ['Model 12', 'Model 6'], name: 'Model 2' },
+  'starter-exact-13': { oldName: ['Model 13', 'Model 7'], name: 'Model 3' },
+  'starter-exact-14': { oldName: ['Model 14', 'Model 8'], name: 'Model 4' },
+  'starter-exact-21': { oldName: ['Model 13', 'Model 11'], name: 'Model 5' },
+  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12'], name: 'Model 6' },
 };
 
 /** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */
