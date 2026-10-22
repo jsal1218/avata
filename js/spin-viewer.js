@@ -13,7 +13,6 @@ export function mountViewer(root, { onAngle } = {}) {
     <div class="sv-hint">Drag to spin · pinch or double‑tap to zoom</div>
     <div class="sv-zoom" hidden><span>1.0×</span><button type="button">Reset</button></div>
     <div class="sv-hd" hidden>HD</div>
-    <div class="sv-outfits" role="radiogroup" aria-label="Outfits" hidden></div>
     <div class="sv-busy" hidden><div><span class="sv-busy-t">Building…</span><div class="sv-bar"><i></i></div></div></div>
   </div>
   <div class="sv-controls">
@@ -52,18 +51,6 @@ export function mountViewer(root, { onAngle } = {}) {
       S.hiLoaded = new Set(); if (S.zoom > 1) resetZoom(true); lastKey = ''; buildDial(); render(true);
     });
   }
-  /** Small outfit chips on the viewer; only shown when the model has more than one outfit. */
-  function setOutfits(list = [], cur = null, onPick = null) {
-    const box = q('.sv-outfits'); box.hidden = list.length < 2; box.innerHTML = '';
-    if (list.length < 2) return;
-    box.style.setProperty('--cols', Math.ceil(list.length / 2));   // 10+ outfits: two rows exactly on phones (styles.css)
-    box.innerHTML = list.map(o => `<button type="button" class="sv-oc" role="radio" data-id="${o.id}" aria-checked="${o.id === cur}" title="${o.title || o.name}"><i style="background-image:url('${o.swatch}')"></i><span>${o.name}</span></button>`).join('');
-    box.querySelectorAll('.sv-oc').forEach(b => b.onclick = e => {
-      e.stopPropagation(); if (b.getAttribute('aria-checked') === 'true') return;
-      box.querySelectorAll('.sv-oc').forEach(x => x.setAttribute('aria-checked', x === b)); onPick?.(b.dataset.id);
-    });
-  }
-
   /* ---------- rendering ---------- */
   const srcFor = i => (S.zoom > HI_AT && S.hiLoaded.has(S.frames[i].hi)) ? S.frames[i].hi : S.frames[i].lo;
   let lastKey = '';
@@ -223,5 +210,5 @@ export function mountViewer(root, { onAngle } = {}) {
     q('.sv-busy').hidden = !on; if (!on) return;
     q('.sv-busy-t').textContent = text; q('.sv-bar i').style.width = Math.round(frac * 100) + '%';
   }
-  return { S, load, swap, setOutfits, busy, destroy, toggleAuto, resetZoom, zoomAt, get angle() { return S.angle; } };
+  return { S, load, swap, busy, destroy, toggleAuto, resetZoom, zoomAt, get angle() { return S.angle; } };
 }

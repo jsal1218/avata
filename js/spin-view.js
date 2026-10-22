@@ -29,6 +29,8 @@ export async function renderSpin(v, id) {
   v.classList.add('spin-page');
   v.innerHTML = `<div class="sp-switch" id="spSwitch" role="tablist" aria-label="360 models"></div>
     <div id="spView"></div>
+    <div class="sp-of" id="spOf" hidden><button type="button" class="sp-of-btn" id="spOfBtn" aria-expanded="false" aria-controls="spOfGrid">${icon('hanger')}<b>Outfits</b><em id="spOfCur"></em><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="sp-of-grid" id="spOfGrid" role="listbox" aria-label="Outfits" hidden></div></div>
     <div id="spEmpty" hidden></div>
     <details class="section sp-edit" id="spEdit" hidden><summary><span class="eyebrow" style="margin:0" id="spEditT">Edit</span></summary><div id="spEditBody"></div></details>
     <input type="file" id="spFile" accept="image/*,video/*" multiple hidden>`;
@@ -38,7 +40,7 @@ export async function renderSpin(v, id) {
 
   // one row: New 360, your spins, the gallery models (the Generated row was removed 2026-10-21)
   function drawSwitch() {
-    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(`${m.name} · ${m.sub || 'Gallery'}`)}"` : ''}><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b><small>${m.gallery ? esc(m.sub.split(' · ')[0] || 'Gallery') : `${m.frames.length} photos`}</small></button>`;
+    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(m.name)}"` : ''}><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b>${m.gallery ? '' : `<small>${m.frames.length} photos</small>`}</button>`;   // gallery models: name only, no description (2026-10-21)
     const all = items();
     $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` + all.map(chip).join('');
     $('#spNew', v).onclick = () => $('#spFile', v).click();
@@ -66,10 +68,34 @@ export async function renderSpin(v, id) {
     history.replaceState(null, '', `#/spin/${encodeURIComponent(m.id)}`);
     const chip = $$('.sp-item', v).find(b => b.dataset.id === m.id), sw = chip?.parentElement || $('#spSwitch', v);
     if (chip && (chip.offsetLeft < sw.scrollLeft || chip.offsetLeft + chip.offsetWidth > sw.scrollLeft + sw.clientWidth)) sw.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
-    // outfit chips on the viewer (only for a model with more than one outfit); switching keeps the angle and the spin
+    // "Outfits" dropdown under the viewer for every gallery model (Base first; opening a model always shows Base): a grid of
+    // cards the size of the model cards above, each with that outfit's front (0°) frame and only its name. Cards are built
+    // when it opens (lazy images); picking one collapses it and swaps that outfit into the 360 view, keeping the angle.
     const outfits = m.outfits || []; st.outfit = outfits[0]?.id || null;
-    viewer.setOutfits(outfits, st.outfit, async oid => { const o = outfits.find(x => x.id === oid); if (!o || st.cur !== m) return; st.outfit = oid; await viewer.swap(o.frames); });
+    drawOutfits(m, outfits);
     await viewer.load(m.frames, { name: m.name, bg: m.bg || '#fff', auto });
+  }
+
+  function drawOutfits(m, outfits) {
+    const box = $('#spOf', v), grid = $('#spOfGrid', v), btn = $('#spOfBtn', v);
+    box.hidden = !m.gallery || !outfits.length; grid.hidden = true; grid.innerHTML = ''; btn.setAttribute('aria-expanded', 'false');
+    const cur = () => outfits.find(o => o.id === st.outfit) || outfits[0];
+    const label = () => { $('#spOfCur', v).textContent = `${outfits.length} · ${cur()?.name || ''}`; };
+    label();
+    btn.onclick = () => {
+      const open = grid.hidden;
+      if (open && !grid.children.length) {
+        grid.innerHTML = outfits.map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
+        grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async () => {
+          grid.hidden = true; btn.setAttribute('aria-expanded', 'false');
+          const vr = $('#spView', v).getBoundingClientRect(); if (vr.top < 0) scrollBy({ top: vr.top - 12, behavior: 'smooth' });
+          const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
+          st.outfit = o.id; grid.querySelectorAll('.sp-oc').forEach(x => x.setAttribute('aria-selected', x === b)); label();
+          await viewer.swap(o.frames);
+        });
+      }
+      grid.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    };
   }
 
   /* ---------- create ---------- */
