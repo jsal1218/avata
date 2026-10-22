@@ -336,8 +336,8 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 .sp-switch.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 34px);mask-image:linear-gradient(90deg,transparent,#000 34px)}
 .sp-switch.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent)}
 .sp-switch::-webkit-scrollbar{display:none}
-.sp-switch button{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;width:76px;min-height:0;padding:6px 2px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-weight:500}
-.sp-switch img,.sp-plus{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 10%;background:var(--surface2)}
+.sp-switch button{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;width:78px;min-height:0;padding:6px 3px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-weight:500}
+.sp-switch img,.sp-plus{width:100%;height:64px;border-radius:10px;object-fit:cover;object-position:50% 6%;background:#fff;display:block}   /* same card as an outfit card (2026-10-22) */
 .sp-plus{display:grid;place-items:center;background:var(--solid);color:var(--on-solid)}
 .sp-switch b{font-size:11.5px;line-height:1.2;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .sp-switch small{font-size:9.5px;color:var(--muted);letter-spacing:.02em;line-height:1.15;max-width:68px;text-align:center;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
@@ -383,15 +383,11 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 @media (prefers-reduced-motion:reduce){.sv-auto[aria-pressed=true] svg{animation:none}}
 .upd-toast{position:fixed;inset:auto auto auto 50%;margin:0;overflow:visible;left:50%;bottom:calc(var(--tabh) + var(--safe-b) + 14px);transform:translateX(-50%);z-index:120;min-height:44px;padding:0 20px;border:0;border-radius:99px;background:var(--solid);color:var(--on-solid);font:600 14.5px/1 system-ui,-apple-system,sans-serif;box-shadow:var(--shadow-lg);cursor:pointer;white-space:nowrap;animation:rise .25s}
 
-/* 360: "Outfits" dropdown under the viewer (replaces the outfit chips, 2026-10-21): cards the size of the model cards above
-   (.sp-switch button), front view + outfit name only, ~4 across on a phone */
-.sp-of{margin:10px 0 0}.sp-of[hidden]{display:none}
-.sp-of-btn{width:100%;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);font-size:13px;text-align:left}
-.sp-of-btn .i{width:18px;height:18px;flex:none}.sp-of-btn b{font-weight:600}
-.sp-of-btn em{font-style:normal;color:var(--muted);margin-left:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sp-of-btn .chev{width:16px;height:16px;transition:transform .2s}.sp-of-btn[aria-expanded=true] .chev{transform:rotate(180deg)}.sp-of-btn[aria-expanded=true]{border-color:var(--ink)}
-.sp-of-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-top:8px}.sp-of-grid[hidden]{display:none}
-.sp-oc{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;min-height:0;padding:6px 3px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-weight:500}
+/* 360: her outfit gallery opens under the model row when her card is tapped (2026-10-22; replaces the Outfits button and,
+   before it, the chips): the same cards as the model row, front view + name only, ~4 across on a phone, notch under her card */
+.sp-of-grid{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px;margin:-2px 0 12px;padding:8px;border:1px solid var(--ink);border-radius:18px;background:var(--surface)}
+.sp-of-grid::before{content:"";position:absolute;top:-7px;left:calc(var(--notch,40px) - 6px);width:12px;height:12px;background:var(--surface);border-left:1px solid var(--ink);border-top:1px solid var(--ink);transform:rotate(45deg)}.sp-of-grid[hidden]{display:none}
+.sp-oc{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;min-width:0;min-height:0;padding:6px 3px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-weight:500}
 .sp-oc img{width:100%;height:64px;object-fit:cover;object-position:50% 6%;border-radius:10px;background:#fff;display:block}
 .sp-oc b{font-size:11.5px;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .sp-oc[aria-selected=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}

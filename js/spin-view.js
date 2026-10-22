@@ -28,9 +28,8 @@ export async function renderSpin(v, id) {
   setTop('360 spin');
   v.classList.add('spin-page');
   v.innerHTML = `<div class="sp-switch" id="spSwitch" role="tablist" aria-label="360 models"></div>
+    <div class="sp-of-grid" id="spOfGrid" role="listbox" aria-label="Outfits" hidden></div>
     <div id="spView"></div>
-    <div class="sp-of" id="spOf" hidden><button type="button" class="sp-of-btn" id="spOfBtn" aria-expanded="false" aria-controls="spOfGrid">${icon('hanger')}<b>Outfits</b><em id="spOfCur"></em><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <div class="sp-of-grid" id="spOfGrid" role="listbox" aria-label="Outfits" hidden></div></div>
     <div id="spEmpty" hidden></div>
     <details class="section sp-edit" id="spEdit" hidden><summary><span class="eyebrow" style="margin:0" id="spEditT">Edit</span></summary><div id="spEditBody"></div></details>
     <input type="file" id="spFile" accept="image/*,video/*" multiple hidden>`;
@@ -40,11 +39,15 @@ export async function renderSpin(v, id) {
 
   // one row: New 360, your spins, the gallery models (the Generated row was removed 2026-10-21)
   function drawSwitch() {
-    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(m.name)}"` : ''}><img src="${esc(m.thumbUrl)}" alt=""><b>${esc(m.name)}</b>${m.gallery ? '' : `<small>${m.frames.length} photos</small>`}</button>`;   // gallery models: name only, no description (2026-10-21)
+    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(m.name)}"` : ''}><img loading="lazy" decoding="async" src="${esc(m.gallery ? m.outfits?.[0]?.swatch || m.thumbUrl : m.thumbUrl)}" alt=""><b>${esc(m.name)}</b>${m.gallery ? '' : `<small>${m.frames.length} photos</small>`}</button>`;   // gallery models: the same card as an outfit card (Base front view + name only, 2026-10-22)
     const all = items();
     $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` + all.map(chip).join('');
     $('#spNew', v).onclick = () => $('#spFile', v).click();
-    $$('.sp-item', v).forEach(b => b.onclick = () => select(b.dataset.id));
+    // tap a model: select her (Base) and open her outfit gallery right under the row; tap her again: close / reopen it
+    $$('.sp-item', v).forEach(b => b.onclick = () => {
+      if (st.cur?.id === b.dataset.id) { openOutfits(); return; }
+      select(b.dataset.id); openOutfits(true);   // select() draws her outfit cards synchronously before it loads frames
+    });
     edgeFade();
   }
   // edge fades on the scrolling switcher (6 gallery models + your spins rarely fit a phone width)
@@ -76,27 +79,29 @@ export async function renderSpin(v, id) {
     await viewer.load(m.frames, { name: m.name, bg: m.bg || '#fff', auto });
   }
 
+  // her outfit gallery (gallery models only), attached under the model row: Base first, the selected one outlined, front
+  // (0°) frame + name, lazy images. Picking an outfit closes it and swaps that outfit into the spin (angle kept).
   function drawOutfits(m, outfits) {
-    const box = $('#spOf', v), grid = $('#spOfGrid', v), btn = $('#spOfBtn', v);
-    box.hidden = !m.gallery || !outfits.length; grid.hidden = true; grid.innerHTML = ''; btn.setAttribute('aria-expanded', 'false');
-    const cur = () => outfits.find(o => o.id === st.outfit) || outfits[0];
-    const label = () => { $('#spOfCur', v).textContent = `${outfits.length} · ${cur()?.name || ''}`; };
-    label();
-    btn.onclick = () => {
-      const open = grid.hidden;
-      if (open && !grid.children.length) {
-        grid.innerHTML = outfits.map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
-        grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async () => {
-          grid.hidden = true; btn.setAttribute('aria-expanded', 'false');
-          const vr = $('#spView', v).getBoundingClientRect(); if (vr.top < 0) scrollBy({ top: vr.top - 12, behavior: 'smooth' });
-          const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
-          st.outfit = o.id; grid.querySelectorAll('.sp-oc').forEach(x => x.setAttribute('aria-selected', x === b)); label();
-          await viewer.swap(o.frames);
-        });
-      }
-      grid.hidden = !open; btn.setAttribute('aria-expanded', String(open));
-    };
+    const grid = $('#spOfGrid', v); grid.hidden = true; grid.innerHTML = ''; grid.dataset.model = m.gallery && outfits.length ? m.id : '';
+    if (!grid.dataset.model) return;
+    grid.innerHTML = outfits.map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
+    grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async () => {
+      openOutfits(false);
+      const vr = $('#spView', v).getBoundingClientRect(); if (vr.top < 0) scrollBy({ top: vr.top - 12, behavior: 'smooth' });
+      const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
+      st.outfit = o.id; grid.querySelectorAll('.sp-oc').forEach(x => x.setAttribute('aria-selected', x === b));
+      await viewer.swap(o.frames);
+    });
   }
+  function openOutfits(open) {
+    const grid = $('#spOfGrid', v), card = $$('.sp-item', v).find(b => b.dataset.id === st.cur?.id);
+    if (open === undefined) open = grid.hidden;
+    if (!grid.dataset.model) open = false;
+    grid.hidden = !open;
+    $$('.sp-item', v).forEach(b => b.setAttribute('aria-expanded', String(open && b === card)));
+    if (open && card) { const cr = card.getBoundingClientRect(), gr = grid.getBoundingClientRect(); grid.style.setProperty('--notch', Math.min(gr.width - 18, Math.max(18, cr.left + cr.width / 2 - gr.left)) + 'px'); }
+  }
+  $('#spSwitch', v).addEventListener('scroll', () => { if (!$('#spOfGrid', v).hidden) openOutfits(true); }, { passive: true });
 
   /* ---------- create ---------- */
   $('#spFile', v).onchange = async e => {
