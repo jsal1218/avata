@@ -154,9 +154,9 @@ export async function removeStarters(force = false) {
  *  unchanged). Only a starter record still carrying its old default name is renamed; user names, user models and every
  *  other field are kept. Idempotent; force=true re-runs it (after importing an older backup). */
 export async function relabelStarters(force = false) {
-  if (!force && await db.get('kv', 'relabel-2026-10-22b')) return;   // fourth relabel (Model 1-5, after removing exact-21) under a new flag
+  if (!force && await db.get('kv', 'relabel-2026-10-22c')) return;   // fifth relabel (reorder: Model 1-5 = exact-12, 26, 6, 14, 13) under a new flag
   for (const id of Object.keys(RELABEL)) { const m = await db.get('models', id); const r = relabeledStarter(m); if (r && r !== m) await db.put('models', r); }
-  await db.put('kv', true, 'relabel-2026-10-18'); await db.put('kv', true, 'relabel-2026-10-21'); await db.put('kv', true, 'relabel-2026-10-21c'); await db.put('kv', true, 'relabel-2026-10-22'); await db.put('kv', true, 'relabel-2026-10-22b');
+  await db.put('kv', true, 'relabel-2026-10-18'); await db.put('kv', true, 'relabel-2026-10-21'); await db.put('kv', true, 'relabel-2026-10-21c'); await db.put('kv', true, 'relabel-2026-10-22'); await db.put('kv', true, 'relabel-2026-10-22b'); await db.put('kv', true, 'relabel-2026-10-22c');
 }
 
 export async function seedSamples(force = false) {

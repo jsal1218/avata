@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { STARTERS, SAMPLE_LOOKS } from '../js/starters.js';
 import { REMOVED_STARTER_IDS, removedLook, removedKnown, RELABEL, relabeledStarter } from '../js/starter-sync.js';
-const KEEP = [6, 12, 13, 14, 26]; // exact starter ids after the 2026-10-18, 2026-10-21 and 2026-10-22 removals (exact-21 too); labelled Model 1-5 in this order
+const KEEP = [12, 26, 6, 14, 13]; // exact starter ids after the 2026-10-18, 2026-10-21 and 2026-10-22 removals (exact-21 too), in the 2026-10-22 order; labelled Model 1-5 in this order
 import { contentRev, modelNeedsRefresh, lookNeedsRefresh, refreshedModel, refreshedLook, IMAGE_KEYS } from '../js/starter-sync.js';
 
 const files = file => Object.fromEntries(IMAGE_KEYS.map(k => [k, new Blob([readFileSync(new URL(`../assets/models/${file}-${k}.webp`, import.meta.url))])]));
@@ -91,8 +91,8 @@ import { RENUMBER, DELETED_STARTER_IDS, renumberedStarter, renumberedKnown, renu
 test('lineup: Model 1-18 only (renumbered, stable ids); removed models (incl. Photoreal 1-2, Generated 1-3) gone', () => {
   assert.deepEqual(STARTERS.map(s => [s.id, s.name, s.file]), [
     ...KEEP.map((n, i) => [`starter-exact-${n}`, `Model ${i + 1}`, `exact-${n}`])]);
-  assert.deepEqual(STARTERS.map(s => s.note.split(',')[0]), ['Long straight pink hair',
-    'Black hair in a high bun', 'Long wavy black hair with braids', 'Natural curly hair in a high puff', 'Long wavy blonde hair']);
+  assert.deepEqual(STARTERS.map(s => s.note.split(',')[0]), ['Black hair in a high bun',
+    'Long wavy blonde hair', 'Long straight pink hair', 'Natural curly hair in a high puff', 'Long wavy black hair with braids']);
   assert.ok(!STARTERS.some(s => s.id === 'starter-model-5'), 'old Model 5 id is gone (re-added under the new id starter-exact-5)');
   assert.ok(!existsSync(new URL('../assets/models/model-5-front.webp', import.meta.url)) && !existsSync(new URL('../assets/models/model-6-front.webp', import.meta.url)));
   // every renumber target is a shipped starter; sample looks follow their models
@@ -157,7 +157,7 @@ import { starterOutfits } from '../js/starter-sync.js';
 
 test('built-in outfits (Model 12 = exact-26 as the example): one record, assetRev covers every outfit, refresh keeps edits', async () => {
   const g = STARTERS.find(s => s.id === 'starter-exact-26');
-  assert.equal(STARTERS[STARTERS.length - 1], g); assert.ok(STARTERS.every(s => !s.source), 'no generated starters remain');
+  assert.equal(STARTERS[1], g); assert.ok(STARTERS.every(s => !s.source), 'no generated starters remain');
   assert.equal(g.outfits[0].file, g.file, 'first outfit = the model\'s own images');
   for (const o of g.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   // no outfit is a separate model; other starters have just their base
@@ -206,14 +206,15 @@ test('relabel to Model 1-5 (2026-10-22; ids unchanged): default names follow fro
   assert.deepEqual(Object.entries(RELABEL).map(([id, r]) => [id, r.name]), KEEP.map((n, i) => [`starter-exact-${n}`, `Model ${i + 1}`]));
   for (const [id, r] of Object.entries(RELABEL)) assert.equal(STARTERS.find(s => s.id === id).name, r.name, 'shipped name = new label');
   // every earlier default name (2026-10-18 original, after the 10-18 relabel, after the 10-21 relabel) maps to the new label
-  const hist = { 6: ['Model 6', 'Model 2'], 12: ['Model 12', 'Model 6'], 13: ['Model 13', 'Model 7'], 14: ['Model 14', 'Model 8'], 26: ['Model 18', 'Model 15', 'Model 12', 'Model 6'] };
+  const hist = { 6: ['Model 6', 'Model 2', 'Model 1'], 12: ['Model 12', 'Model 6', 'Model 2'], 13: ['Model 13', 'Model 7', 'Model 3'], 14: ['Model 14', 'Model 8'], 26: ['Model 18', 'Model 15', 'Model 12', 'Model 6', 'Model 5'] };
   KEEP.forEach((n, i) => { for (const old of hist[n]) { const m = { id: `starter-exact-${n}`, name: old, note: 'mine', heightCm: 170, starter: true, assetRev: 'x', createdAt: 3 };
     assert.deepEqual(relabeledStarter(m), { ...m, name: `Model ${i + 1}` }); assert.equal(relabeledStarter(relabeledStarter(m)).name, `Model ${i + 1}`); } });   // idempotent, no chain
   for (const [id, r] of Object.entries(RELABEL)) { const done = { id, name: r.name, starter: true }; assert.equal(relabeledStarter(done), done); }   // already new
   const renamed = { id: 'starter-exact-6', name: 'Pink (mine)', starter: true }; assert.equal(relabeledStarter(renamed), renamed);
   const user = { id: 'u', name: 'Model 6', starter: false }; assert.equal(relabeledStarter(user), user);  // user model named like a starter
   const notStarter = { id: 'starter-exact-12', name: 'Model 12', starter: false }; assert.equal(relabeledStarter(notStarter), notStarter);
-  assert.equal(relabeledStarter({ id: 'starter-exact-5', name: 'Model 1', starter: true }).name, 'Model 1');   // removed ids are not relabelled (removeStarters drops them)
+  assert.equal(relabeledStarter({ id: 'starter-exact-5', name: 'Model 1', starter: true }).name, 'Model 1');
+  for (const r of Object.values(RELABEL)) assert.ok(!r.oldName.includes(r.name), 'no list contains its own new name');   // removed ids are not relabelled (removeStarters drops them)
   assert.equal(relabeledStarter(undefined), undefined);
   // a full install of any earlier lineup relabels its survivors to unique Model 1-5
   const after = KEEP.map(n => relabeledStarter({ id: `starter-exact-${n}`, name: hist[n][hist[n].length - 1], starter: true }).name);
@@ -261,7 +262,7 @@ test('Model 1, 3, 4, 5, 9, 10 (exact-5, 7, 9, 10, 18, 19) removed 2026-10-22: no
 
 test('Model 2 gains built-in Yoga set plus Generated 3\'s Turtleneck, Slip dress, Tank & shorts (her own copies) and USA jersey on her own record; existing installs refresh her in place, edits kept', async () => {
   const m = STARTERS.find(s => s.id === 'starter-exact-6');
-  assert.equal(STARTERS[0], m); assert.equal(m.name, 'Model 1'); assert.ok(!m.source);
+  assert.equal(STARTERS[2], m); assert.equal(m.name, 'Model 3'); assert.ok(!m.source);
   assert.deepEqual(m.outfits.map(o => [o.id, o.name, o.file]), [['base', 'Base', 'exact-6'], ['yoga-set', 'Yoga set', 'exact-6-yoga-set'], ['turtleneck', 'Turtleneck', 'exact-6-turtleneck'], ['slip-dress', 'Slip dress', 'exact-6-slip-dress'], ['tank-shorts', 'Tank & shorts', 'exact-6-tank-shorts'], ['usa-jersey', 'USA jersey', 'exact-6-usa-jersey']]);
   for (const o of m.outfits) for (const k of IMAGE_KEYS) assert.ok(existsSync(new URL(`../assets/models/${o.file}-${k}.webp`, import.meta.url)), `${o.file}-${k}`);
   const b = shipped(m); assert.equal(await contentRev(b), m.assetRev); assert.ok(!['16bc8fba9dc6', 'd833e5ca404f', '2be37db713de'].includes(m.assetRev), 'assetRev bumped');
@@ -280,7 +281,7 @@ test('Model 2 gains built-in Yoga set plus Generated 3\'s Turtleneck, Slip dress
 test('original Model 15, 16, 17 (exact-23, 24, 25) removed 2026-10-21: not shipped, files gone, never offered again', () => {
   for (const n of [23, 24, 25]) { const id = `starter-exact-${n}`; assert.ok(!STARTERS.some(s => s.id === id) && REMOVED_STARTER_IDS.includes(id)); assert.ok(!existsSync(new URL(`../assets/models/exact-${n}-front.webp`, import.meta.url))); }
   assert.ok(!existsSync(new URL('../assets/models/exact-25-red-dress-front.webp', import.meta.url)));
-  assert.equal(STARTERS.find(s => s.id === 'starter-exact-26').name, 'Model 5');
+  assert.equal(STARTERS.find(s => s.id === 'starter-exact-26').name, 'Model 2');
 });
 
 test('Model 5 (exact-21, Base / Beige Linen / A) removed later 2026-10-22: not shipped, files gone, never offered again, user looks kept; exact-26 = Model 5', () => {
@@ -289,5 +290,5 @@ test('Model 5 (exact-21, Base / Beige Linen / A) removed later 2026-10-22: not s
   assert.ok(!/exact-21|, 21,/.test(readFileSync(new URL('../sw.js', import.meta.url), 'utf8')), 'sw.js precaches none of her files');
   assert.deepEqual(removedLook({ id: 'y', modelId: id, source: 'generated', title: 'mine' }), { id: 'y', modelId: null, source: 'generated', title: 'mine' });
   assert.deepEqual(startersToAdd(STARTERS, removedKnown(STARTERS.map(s => s.id).concat([id]))), []); assert.ok(!startersToAdd(STARTERS, undefined).some(s => s.id === id));
-  assert.ok(!(id in RELABEL)); assert.equal(relabeledStarter({ id: 'starter-exact-26', name: 'Model 6', starter: true }).name, 'Model 5');
+  assert.ok(!(id in RELABEL)); assert.equal(relabeledStarter({ id: 'starter-exact-26', name: 'Model 6', starter: true }).name, 'Model 2'); assert.equal(relabeledStarter({ id: 'starter-exact-26', name: 'Model 5', starter: true }).name, 'Model 2');
 });

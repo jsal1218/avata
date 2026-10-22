@@ -129,16 +129,14 @@ export const removedKnown = known => Array.isArray(known) ? withKnown(known, REM
  * nothing can be duplicated or re-added). relabelStarters() (store.js) renames each starter record once, only if it still
  * has the old default name; a name the user chose is kept. User-created models (starter !== true) are never touched. */
 export const RELABEL = {
-  // 2026-10-22 (Jordan), after removing Model 1, 3, 4, 5, 9 and 10: continuous numbers again, Model 1-6 (ids unchanged; user names
-  // kept), applied once under its own done-flag (relabel-2026-10-22). oldName lists every default name the starter has shipped
-  // with, so an install that skipped earlier relabels (e.g. still 'Model 6' for exact-6) is renamed too. Earlier rounds: 2026-10-18
-  // (old Model 5..14 -> 1..8) and 2026-10-21 (exact-18, 19, 21, 26 -> Model 9-12).
-  'starter-exact-6': { oldName: ['Model 6', 'Model 2'], name: 'Model 1' },
-  'starter-exact-12': { oldName: ['Model 12', 'Model 6'], name: 'Model 2' },
-  'starter-exact-13': { oldName: ['Model 13', 'Model 7'], name: 'Model 3' },
+  // 2026-10-22 (Jordan), reorder after the removals (old Model 2, 5, 1, 4, 3 -> Model 1-5); ids unchanged, user names kept,
+  // applied once under its own done-flag (relabel-2026-10-22c). oldName lists every default name the starter has shipped with,
+  // so an install from any earlier release is renamed; no list contains its own new name (so it is idempotent).
+  'starter-exact-12': { oldName: ['Model 12', 'Model 6', 'Model 2'], name: 'Model 1' },
+  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12', 'Model 6', 'Model 5'], name: 'Model 2' },
+  'starter-exact-6': { oldName: ['Model 6', 'Model 2', 'Model 1'], name: 'Model 3' },
   'starter-exact-14': { oldName: ['Model 14', 'Model 8'], name: 'Model 4' },
-  // later 2026-10-22: exact-21 removed, so exact-26 is Model 5 ('Model 6' was its default for one release; flag relabel-2026-10-22b)
-  'starter-exact-26': { oldName: ['Model 18', 'Model 15', 'Model 12', 'Model 6'], name: 'Model 5' },
+  'starter-exact-13': { oldName: ['Model 13', 'Model 7', 'Model 3'], name: 'Model 5' },
 };
 
 /** Stored record after the relabel: the same object when nothing changes (not a starter, user-chosen name, already done). */

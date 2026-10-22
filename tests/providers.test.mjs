@@ -15,8 +15,8 @@ test('height conversion', () => {
 
 test('starter models carry height, body type, size, measurements', () => {
   for (const s of STARTERS) { assert.equal(s.heightCm, 160); assert.ok(s.bodyType && s.size && s.measurements.bust); }
-  const t = bodySpecText(STARTERS[0]); // first starter = exact-6 (Model 1) since the 2026-10-22 removal
-  assert.equal(STARTERS[0].id, 'starter-exact-6');
+  const t = bodySpecText(STARTERS.find(s => s.id === 'starter-exact-6')); // exact-6 (Model 3 since the 2026-10-22 reorder)
+  assert.equal(STARTERS[0].id, 'starter-exact-12');   // Model 1 since the 2026-10-22 reorder
   assert.match(t, /5 ft 3 in \/ 160 cm/); assert.match(t, /petite/); assert.match(t, /curvy/); assert.match(t, /bust 40 in \(102 cm\)/); assert.match(t, /inseam 28 in \(71 cm\)/); assert.match(t, /12–14 \/ L/);
 });
 
