@@ -18,7 +18,7 @@ async function galleryModels() {
     const frames = o => [...o.frames].sort((a, b) => a.angle - b.angle).map(f => ({ angle: f.angle, lo: new URL(f.lo, base).href, hi: new URL(f.hi, base).href }));
     // every outfit is kept (Model 2 has six); frames = the first (base) outfit's frames
     galleryCache = m.models.map(md => { const names = outfitNames(md.outfits), outfits = md.outfits.map(o => { const fr = frames(o), name = names.get(o.id); return { id: o.id, name, title: `${name} · ${o.subtitle || ''}`, swatch: (fr.find(f => f.angle === 0) || fr[0]).lo, frames: fr }; });
-      return { id: `gallery:${md.id}`, gallery: true, group: md.group || 'exact', name: md.name, sub: md.descriptor || '', thumbUrl: new URL(md.thumb, base).href, outfits, frames: outfits[0].frames }; });
+      return { id: `gallery:${md.id}`, gallery: true, group: md.group || 'exact', name: md.name, sub: md.descriptor || '', thumbUrl: new URL(md.thumb, base).href, cardPos: md.cardPos || '', outfits, frames: outfits[0].frames }; });
   } catch { galleryCache = []; }
   return galleryCache;
 }
@@ -41,7 +41,7 @@ export async function renderSpin(v, id) {
 
   // one row: New 360, your spins, the gallery models (the Generated row was removed 2026-10-21)
   function drawSwitch() {
-    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(m.name)}"` : ''}><img loading="lazy" decoding="async" src="${esc(m.gallery ? m.outfits?.[0]?.swatch || m.thumbUrl : m.thumbUrl)}" alt=""><b>${esc(m.name)}</b>${m.gallery ? '' : `<small>${m.frames.length} photos</small>`}</button>`;   // gallery models: the same card as an outfit card (Base front view + name only, 2026-10-22)
+    const chip = m => `<button type="button" class="sp-item" role="tab" data-id="${esc(m.id)}" aria-selected="${st.cur?.id === m.id}"${m.gallery ? ` title="${esc(m.name)}"` : ''}><img loading="lazy" decoding="async" src="${esc(m.gallery ? m.outfits?.[0]?.swatch || m.thumbUrl : m.thumbUrl)}"${m.cardPos ? ` style="object-position:${esc(m.cardPos)}"` : ''} alt=""><b>${esc(m.name)}</b>${m.gallery ? '' : `<small>${m.frames.length} photos</small>`}</button>`;   // gallery models: the same card as an outfit card (Base front view + name only, 2026-10-22)
     const all = items();
     $('#spSwitch', v).innerHTML = `<button type="button" class="sp-new" id="spNew" aria-label="New 360 from photos or video"><span class="sp-plus">${icon('plus')}</span><b>New 360</b></button>` + all.map(chip).join('');
     $('#spNew', v).onclick = () => $('#spFile', v).click();
@@ -86,7 +86,7 @@ export async function renderSpin(v, id) {
   function drawOutfits(m, outfits) {
     const grid = $('#spOfGrid', v); grid.hidden = true; grid.innerHTML = ''; grid.dataset.model = m.gallery && outfits.length ? m.id : '';
     if (!grid.dataset.model) return;
-    grid.innerHTML = orderOutfits(outfits, st.orders[m.id]).map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" draggable="false" src="${esc(o.swatch)}" alt=""><b>${esc(o.name)}</b></button>`).join('');
+    grid.innerHTML = orderOutfits(outfits, st.orders[m.id]).map(o => `<button type="button" class="sp-oc" role="option" data-id="${esc(o.id)}" aria-selected="${o.id === st.outfit}" title="${esc(o.name)}"><img loading="lazy" decoding="async" draggable="false" src="${esc(o.swatch)}"${m.cardPos ? ` style="object-position:${esc(m.cardPos)}"` : ''} alt=""><b>${esc(o.name)}</b></button>`).join('');
     grid.querySelectorAll('.sp-oc').forEach(b => b.onclick = async e => {
       e.stopPropagation();   // the gallery stays open so outfits can be flipped through; no scroll (tap her model card to close it)
       const o = outfits.find(x => x.id === b.dataset.id); if (!o || st.cur !== m || o.id === st.outfit) return;
