@@ -71,6 +71,13 @@ export const STARTERS = [
     id: 'starter-exact-27', name: 'Model 5', file: 'exact-27', assetRev: '5c527e797adc',
     note: 'Cream crackle-glaze ceramic head bust',
   },
+  {
+    // added 2026-10-30 (Jordan): Model 6, a faceless ceramic mannequin (slim male, 5 ft 6 in, ~130 lb) in a plain grey fitted set; all 8 360 views real
+    // (free AI generation, no mirroring). Base only, no outfits. Existing installs gain it once.
+    id: 'starter-exact-28', name: 'Model 6', file: 'exact-28', assetRev: '4b6a8391e8a5', heightCm: 168, bodyType: 'slim (male, ~130 lb)', size: 'S',
+    measurements: { bust: 34, waist: 28, hips: 34, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
+    note: 'Faceless ceramic mannequin, grey fitted long-sleeve top and pants',
+  },
 ];
 
 // Clearly-labelled SAMPLE catalog so the app isn't empty. Not real factory data —

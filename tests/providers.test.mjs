@@ -14,7 +14,7 @@ test('height conversion', () => {
 });
 
 test('starter models carry height, body type, size, measurements', () => {
-  for (const s of STARTERS.filter(s => s.id !== 'starter-exact-27')) { assert.equal(s.heightCm, 160);   // Model 5 is a head bust: no body specs
+  for (const s of STARTERS.filter(s => s.id !== 'starter-exact-27')) { assert.equal(s.heightCm, s.id === 'starter-exact-28' ? 168 : 160);   // Model 5 is a head bust: no body specs; Model 6 is 5 ft 6 in
    assert.ok(s.bodyType && s.size && s.measurements.bust); }
   const t = bodySpecText(STARTERS.find(s => s.id === 'starter-exact-6')); // exact-6 (Model 3 since the 2026-10-22 reorder)
   assert.equal(STARTERS[0].id, 'starter-exact-26');   // Model 1 since exact-12 was removed (later 2026-10-22)
