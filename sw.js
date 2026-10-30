@@ -3,7 +3,7 @@
 // offline fallback) so a new deploy is never served stale; big images/fonts are cache-first. Cross-origin requests
 // (only the optional BYOK APIs) are never touched. skipWaiting + clients.claim, so a new version takes over at once;
 // js/update.js then reloads the page when it's safe.
-const VERSION = '2026.10.30-024409-0a93637';
+const VERSION = '2026.10.30-032527-5be69b6';
 const CACHE = `avata-${VERSION}`;
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',

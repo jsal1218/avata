@@ -68,7 +68,7 @@ export const STARTERS = [
   {
     // added 2026-10-29 (Jordan): Model 5, a ceramic head bust from Jordan's 6-view sheet (360 frames: real views + mirrors, one AI back-3/4); Base only, no outfits.
     // A bust has no height / size / measurements, so none are set. Existing installs gain it once.
-    id: 'starter-exact-27', name: 'Model 5', file: 'exact-27', assetRev: '2c9a5ad6a74d',
+    id: 'starter-exact-27', name: 'Model 5', file: 'exact-27', assetRev: '5c527e797adc',
     note: 'Cream crackle-glaze ceramic head bust',
   },
 ];
