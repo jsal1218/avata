@@ -15,7 +15,7 @@ export const STARTERS = [
   // (exact-23, 24 and 25, added 2026-10-19/20 as Model 15-17, were removed 2026-10-21)
   {
     // added 2026-10-21 (Jordan): Model 18 from Jordan's own 6-view sheets (no generation); existing installs gain her once. Base first; her outfits follow and refresh her in place (assetRev)
-    id: 'starter-exact-26', name: 'Model 1', file: 'exact-26', assetRev: 'fdd410de3bce', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
+    id: 'starter-exact-26', name: 'Model 1', file: 'exact-26', assetRev: 'ae4f82db8991', heightCm: 160, bodyType: 'curvy', size: '8–10 / M',
     measurements: { bust: 36, waist: 27, hips: 39, inseam: 30 }, measureUnit: 'in', measurementsEstimated: true,
     note: 'Long wavy blonde hair, fair skin, grey crop set',
     // 2026-10-22 (Jordan): Outfit 6, 7, 13, 14 removed (ids outfit-6, -7, -13, -14); the rest renamed Outfit 1-12 by name only (ids kept)
@@ -33,6 +33,8 @@ export const STARTERS = [
       { id: 'outfit-12', name: 'Outfit 10', subtitle: 'Black pantsuit · white shirt · heels', file: 'exact-26-outfit-12' },
       { id: 'outfit-15', name: 'Outfit 11', subtitle: 'Black crop tank · pink satin shorts', file: 'exact-26-outfit-15' },
       { id: 'outfit-16', name: 'Outfit 12', subtitle: 'Grey tie-dye oversized tee · grey shorts', file: 'exact-26-outfit-16' },
+      // 2026-10-29 (Jordan): USA jersey (Model 2's USA home kit, generated on her own base sheet, barefoot), appended last
+      { id: 'usa-jersey', name: 'USA jersey', subtitle: 'USA home kit · white jersey', file: 'exact-26-usa-jersey' },
     ],
   },
   {
