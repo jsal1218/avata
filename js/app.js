@@ -11,7 +11,7 @@ import { renderSpin } from './spin-view.js';
 import { initUpdates } from './update.js';
 
 // VERSION is stamped automatically by the pre-commit hook (.githooks/pre-commit). Do not edit by hand.
-export const VERSION = '2026.11.23-123932-2d34e6b';
+export const VERSION = '2026.11.23-171958-4fa8353';
 
 const TITLES = { looks: 'Lookbook', 'import-looks': 'Import mockups', styles: 'Catalog', style: 'Style', 'style-edit': 'Style', models: 'Model Library', model: 'Model', 'import-model': 'Import model', studio: 'Prompt builder', spin: '360 spin', measure: 'Measure', settings: 'Settings' };
 const TAB_OF = { looks: 'looks', 'import-looks': 'looks', styles: 'styles', style: 'styles', 'style-edit': 'styles', models: 'models', model: 'models', 'import-model': 'models', studio: 'models', spin: 'spin', measure: 'models', settings: 'settings' };

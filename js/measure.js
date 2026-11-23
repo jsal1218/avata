@@ -197,8 +197,19 @@ export function fromImportJson(text) {
 }
 
 export function activeProfile(state) {
-  const st = normalizeState(state);
-  return st.profiles.find(p => p.id === st.activeId) || st.profiles[0];
+  // Return the live profile object so edits persist (do not clone).
+  if (!state || !Array.isArray(state.profiles) || !state.profiles.length) {
+    const d = defaultState();
+    if (state && typeof state === 'object') {
+      state.format = d.format; state.activeId = d.activeId; state.profiles = d.profiles;
+      return state.profiles[0];
+    }
+    return d.profiles[0];
+  }
+  const p = state.profiles.find(x => x.id === state.activeId) || state.profiles[0];
+  if (!p.values || typeof p.values !== 'object') p.values = {};
+  if (!Array.isArray(p.garments)) p.garments = [];
+  return p;
 }
 
 export function profileSummary(state) {
