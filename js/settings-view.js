@@ -33,6 +33,10 @@ export async function renderSettings(v, version) {
     </div>
     <p class="tiny muted" style="margin:10px 0 0">Backups never include API keys or settings.</p>
   </section>
+  <section class="section"><p class="eyebrow">${icon('tape', 'xs')} Measurements</p>
+    <p class="small muted" style="margin:0 0 12px">A body measurement profile, saved on this device, for avatars and tech packs. Export a JSON file to use it later.</p>
+    <a class="btn btn-line btn-block" href="#/measure">${icon('tape', 'sm')} Measurement profile</a>
+  </section>
   <section class="section"><p class="eyebrow">Appearance</p>
     <div class="seg" id="sTheme">${[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']].map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${settings.theme === k}">${l}</button>`).join('')}</div></section>
   <section class="section flat"><p class="eyebrow">Install on iPhone</p><p class="small muted" style="margin:0">Open in Safari → Share → <b>Add to Home Screen</b>. Avata runs full-screen and works offline.</p></section>

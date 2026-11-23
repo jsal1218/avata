@@ -4,6 +4,7 @@ import { S, modelById, looksForModel, saveModel, deleteModel, uid } from './stor
 import { formatHeight, cmToFtIn, ftInToCm, measurementsText } from './prompt.js';
 import { analyseSheet, analyseWithSplit, cropHalf, resizeBlob, makeThumb } from './imaging.js';
 import { lookCard, bindLooks, openShowcase } from './looks.js';
+import { loadState, profileSummary } from './measure.js';
 
 /** Share the model's reference images (front, back) so the assistant can use them — free. */
 export async function shareRefs(m, extra = []) {
@@ -21,7 +22,9 @@ function specPills(m) {
 }
 export function renderModels(v) {
   setTop('Model Library', `<a class="btn btn-solid" href="#/import-model" style="min-height:38px">${icon('plus', 'sm')} Import</a>`);
+  const ms = profileSummary(loadState());
   v.innerHTML = `<h1 class="display fade-in">Your <em>models</em></h1><p class="lede">Reference sheets live only on this device. Front and back references, height and measurements — used to link mockups and to build prompts for your assistant.</p>
+  <a class="section ms-entry fade-in" href="#/measure">${icon('tape')}<div class="grow"><p class="eyebrow" style="margin:0">Measure</p><div class="nm">Measurement profile</div><div class="tiny muted">${esc(ms.name)} · ${ms.filled ? `${ms.filled} of ${ms.total} filled` : 'for tech packs and avatars'}</div></div><span class="btn btn-line" style="min-height:38px;flex:none">Open</span></a>
   ${S.models.length ? `<div class="lib">${S.models.map(m => `<a class="lib-card fade-in" href="#/model/${encodeURIComponent(m.id)}"><div class="ph"><img src="${urlFor(m.front)}" alt="${esc(m.name)} front" loading="lazy">${m.back ? `<img src="${urlFor(m.back)}" alt="${esc(m.name)} back" loading="lazy">` : ''}</div><div class="meta"><div class="nm">${esc(m.name)}</div>${specPills(m)}<div class="tiny muted" style="margin-top:6px">${m.outfits?.length > 1 ? `${m.outfits.length} outfits · ` : ''}${looksForModel(m.id).length} looks${m.measurements && measurementsText(m.measurements, m.measureUnit) ? ` · measurements${m.measurementsEstimated ? ' (est.)' : ''}` : ''}</div></div></a>`).join('')}</div>`
     : `<div class="empty"><div class="art">${icon('models')}</div><p class="display">No models yet</p><p>Import a front + back reference sheet to start.</p><a class="btn btn-solid" href="#/import-model">${icon('plus', 'sm')} Import sheet</a></div>`}
   <div class="note" style="margin-top:16px">${icon('image', 'sm')}<span><b>Sheet format:</b> one square image on white, the same model twice — front on the left, back on the right — full body head to toe, neutral pose, plain grey crop tank and fitted shorts, barefoot.</span></div>`;

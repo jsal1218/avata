@@ -395,3 +395,24 @@ dialog.sheet.showcase{background:#faf7f2;color:#1a1614}
 .sp-oc.lifted{position:relative;z-index:3;box-shadow:0 12px 26px rgba(0,0,0,.24);border-color:var(--ink);cursor:grabbing}
 .sp-of-grid.sorting .sp-oc:not(.lifted){opacity:.8}
 .of-drop{position:absolute;width:4px;margin-left:-.5px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px #fff;pointer-events:none;z-index:4}
+
+/* Measurement profile */
+button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--acc);font-size:12.5px;font-weight:600;letter-spacing:.02em;border-radius:0;display:inline;box-shadow:none}
+button.linkish:active{transform:none;opacity:.7}
+.ms-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:inherit;padding:16px}
+.ms-entry .nm{font-family:var(--serif);font-size:20px;line-height:1.15;margin:2px 0 4px}
+.ms-card .ms-diag,.ms-gdiags figure{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 8px 4px;margin:0 0 12px}
+.ms-svg{width:100%;height:auto;max-height:230px;color:var(--ink2);margin:0 auto;display:block}
+.ms-svg .ms-body{opacity:.5}
+.ms-svg .ms-tape{stroke:var(--acc);stroke-width:2.3;opacity:1}
+.ms-svg .ms-arrow{stroke:var(--acc);stroke-width:2.1;fill:none}
+.ms-svg text.ms-cap{stroke:none;fill:var(--muted);font-size:10px;font-family:var(--sans);letter-spacing:.02em;text-anchor:middle}
+.ms-svg text.ms-cap.start{text-anchor:start}
+.ms-svg text.ms-cap.end{text-anchor:end}
+.ms-how{margin:8px 0 0;font-size:13px;color:var(--ink2);line-height:1.45}
+.ms-warn{margin:6px 0 0;font-size:12.5px;color:var(--warn);line-height:1.4}
+.ms-gdiags{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ms-gdiags figcaption{font-size:11px;color:var(--muted);text-align:center;margin:4px 0 2px;line-height:1.3}
+@media (max-width:420px){.ms-gdiags{grid-template-columns:1fr}}
+
+.ms-entry > .i{width:28px;height:28px;color:var(--acc);flex:none}

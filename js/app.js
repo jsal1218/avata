@@ -6,14 +6,15 @@ import { renderStyles, renderStyleDetail, renderStyleEdit } from './styles-view.
 import { renderModels, renderModelDetail, renderImportModel } from './models-view.js';
 import { renderStudio } from './studio.js';
 import { renderSettings, applyTheme } from './settings-view.js';
+import { renderMeasure } from './measure.js';
 import { renderSpin } from './spin-view.js';
 import { initUpdates } from './update.js';
 
 // VERSION is stamped automatically by the pre-commit hook (.githooks/pre-commit). Do not edit by hand.
-export const VERSION = '2026.10.30-050812-56bb472';
+export const VERSION = '2026.11.23-123932-2d34e6b';
 
-const TITLES = { looks: 'Lookbook', 'import-looks': 'Import mockups', styles: 'Catalog', style: 'Style', 'style-edit': 'Style', models: 'Model Library', model: 'Model', 'import-model': 'Import model', studio: 'Prompt builder', spin: '360 spin', settings: 'Settings' };
-const TAB_OF = { looks: 'looks', 'import-looks': 'looks', styles: 'styles', style: 'styles', 'style-edit': 'styles', models: 'models', model: 'models', 'import-model': 'models', studio: 'models', spin: 'spin', settings: 'settings' };
+const TITLES = { looks: 'Lookbook', 'import-looks': 'Import mockups', styles: 'Catalog', style: 'Style', 'style-edit': 'Style', models: 'Model Library', model: 'Model', 'import-model': 'Import model', studio: 'Prompt builder', spin: '360 spin', measure: 'Measure', settings: 'Settings' };
+const TAB_OF = { looks: 'looks', 'import-looks': 'looks', styles: 'styles', style: 'styles', 'style-edit': 'styles', models: 'models', model: 'models', 'import-model': 'models', studio: 'models', spin: 'spin', measure: 'models', settings: 'settings' };
 
 function route() {
   const raw = (location.hash || '#/looks').slice(2);
@@ -29,7 +30,7 @@ function route() {
   scrollTo(0, 0);
   const id = decodeURIComponent(arg);
   ({ looks: () => renderLookbook(v), 'import-looks': () => renderImportLooks(v, params), styles: () => renderStyles(v), style: () => renderStyleDetail(v, id), 'style-edit': () => renderStyleEdit(v, id || 'new'),
-    models: () => renderModels(v), model: () => renderModelDetail(id), 'import-model': () => renderImportModel(v), studio: () => renderStudio(v, params), spin: () => renderSpin(v, id), settings: () => renderSettings(v, VERSION) })[t]();
+    models: () => renderModels(v), model: () => renderModelDetail(id), 'import-model': () => renderImportModel(v), studio: () => renderStudio(v, params), spin: () => renderSpin(v, id), measure: () => renderMeasure(v), settings: () => renderSettings(v, VERSION) })[t]();
 }
 
 async function boot() {
